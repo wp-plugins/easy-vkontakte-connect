@@ -95,7 +95,7 @@ function evc_app_id() {
   </ol>
   <p>Если приложение с этими настройками у вас было создано ранее, вы можете найти его на <a href="http://vk.com/apps?act=settings" target="_blank">странице приложений</a> и, нажав "Редактировать", найти его ID.</p>
   '; 
-  if (empty($options['app_id']) || 1 == 1)
+  if (empty($options['app_id']))
     echo $out;
 
   echo "<input type='text' id='evcappid' name='evc_options[app_id]' value='{$options['app_id']}' size='40' /> (required)";  

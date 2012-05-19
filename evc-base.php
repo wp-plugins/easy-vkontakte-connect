@@ -325,7 +325,7 @@ function evc_publish_auto_check($new, $old, $post) {
 }
 
 function evc_wall_post ($id, $post) {
-  global $post;  
+
   $options = get_option('evc_options');   
   //if (!empty($options)) extract($options);
     

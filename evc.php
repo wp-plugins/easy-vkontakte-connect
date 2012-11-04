@@ -3,7 +3,7 @@
 Plugin Name: Easy VKontakte Connect
 Plugin URI: http://ukraya.ru/easy-vkontakte-connect/
 Description: Autopublish blog posts with pictures to VKontakte wall
-Version: 0.1
+Version: 0.2
 Author: Aleksej Solovjov
 Author URI: http://ukraya.ru
 License: GPL2

@@ -2,8 +2,8 @@
 Contributors: alekseysolo
 Tags: vkontakte, autopublish, post, social, share
 Requires at least: 3.2
-Tested up to: 3.3
-Stable tag: 0.1
+Tested up to: 3.4
+Stable tag: 0.2
 
 This plugin allows you autopublish blog posts with pictures to VKontakte wall. 
 
@@ -28,11 +28,6 @@ Requires WordPress 3.2 and PHP 5.
 * Отметить категории, статьи из которых не будут автоматически опубликованы ВКонтакте
 
 
-**Скоро**
-
-* Автоматичекая публикация на стене ВКонтакте статей, которые были созданы на сайте до установки плагина, согласно заданному графику.
-
-
 **Дополнительные возможности**
 
 Предложения о дополнительных возможностях оставляйте на сайте плагина: http://ukraya.ru/easy-vkontakte-connect
@@ -51,6 +46,9 @@ Requires WordPress 3.2 and PHP 5.
 3. Edit Post Page.
 
 == Changelog ==
+
+= 0.2 =
+* Fix minor bugs.
 
 = 0.1 =
 * First stable release.

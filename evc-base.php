@@ -1,6 +1,5 @@
 <?php
 
-
 define('EVC_API_URL','https://api.vk.com/method/');
 
 
@@ -8,17 +7,32 @@ register_activation_hook(__FILE__,'evc_activate');
 function evc_activate (){
   $options = get_option('evc_options');
   
-  if (!isset($options) || empty($options)) {
-    $options = array(
-      'autopublish' => 0,
-      'from_group' => 'enable',
-      'add_link' => 'enable',
-      'upload_photo_count' => 4,
-      'excerpt_length' => 25,
-      'message' => "%title%\n\n%excerpt%"
-    );
-    add_option('evc_options', $options);     
+  $defaults = array(
+    'autopublish' => 0,
+    'from_group' => 'enable',
+    'add_link' => 'enable',
+    'upload_photo_count' => 4,
+    'excerpt_length' => 25,
+    'excerpt_length_strings' => 2688,
+    'message' => "%title%\n\n%excerpt%"
+  );  
+  if (!$options) {
+    update_option('evc_options', $defaults);     
   }  
+  else {
+    foreach($defaults as $key => $value) {
+      if (in_array($key, array('from_group', 'add_link', 'signed')) && !isset($options[$key]))
+        unset ($defaults[$key]);   
+    }
+    update_option('evc_options', wp_parse_args($options, $defaults));     
+  }
+}
+
+
+// load all the subplugins
+add_action('plugins_loaded','evc_plugin_loader');
+function evc_plugin_loader() {
+  include_once('evc-stats.php');
 }
 
 
@@ -26,11 +40,9 @@ function evc_activate (){
 add_action('admin_menu', 'evc_add_page');
 function evc_add_page() {
   global $evc_options_page;
-  // http://codex.wordpress.org/Function_Reference/add_submenu_page
-  //add_management_page( $page_title, $menu_title, $capability, $menu_slug, $function =  )
-  $evc_options_page = add_options_page('Easy VKontakte Connect', 'Easy VKontakte Connect', 'manage_options', 'evc', 'evc_options_page');
-  
-  //add_action("load-$evc_options_page", 'evc_plugin_help');
+
+  add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_options_page', '', '99.02' ); 
+  $page = add_submenu_page( 'evc', 'Options Easy VKontakte Connect', 'Options', 'activate_plugins', 'evc', 'evc_options_page' );
 }
 
 
@@ -38,17 +50,18 @@ function evc_add_page() {
 add_action('admin_init', 'evc_admin_init'); 
 function evc_admin_init(){
   global $evc_options_page; 
+  evc_activate();
   $options = get_option('evc_options');
+
+
   
   if (empty($options['app_id']) || empty($options['page_id']) || empty($options['access_token'])) {
     add_action('admin_notices', create_function( '', "echo '<div class=\"error\"><p>".sprintf(__('Необходимо настроить плагин Easy VKontakte Connect на его <a href="%s">странице</a>.', 'evc'), admin_url('options-general.php?page=evc'))."</p></div>';" ) );
   }
-
-  wp_enqueue_script('jquery');  
-  // HELP
-  // register_setting( $option_group, $option_name, $sanitize_callback );
-  // add_settings_section( $id, $title, $callback, $page );  
-  // add_settings_field( $id, $title, $callback, $page, $section, $args );
+ 
+  wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
+  wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery'), '1.0', true);  
+  wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
 
   register_setting( 'evc_options', 'evc_options', 'evc_options_validate' );  
   
@@ -66,9 +79,7 @@ function evc_admin_init(){
   add_settings_field('evc_photo_count', 'Изображения', 'evc_photo_count', 'evc', 'evc_publish');
   add_settings_field('evc_excerpt_length', 'Анонс', 'evc_excerpt_length', 'evc', 'evc_publish');
   add_settings_field('evc_message_mask', 'Сообщение', 'evc_message', 'evc', 'evc_publish'); 
-  
-  //add_action("load-$csv_export_page", 'csv_exp_do_export');
-  
+ 
 }
 
 
@@ -187,7 +198,7 @@ function evc_photo_count() {
   $options = get_option('evc_options'); 
   ?>
   <select name="evc_options[upload_photo_count]" id="evc_upload_photo_count">
-  <?php for($i = 1; $i < 6; $i++ ){ ?>
+  <?php for($i = 0; $i < 6; $i++ ){ ?>
     <option value="<?php echo $i; ?>"<?php selected($i, $options['upload_photo_count']); ?>><?php echo $i; ?></option>
   <?php } ?>
   </select>
@@ -199,6 +210,9 @@ function evc_excerpt_length () {
   $options = get_option('evc_options');   
   echo '<input type="text" class="small-text" value="'.$options['excerpt_length'].'" name="evc_options[excerpt_length]">';
   echo '<p>Сколько слов из статьи опубликовать в качестве анонса ВКонтакте?</p>';
+  echo '<input type="text" class="small-text" value="'.$options['excerpt_length_strings'].'" name="evc_options[excerpt_length_strings]">';  
+  echo '<p>Сколько <strong>знаков</strong> из статьи опубликовать в качестве анонса ВКонтакте? 
+  <br/><strong>Не рекомендуется</strong> больше 2688.</p>';
 }
 
 function evc_message () {
@@ -206,8 +220,9 @@ function evc_message () {
   ?>
   <p><label>
   <textarea cols="50" rows="3" name="evc_options[message]"><?php echo esc_textarea($options['message']); ?></textarea></label><br/>Маска сообщения на стене ВКонтакте:</p>
-  <ul><li><strong>%title%</strong> - заголовок статьи</li>
-  <li><strong>%excerpt%</strong> - анонс статьи</li></ul>
+  <ul><li><strong>%title%</strong> - заголовок статьи,</li>
+  <li><strong>%excerpt%</strong> - анонс статьи,</li>
+  <li><strong>%link%</strong> - ссылка на статью.</li></ul>
   <?php
 }
 
@@ -278,21 +293,9 @@ function evc_options_page() {
         <td style='vertical-align:top; width:25%; '>
           <div style='width:20em; float:right; background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
             <h3 align='center'><?php _e('Хотите Больше Возможностей?',''); ?></h3>
-            <p>Предложения о дополнительных возможностях оставляйте на <a href = "http://ukraya.ru/easy-vkontakte-connect">сайте плагина</a>.</p>
+            <p>Предложения о дополнительных возможностях оставляйте на <a href = "http://ukraya.ru/tag/easy-vkontakte-connect">сайте плагина</a>.</p>
           </div>
-          
-          
-            <?php 
-            /*
-            <div style = "width:20em; float:right; border: 1px solid #333; margin: 2px; padding: 5px;">
-            
-            <h3 align='center'><?php _e('Новости',''); ?></h3>
-            
-            //wp_widget_rss_output('http://',array('show_date' => 1, 'items' => 6) ); 
-            
-            </div>
-            */
-            ?>
+
         </td>
       </tr></table>
       
@@ -306,12 +309,26 @@ add_action('post_submitbox_misc_actions','evc_wall_post_check_box');
 function evc_wall_post_check_box() {
   global $post;
   $options = get_option('evc_options');
-  //if ($post->post_status == 'publish') return;
+  
+  $captcha = get_post_meta($post->ID, '_evc_wall_post_captcha', true);
+  if (isset($captcha) && !empty($captcha))
+    $options['wall_post_flag'] = true;
 ?>
 <div class="misc-pub-section">
-<input type="checkbox" <?php checked($options['wall_post_flag'],true); ?> name="evc_wall_post" /> Опубликовать на стене ВКонтакте (EVC)
-</div>
+<p><input type="checkbox" <?php checked($options['wall_post_flag'],true); ?> name="evc_wall_post" /> Опубликовать на стене ВКонтакте (EVC)</p>
+
+<?php
+  if (isset($captcha) && !empty($captcha)) {
+?>
+<p><span style = "color: #FF0000; border-bottom: 1px solid #FF0000;">Не опубликовано!</span>
+<br/><img src = "<?php echo $captcha['img']; ?>" style = "margin:10px 0 3px;" />
+<br/><input type="hidden" name="captcha_sid" value="<?php echo $captcha['sid']; ?>"><input type="text" value="" autocomplete="off" size="16" class="form-input-tip" name="captcha_key">
+<br/>Введите текст с картинки, чтобы опубликовать запись ВКонтакте.</p>
 <?php 
+  }
+?>
+</div>
+<?php
 }
 
 // this function prevents edits to existing posts from auto-posting
@@ -327,13 +344,7 @@ function evc_publish_auto_check($new, $old, $post) {
 function evc_wall_post ($id, $post) {
 
   $options = get_option('evc_options');   
-  //if (!empty($options)) extract($options);
-    
-  // check to make sure post is published
-  //if ($post->post_status !== 'publish') return;
   
-  //if ( empty($_POST['evc_wall_post']) && !defined('DOING_CRON') && !defined('IFRAME_REQUEST') ) return;  
-
   // Post to wall 
   $m = array();
   preg_match_all('/%([\w-]*)%/m', $options['message'], $mt, PREG_PATTERN_ORDER);
@@ -346,56 +357,100 @@ function evc_wall_post ($id, $post) {
   } 
 
   if (in_array('excerpt', $mt[1]))
-    $m['%excerpt%'] = evc_make_excerpt($post);
+    $m['%excerpt%'] = evc_make_excerpt($post); 
   
+  if (in_array('link', $mt[1]))
+    $m['%link%'] = apply_filters('evc_publish_permalink', null, $post->ID);    
+
   $message = str_replace( array_keys($m), array_values($m), $options['message'] );
   $message = strip_tags($message);
   $message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
-  $message = htmlspecialchars_decode($message);
+  $message = htmlspecialchars_decode($message);  
+ 
+  $permalink = $options['add_link'] ? apply_filters('evc_publish_permalink', wp_get_shortlink($post->ID), $post->ID) : ''; 
   
-  
-  $permalink = $options['add_link'] ? apply_filters('evc_publish_permalink', wp_get_shortlink($post->ID), $post->ID) : '';
-
+  $attach = array();
   $images = evc_upload_photo($id, $post);  
   if ($images['i'])
     $attach[] = implode(',',$images['i']);
   if (!empty($permalink))
     $attach[] = $permalink;
-  $attachments = implode(',', $attach);
-  
   
   $params = array();
+   
   $params = array(
     'access_token' => $options['access_token'],  
     'owner_id' => '-' . $options['page_id'],
-    'from_group' => $options['from_group'], // 1: from group name; 0: from username
-    'signed' => $options['signed'], // add username to post?
+    // 1: from group name; 0: from username
+    'from_group' => $options['from_group'], 
+    // add username to post?
+    'signed' => isset($options['signed']) && !empty($options['signed']) ? $options['signed'] : 0,
     'message' => $message,     
-    'attachments' => $attachments // if no attachments - 'message' is available
-  ); 
-  $query = http_build_query($params);  
+    // if no attachments - 'message' is available
+    //'attachments' => $attachments 
 
+  ); 
+  
+  // CAPTCHA
+  if (isset($_POST['captcha_sid']) && isset($_POST['captcha_key']) && !empty($_POST['captcha_sid']) && !empty($_POST['captcha_key']) ) {
+    $params['captcha_sid'] = $_POST['captcha_sid'];
+    $params['captcha_key'] = trim($_POST['captcha_key']);
+  }
+  
+  if (!empty($attach))
+    $params['attachments'] = implode(',', $attach);
+    
+  $query = http_build_query($params);  
+  
   $data = wp_remote_get(EVC_API_URL.'wall.post?'.$query); 
   
   if (is_wp_error($data))
     return $data->get_error_message();
   
   $resp = json_decode($data['body'],true);  
-  //print__r($resp);
-  if ($resp['error'])
-    return $resp['error']['error_code'] . ': ' . $resp['error']['error_msg'];  
-    
+
+  if ($resp['error']) {
+    if ($resp['error']['error_code'] == 14) {
+      $captcha = array(
+        'sid' => $resp['error']['captcha_sid'],
+        'img' => $resp['error']['captcha_img']
+      );
+      update_post_meta($post->ID, '_evc_wall_post_captcha', $captcha);
+          
+      if (!isset($options['error_email'])) {
+        // Admin Notification
+        $from = array('From:"'.get_option('blogname').'" <'.get_option('admin_email').'>');  
+
+        $message  = 'Запись ВКонтакте не опубликована' . "\r\n\r\n";
+        $message  .= 'Требуется captcha (пройдите по ссылке): ' . admin_url('post.php?post='.$post->ID.'&action=edit') . "\r\n\r\n";
+        $message  .= 'ВНИМАНИЕ!'."\r\n".'Это уведомление отправляется только ОДИН раз.'."\r\n".'Пока не введена captcha дальнейшая публикация записей ВКонтакте НЕВОЗМОЖНА.';
+        $message  .= "\r\n\r\n".'Ответы на ваши вопросы можно найти тут: .';
+        $message  .= "\r\n\r\n".'Спасибо, что выбрали Easy VKontakte Connect (EVC), пожалуй один из лучших плагинов интеграции с ВКонтактом )';
+
+        @wp_mail(get_option('admin_email'), 'EVC: требуется captcha!', $message, $from);
+
+        $options['error_email'] = current_time('timestamp', 1);
+      }
+    }
+  }
+  else {
+    delete_post_meta($post->ID, '_evc_wall_post_captcha');
+    unset($options['error_email']);  
+  }
+  update_option('evc_options', $options);     
+
   // Wall Post with link  
-  if ($resp['response']['processing'] || $resp['response']['post_id'])
+  if ($resp['response']['processing'] || $resp['response']['post_id']) {
     update_post_meta($post->ID, '_evc_wall_post', date("Y-m-d H:i:s"));
-    
+    update_post_meta($post->ID, '_evc_wall_post_id', $resp['response']['post_id']);
+  }
+
   return true;
 }
 
 function evc_upload_photo($id, $post) {
   
   $options = get_option('evc_options');
-  //if (!empty($options)) extract($options);
   
   if (!$options['upload_photo_count'])
     return false;
@@ -439,7 +494,6 @@ function evc_upload_photo($id, $post) {
   $resp = json_decode($data['body'],true);
   if (!$resp['response']['upload_url'])
     return false;
-  //print__r($resp);
     
   // Upload photo to server  
   $curl = new Wp_Http_Curl();
@@ -454,7 +508,6 @@ function evc_upload_photo($id, $post) {
   $resp = json_decode($data['body'],true);
   if (!$resp['photo'])
     return false;
-  //print__r($resp);  
   
   // Save Wall Photo
   $params = array();
@@ -506,9 +559,9 @@ function evc_make_excerpt($post) {
 
   $text = str_replace(']]>', ']]&gt;', $text);
   $text = wp_strip_all_tags($text);
-  $text = str_replace(array("\r\n","\r","\n"),' ',$text);
+  $text = str_replace(array("\r\n","\r","\n"),"\n\n",$text);
 
-  $excerpt_more = apply_filters('excerpt_more', '[...]');
+  $excerpt_more = apply_filters('excerpt_more', '...');
   $excerpt_more = html_entity_decode($excerpt_more, ENT_QUOTES, 'UTF-8');
   $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
   $text = htmlspecialchars_decode($text);
@@ -523,6 +576,30 @@ function evc_make_excerpt($post) {
   if (count($words) >= $max) {
     $words = array_slice($words, 0, $max);
     array_push ($words, $excerpt_more);
+    $text = implode(' ', $words);
+  }
+  
+  $text = evc_excerpt_strlen($text);
+  
+  return $text;
+}
+
+
+function evc_excerpt_strlen ($text, $max_strlen = 2688) {
+  $options = get_option('evc_options');  
+  if (isset($options['excerpt_length_strings']) && !empty($options['excerpt_length_strings'])) {
+    $max_strlen = $options['excerpt_length_strings'] > $max_strlen ? $max_strlen : $options['excerpt_length_strings'];
+  }
+  
+  if (strlen($text) >= $max_strlen) {
+    $text = substr($text, 0, $max_strlen);
+    $words = explode(' ', $text);
+    array_pop($words); // strip last word
+    
+    $excerpt_more = apply_filters('excerpt_more', '...');
+    $excerpt_more = html_entity_decode($excerpt_more, ENT_QUOTES, 'UTF-8');
+    array_push ($words, $excerpt_more);
+    
     $text = implode(' ', $words);
   }
 

@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Easy VKontakte Connect
-Plugin URI: http://ukraya.ru/easy-vkontakte-connect/
-Description: Autopublish blog posts with pictures to VKontakte wall
-Version: 0.2
+Plugin URI: http://ukraya.ru/tag/easy-vkontakte-connect/
+Description: VKontakte Wall Analytics,  Autopublish blog posts with pictures to VKontakte wall, 
+Version: 1.0
 Author: Aleksej Solovjov
 Author URI: http://ukraya.ru
 License: GPL2
@@ -27,7 +27,7 @@ License: GPL2
 
 
 function evc_version() {
-  return '0.1';
+  return '1.0';
 }
 
 // prevent parsing errors on PHP 4 or old WP installs

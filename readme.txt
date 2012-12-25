@@ -54,6 +54,7 @@ Requires WordPress 3.2 and PHP 5.
 1. Option Page - 1.
 2. Option Page - 2.
 3. Edit Post Page.
+4. VKontakte Wall Analytics page.
 
 == Changelog ==
 

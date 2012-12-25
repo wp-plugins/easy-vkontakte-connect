@@ -5,6 +5,10 @@ define('EVC_API_URL','https://api.vk.com/method/');
 
 register_activation_hook(__FILE__,'evc_activate');
 function evc_activate (){
+  $use_smilies = get_option('use_smilies');
+  if ($use_smilies)
+    update_option('use_smilies', false);   
+  
   $options = get_option('evc_options');
   
   $defaults = array(
@@ -59,9 +63,12 @@ function evc_admin_init(){
     add_action('admin_notices', create_function( '', "echo '<div class=\"error\"><p>".sprintf(__('Необходимо настроить плагин Easy VKontakte Connect на его <a href="%s">странице</a>.', 'evc'), admin_url('options-general.php?page=evc'))."</p></div>';" ) );
   }
  
-  wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
-  wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery'), '1.0', true);  
+  // Isotope DEPRECATED because:
+  // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/ 
+  //wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
+  wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry'), '1.0', true);  
   wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
+  wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
 
   register_setting( 'evc_options', 'evc_options', 'evc_options_validate' );  
   

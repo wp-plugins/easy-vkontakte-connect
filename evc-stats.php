@@ -116,8 +116,8 @@ function evc_stats_page() {
                   
 <ul class="nav evc-stats-options" data-option-key="sortBy">
   <li><a href="javascript:void(0)" class = "external totop" rel="tooltip" data-original-title="Наверх" data-placement="bottom" ><i class="icon-circle-arrow-up icon"></i></a></li>                  
-  <li class="active" data-key="sortBy"><a data-value = "dates" href="javascript:void(0)" rel="tooltip" data-original-title="Сортировать по времени публикации" data-placement="bottom" ><i class="icon-time icon"></i></a></li>                    
-  <li data-key="sortBy"><a data-value = "likes" href="javascript:void(0)" rel="tooltip" data-original-title="Сортировать по лайкам" data-placement="bottom"><i class="icon-heart icon"></i></a></li>
+  <li class="active" data-key="sortBy" data-option-value="date"><a data-value = "dates" href="javascript:void(0)" rel="tooltip" data-original-title="Сортировать по времени публикации" data-placement="bottom" ><i class="icon-time icon"></i></a></li>                    
+  <li data-key="sortBy" data-option-value="likes"><a data-value = "likes" href="javascript:void(0)" rel="tooltip" data-original-title="Сортировать по лайкам" data-placement="bottom"><i class="icon-heart icon"></i></a></li>
   <li data-key="sortBy" data-option-value="reposts"><a data-value = "reposts" href="javascript:void(0)" data-placement="bottom" rel="tooltip" data-original-title="Сортировать по репостам"><i class="icon-bullhorn icon"></i></a></li>
   <li data-key="sortBy" data-option-value="comments"><a data-value = "comments" href="javascript:void(0)" data-placement="bottom" rel="tooltip" data-original-title="Сортировать по комментариям"><i class="icon-comment icon"></i></a></li>
                         
@@ -318,7 +318,7 @@ function evc_stats_the_vkpost($w, $owner_id, $screen_name = '') {
           <span class = "likes"><i class="icon-heart icon-white"></i> '.$pm['likes'].'</span> <span class = "reposts"><i class="icon-bullhorn icon-white"></i> '.$pm['reposts'].'</span> <span class = "comments"><i class="icon-comment icon-white"></i> '.$pm['comments'].'</span>
         </div>
         <div class = "a01_meta">
-          <a href = "'.$url.'">'.$time . '<br/><span class = "a01_date" data-date-gmt = "'.$w['date'].'" >'.$date.'</span></a>
+          <a href = "'.$url.'">'.$time . '<br/><span class = "a01_date" data-date-gmt = "'.$w['date'].'" >'.$date.'</span><span class = "date hide" >'.$w['date'].'</span></a>
         </div></div>
       </div>
     </div>

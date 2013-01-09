@@ -5,11 +5,11 @@ Requires at least: 3.2
 Tested up to: 3.5
 Stable tag: 1.0
 
-This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
+This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. Автопубликация записей на стене и анализ групп ВКонтакте. 
 
 == Description ==
 
-This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
+This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics. Автопубликация записей на стене и анализ групп ВКонтакте. 
 
 * Uses the API VKontakte
 * **NEW in 1.0** Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time

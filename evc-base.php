@@ -387,7 +387,7 @@ function evc_wall_post ($id, $post) {
    
   $params = array(
     'access_token' => $options['access_token'],  
-    'owner_id' => '-' . $options['page_id'],
+    'owner_id' => apply_filters('evc_wall_post_gid', '-' . $options['page_id'], $post),
     // 1: from group name; 0: from username
     'from_group' => $options['from_group'], 
     // add username to post?

@@ -214,7 +214,7 @@ function evc_stats_get_group_posts($owner_id, $captcha = array()) {
  
   $query = http_build_query($params);
 
-  $data = wp_remote_get(EVC_API_URL.'wall.get?'.$query);
+  $data = wp_remote_get(EVC_API_URL.'wall.get?'.$query, array('sslverify' => false));
  
   if (is_wp_error($data)) {
     echo evc_wp_error_handler($data, 'evc_stats_get_group_posts');
@@ -368,7 +368,7 @@ function evc_stats_get_group_id($gurl) {
   $params = apply_filters('evc_vk_query', $params);   
    
   $query = http_build_query($params);
-  $data = wp_remote_get(EVC_API_URL.'groups.getById?'.$query);
+  $data = wp_remote_get(EVC_API_URL.'groups.getById?'.$query, array('sslverify' => false));
   
   if (is_wp_error($data)) {
     echo evc_wp_error_handler($data, 'evc_stats_get_group_id');
@@ -492,8 +492,8 @@ function evc_stats_admin_bar_group_analytics () {
   global $wp_admin_bar;
   
   // Don't show for logged out users.
-  if ( ! is_user_logged_in() )
-    return;
+  if ( ! is_user_logged_in() || !current_user_can('publish_posts') )
+    return;  
       
   $wp_admin_bar->add_menu( array(
     'id'    => 'evc_stats',

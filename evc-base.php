@@ -125,12 +125,12 @@ function evc_access_token() {
   ?>  
   <script type="text/javascript">     
     jQuery("#evcappid").change( function() {
-      jQuery('#getaccesstokenurl').attr({'href': 'http://oauth.vk.com/authorize?client_id='+ jQuery(this).val().trim() +'&scope=wall,photos,messages,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token', 'target': '_blank'});
+      jQuery('#getaccesstokenurl').attr({'href': 'http://oauth.vk.com/authorize?client_id='+ jQuery(this).val().trim() +'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token', 'target': '_blank'});
     });   
   </script>
   
   <?php 
-  $get_access_token_url = (!empty($options['app_id'])) ? 'http://oauth.vk.com/authorize?client_id='.$options['app_id'].'&scope=wall,photos,messages,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token' : 'javascript:void(0);';
+  $get_access_token_url = (!empty($options['app_id'])) ? 'http://oauth.vk.com/authorize?client_id='.$options['app_id'].'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token' : 'javascript:void(0);';
       
   echo '<p>Чтобы получить <strong>Access Token</strong></p>
   <ol>
@@ -409,7 +409,7 @@ function evc_wall_post ($id, $post) {
     
   $query = http_build_query($params);  
   
-  $data = wp_remote_get(EVC_API_URL.'wall.post?'.$query); 
+  $data = wp_remote_get(EVC_API_URL.'wall.post?'.$query, array('sslverify' => false)); 
   
   if (is_wp_error($data))
     return $data->get_error_message();
@@ -488,12 +488,12 @@ function evc_upload_photo($id, $post) {
  
   $params = array(
     'access_token' => $options['access_token'],
-    'gid' => -$options['page_id']
+    'gid' => $options['page_id'] // Removed minus sign
   );
   
   // Get Wall Upload Server
   $query = http_build_query($params);
-  $data = wp_remote_get(EVC_API_URL.'photos.getWallUploadServer?'.$query);
+  $data = wp_remote_get(EVC_API_URL.'photos.getWallUploadServer?'.$query, array('sslverify' => false));
     
   if (is_wp_error($data))
     return $data->get_error_message();
@@ -520,13 +520,13 @@ function evc_upload_photo($id, $post) {
   $params = array();
   $params = array(
     'access_token' => $options['access_token'],
-    'gid' => -$options['page_id'],
+    'gid' => $options['page_id'], // Removed minus sign
     'server' => $resp['server'],
     'photo' => $resp['photo'],
     'hash' => $resp['hash']
   ); 
   $query = http_build_query($params);
-  $data = wp_remote_get(EVC_API_URL.'photos.saveWallPhoto?'.$query);   
+  $data = wp_remote_get(EVC_API_URL.'photos.saveWallPhoto?'.$query, array('sslverify' => false));   
  
   if (is_wp_error($data))
     return $data->get_error_message();

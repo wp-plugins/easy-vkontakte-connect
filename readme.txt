@@ -5,7 +5,7 @@ Requires at least: 3.2
 Tested up to: 3.5
 Stable tag: 1.0
 
-This plugin allows you autopublish posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
+This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
 
 == Description ==
 
@@ -57,6 +57,12 @@ Requires WordPress 3.2 and PHP 5.
 4. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.1 =
+* **Important:** Correct to correspond VK API changes in photos.getWallUploadServer, photos.saveWallPhoto.
+* **Important:** Correct access token scopes.
+* Set sslverify = false in wp_remote_get.
+* Add capability to show link to Group Analytics in admin bar.
 
 = 1.0 =
 * **New:** Provide VKontakte Wall Analytics.

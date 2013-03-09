@@ -27,7 +27,7 @@ License: GPL2
 
 
 function evc_version() {
-  return '1.0';
+  return '1.1';
 }
 
 // prevent parsing errors on PHP 4 or old WP installs

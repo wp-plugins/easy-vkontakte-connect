@@ -5,20 +5,9 @@ Requires at least: 3.2
 Tested up to: 3.8
 Stable tag: 1.1
 
-This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
+Автопубликация записей с фото на стене ВКонтакте, анализ групп ВКонтакте и все виджеты для сайтов.
 
 == Description ==
-
-This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
-
-* Uses the API VKontakte
-* **NEW in 1.0** Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time
-* Automatically publish new posts on the VKontakte wall
-* Manually publish posts on the VKontakte wall
-* Publish images attached to the posts on the VKontakte wall 
-* Note categories of posts which are ecluded from autopublish to VKontakte wall
-
-Requires WordPress 3.2 and PHP 5.
 
 Плагин позволяет публиковать на стене ВКонтакте статьи в автоматическом и ручном режиме вместе с изображениями, прикрепленными к статье и позволяет **анализировать сообщения со стены любой группы ВКонтакте** по лайкам, респостам, комментариям и времени публикации.
 
@@ -38,10 +27,26 @@ Requires WordPress 3.2 and PHP 5.
 * Отметить категории, статьи из которых не будут автоматически опубликованы ВКонтакте
 
 
+**TODO**
+
+В скором времени будут добавлены все "Виджеты для сайтов" ВКонтакте http://vk.com/dev/sites
+
+
 **Дополнительные возможности**
 
 Предложения о дополнительных возможностях оставляйте на сайте плагина: http://ukraya.ru/tag/easy-vkontakte-connect
 
+
+This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
+
+* Uses the API VKontakte
+* **NEW in 1.0** Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time
+* Automatically publish new posts on the VKontakte wall
+* Manually publish posts on the VKontakte wall
+* Publish images attached to the posts on the VKontakte wall 
+* Note categories of posts which are ecluded from autopublish to VKontakte wall
+
+Requires WordPress 3.2 and PHP 5.
 
 == Installation ==
 

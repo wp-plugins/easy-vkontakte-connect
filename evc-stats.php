@@ -38,8 +38,8 @@ function evc_stats_page() {
     <h2><?php _e('Анализ групп ВКонтакте', 'evc'); ?></h2>
 <div class = "bootstrap-wpadmin">
 <div class = "well" style = "margin-top:10px;">
+<div><b><a href = "http://vk.com/wordpressvk" target = "_blank">WordPress ВКонтакте</a></b>.</div>
 <div><b>С чего начать:</b> <b><a href = "http://ukraya.ru/46/easy-vkontakte-connect-1-0-avtoposting-na-stenu-gruppy-s-kartinkami-analiz-grupp-vkontakte">руководство</a></b> по работе с модулем, все <a href = "http://ukraya.ru/44/analiz-grupp-vkontakte-s-plaginom-easy-vkontakte-connect-evc-1-0">возможности</a> пакета EVC 1.0, <b><a href = "http://ukraya.ru/116/reshenie-problem-po-rabote-s-plaginom-easy-vkontakte-connect-evc-1-1">техническая поддержка</a></b>.</div>
-<div><b>Как монетизировать:</b> партнерские программы, например <b><a href = "http://goo.gl/bU3m1">AD1</a></b>.</div>
 </div>    
 </div>
       

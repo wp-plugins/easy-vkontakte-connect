@@ -300,6 +300,7 @@ function evc_options_page() {
         <td style='vertical-align:top; width:25%; '>
           <div style='width:20em; float:right; background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
             <h3 align='center'><?php _e('Хотите Больше Возможностей?',''); ?></h3>
+            <p><a href = "http://vk.com/wordpressvk" target = "_blank">WordPress ВКонтакте</a>.</p>
             <p>Предложения о дополнительных возможностях оставляйте на <a href = "http://ukraya.ru/tag/easy-vkontakte-connect">сайте плагина</a>.</p>
           </div>
 

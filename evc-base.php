@@ -8,45 +8,23 @@ function evc_activate (){
   $use_smilies = get_option('use_smilies');
   if ($use_smilies)
     update_option('use_smilies', false);   
-  
-  $options = get_option('evc_options');
-  
-  $defaults = array(
-    'autopublish' => 0,
-    'from_group' => 'enable',
-    'add_link' => 'enable',
-    'upload_photo_count' => 4,
-    'excerpt_length' => 25,
-    'excerpt_length_strings' => 2688,
-    'message' => "%title%\n\n%excerpt%"
-  );  
-  if (!$options) {
-    update_option('evc_options', $defaults);     
-  }  
-  else {
-    foreach($defaults as $key => $value) {
-      if (in_array($key, array('from_group', 'add_link', 'signed')) && !isset($options[$key]))
-        unset ($defaults[$key]);   
-    }
-    update_option('evc_options', wp_parse_args($options, $defaults));     
-  }
 }
+
 
 
 // load all the subplugins
 add_action('plugins_loaded','evc_plugin_loader');
 function evc_plugin_loader() {
+  include_once('evc-share.php');
   include_once('evc-stats.php');
 }
-
 
 // add the theme page
 add_action('admin_menu', 'evc_add_page');
 function evc_add_page() {
   global $evc_options_page;
-
-  add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_options_page', '', '99.02' ); 
-  $page = add_submenu_page( 'evc', 'Options Easy VKontakte Connect', 'Options', 'activate_plugins', 'evc', 'evc_options_page' );
+  
+	add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_vk_api_settings_page', '', '99.02' ); 
 }
 
 
@@ -55,206 +33,23 @@ add_action('admin_init', 'evc_admin_init');
 function evc_admin_init(){
   global $evc_options_page; 
   evc_activate();
-  $options = get_option('evc_options');
-
-
-  
-  if (empty($options['app_id']) || empty($options['page_id']) || empty($options['access_token'])) {
-    add_action('admin_notices', create_function( '', "echo '<div class=\"error\"><p>".sprintf(__('Необходимо настроить плагин Easy VKontakte Connect на его <a href="%s">странице</a>.', 'evc'), admin_url('options-general.php?page=evc'))."</p></div>';" ) );
-  }
+  //$options = get_option('evc_options');
  
   // Isotope DEPRECATED because:
   // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/ 
   //wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
+	
   wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry'), '1.0', true);  
   wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
   wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
-
-  register_setting( 'evc_options', 'evc_options', 'evc_options_validate' );  
   
-  add_settings_section('evc_main', __('Основные настройки', ''), 'evc_main_text', 'evc');
-  add_settings_field('evc_app_id', 'ID приложения', 'evc_app_id', 'evc', 'evc_main');
-  add_settings_field('evc_access_token', 'Access Token', 'evc_access_token', 'evc', 'evc_main');
-  add_settings_field('evc_page_id', 'ID страницы ВКонтакте', 'evc_page_id', 'evc', 'evc_main');
-  add_settings_field('evc_autopublish', 'Автопубликация', 'evc_autopublish', 'evc', 'evc_main');
-
-  add_settings_section('evc_wall', __('На стене ВКонтакте', ''), 'evc_wall_text', 'evc');
-  add_settings_field('evc_from_options', 'Сообщение ВКонтакте', 'evc_wall_options', 'evc', 'evc_wall');
- 
-  add_settings_section('evc_publish', __('Настройки публикации', ''), 'evc_publish_text', 'evc');
-  add_settings_field('evc_exclude_cats', 'Исключить категории', 'evc_exclude_cats', 'evc', 'evc_publish');
-  add_settings_field('evc_photo_count', 'Изображения', 'evc_photo_count', 'evc', 'evc_publish');
-  add_settings_field('evc_excerpt_length', 'Анонс', 'evc_excerpt_length', 'evc', 'evc_publish');
-  add_settings_field('evc_message_mask', 'Сообщение', 'evc_message', 'evc', 'evc_publish'); 
- 
-}
-
-
-function evc_main_text() {
-  $options = get_option('evc_options');  
-  ?>
-  <p>Основные настройки плагина Easy VKontakte Connect</p>
-  <?php  
-}
-
-function evc_app_id() {
-  $options = get_option('evc_options');
-  $url = get_bloginfo('wpurl');
-
-  $out = '<p>Чтобы получить <strong>ID приложения</strong>, необходимо <a href="http://vk.com/editapp?act=create" target="_blank">создать приложение</a> со следующими настройками:</p>
-  <ol>
-    <li><strong>Название:</strong> любое</li>
-    <li><strong>Тип:</strong> Standalone-приложение</li>
-  </ol>
-  <p>В настройках приложения необходимо установить параметры в разделе <strong>Open API</strong>:</p>
-  <ol>
-    <li><strong>Адрес сайта:</strong> ' . $url .'</li>
-    <li><strong>Базовый домен:</strong> '. basename($url) .'</li>
-  </ol>
-  <p>Если приложение с этими настройками у вас было создано ранее, вы можете найти его на <a href="http://vk.com/apps?act=settings" target="_blank">странице приложений</a> и, нажав "Редактировать", найти его ID.</p>
-  '; 
-  if (empty($options['app_id']) || 1 == 1)
-    echo $out;
-
-  echo "<input type='text' id='evcappid' name='evc_options[app_id]' value='{$options['app_id']}' size='40' /> (required)";  
-}
-
-function evc_access_token() {
-  $options = get_option('evc_options');
-
-  ?>  
-  <script type="text/javascript">     
-    jQuery("#evcappid").change( function() {
-      jQuery('#getaccesstokenurl').attr({'href': 'http://oauth.vk.com/authorize?client_id='+ jQuery(this).val().trim() +'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token', 'target': '_blank'});
-    });   
-  </script>
-  
-  <?php 
-  $get_access_token_url = (!empty($options['app_id'])) ? 'http://oauth.vk.com/authorize?client_id='.$options['app_id'].'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token' : 'javascript:void(0);';
-      
-  echo '<p>Чтобы получить <strong>Access Token</strong></p>
-  <ol>
-    <li>пройдите по <a href="'.$get_access_token_url.'" id = "getaccesstokenurl">ссылке</a>,</li>
-    <li>подтвердите уровень доступа,</li>
-    <li>скопируйте url открывшейся страницы в поле внизу.</li>
-  </ol>'; 
-
-  echo "<input type='text' id='evcaccesstokenurl' name='evc_options[access_token_url]' value='' size='40' />";    
-  
-  if (!empty($options['access_token']))
-    echo "<br/><input type='text' id='evcaccesstoken' name='evc_options[access_token]' value='".trim($options['access_token'])."' size='40' /> ";  
-}
-
-function evc_page_id() {
-  $options = get_option('evc_options');
-  
-  echo '<p>Вы можете создать для сайта <a href="http://vk.com/public.php?act=new" target="_blank">новую страницу</a> ВКонтакте или, если страница уже есть, найти ее среди ваших <a href="http://vk.com/public.php?act=newY" target="_blank">созданных страниц</a>. Чтобы увидеть page_id, нажмите "Рекламировать страницу", page_id - будет в адресной строке.</p>'; 
-  echo "<input type='text' id='evcpageid' name='evc_options[page_id]' value='{$options['page_id']}' size='40' /> (required)";  
-}
-
-
-function evc_autopublish () {
-  $options = get_option('evc_options');  
-  ?>
-  <ul>
-  <li><label><input type="radio" name="evc_options[autopublish]" value="1" <?php checked(1, $options['autopublish']); ?> /> <?php _e('Включено', 'evc'); ?></label></li>
-  <li><label><input type="radio" name="evc_options[autopublish]" value="0" <?php checked(0, $options['autopublish']); ?> /> <?php _e('Выключено', 'evc'); ?></label></li>
-  </ul>
-  <p>Автоматическая публикация новых материалов на стене ВКонтакте</p>
-  <?php 
-}
-
-
-function evc_wall_text() {
-  $options = get_option('evc_options');  
-  ?>
-  <p>Как сообщение будет выглядеть на стене ВКонтакте</p>
-  <?php
-}
-
-function evc_wall_options () {
-  $options = get_option('evc_options');  
-  ?>  
-  <p><label><input type="checkbox" name="evc_options[from_group]" value="enable" <?php @checked('enable', $options['from_group']); ?> /> Опубликовать пост от имени группы (или от имени пользователя)</label>
-  <br/><label><input type="checkbox" name="evc_options[signed]" value="enable" <?php @checked('enable', $options['signed']); ?> /> Добавить к сообщению пользователя, опубликовавшего пост</label>
-  <br/><label><input type="checkbox" name="evc_options[add_link]" value="enable" <?php @checked('enable', $options['add_link']); ?> /> Добавить ссылку на статью на сайте</label></p>
-  <?php
-}
-
-
-function evc_publish_text() {
-  $options = get_option('evc_options');  
-  ?>
-  <p>Какие данные из статьи включить в сообщение на стене ВКонтакте</p>
-  <?php  
-}
-
-function evc_exclude_cats () {
-  $options = get_option('evc_options');  
-  echo '<div class = "categorydiv"><div class = "tabs-panel" style = "height:auto; max-height:200px;"><ul id="categorychecklist" class="list:category categorychecklist form-no-clear">';
-  wp_terms_checklist( 0, array(
-    'selected_cats'=>$options['exclude_cats'], 
-    'walker' => new EVC_Walker_Checklist(),
-    'checked_ontop' => false
-  ));
-  echo '</ul></div></div>';
-  echo '<p>Статьи из отмеченных категорий не будут автоматически опубликованы на стене ВКонтакте</p>';      
-}
-
-function evc_photo_count() {
-  $options = get_option('evc_options'); 
-  ?>
-  <select name="evc_options[upload_photo_count]" id="evc_upload_photo_count">
-  <?php for($i = 0; $i < 6; $i++ ){ ?>
-    <option value="<?php echo $i; ?>"<?php selected($i, $options['upload_photo_count']); ?>><?php echo $i; ?></option>
-  <?php } ?>
-  </select>
-  <?php  
-  echo '<p>Сколько изображений из статьи прикрепить к сообщению ВКонтакте?</p>';
-}
-
-function evc_excerpt_length () {
-  $options = get_option('evc_options');   
-  echo '<input type="text" class="small-text" value="'.$options['excerpt_length'].'" name="evc_options[excerpt_length]">';
-  echo '<p>Сколько слов из статьи опубликовать в качестве анонса ВКонтакте?</p>';
-  echo '<input type="text" class="small-text" value="'.$options['excerpt_length_strings'].'" name="evc_options[excerpt_length_strings]">';  
-  echo '<p>Сколько <strong>знаков</strong> из статьи опубликовать в качестве анонса ВКонтакте? 
-  <br/><strong>Не рекомендуется</strong> больше 2688.</p>';
-}
-
-function evc_message () {
-  $options = get_option('evc_options');
-  ?>
-  <p><label>
-  <textarea cols="50" rows="3" name="evc_options[message]"><?php echo esc_textarea($options['message']); ?></textarea></label><br/>Маска сообщения на стене ВКонтакте:</p>
-  <ul><li><strong>%title%</strong> - заголовок статьи,</li>
-  <li><strong>%excerpt%</strong> - анонс статьи,</li>
-  <li><strong>%link%</strong> - ссылка на статью.</li></ul>
-  <?php
-}
-
-function evc_options_validate ($input) {
-  
-  if(!empty($input['access_token_url'])) {
-    $url = explode('#', $input['access_token_url']);
-    $params = wp_parse_args($url[1]);
-    $input['access_token'] = $params['access_token'];
-  }
-  
-  if(!isset($input['post_category']) || empty($input['post_category']))
-    $input['exclude_cats'] = array();
-  else   
-    $input['exclude_cats'] = $input['post_category'];
-  unset($input['post_category']);
-    
-  return $input;    
 }
 
 
 class EVC_Walker_Checklist extends Walker {
   var $tree_type = 'category';
   var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
-
+	
   function start_lvl(&$output, $depth, $args) {
     $indent = str_repeat("\t", $depth);
     $output .= "$indent<ul class='children'>\n";
@@ -269,13 +64,20 @@ class EVC_Walker_Checklist extends Walker {
     extract($args);
     if ( empty($taxonomy) )
       $taxonomy = 'category';
-
-    if ( $taxonomy == 'category' )
+		$_name = apply_filters('wpsapi_checklist_name', '');
+    /*
+    if ( $taxonomy == 'category' ) {
       $name = 'evc_options[post_category]';
-    else
+			//$name = $_name . '[post_category]';
+		}
+    else {
       $name = 'evc_options[tax_input]['.$taxonomy.']';
-
-    $class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category"' : '';
+			//$name = $_name . '[tax_input]['.$taxonomy.']';
+		}
+    */
+		$name = $_name ;
+    
+		$class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category"' : '';
     $output .= "\n<li id='{$taxonomy}-{$category->term_id}'$class>" . '<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$taxonomy.'-' . $category->term_id . '"' . checked( in_array( $category->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $category->name )) . '</label>';
   }
 
@@ -284,34 +86,7 @@ class EVC_Walker_Checklist extends Walker {
   }
 }
 
-// display the admin options page
-function evc_options_page() {
-?>
-  <div class="wrap">
-    <h2><?php _e('Easy VKontakte Connect', 'evc'); ?></h2>
-    <p><?php _e('Настройки плагина Easy VKontakte Connect.', 'evc'); ?></p>
-    
-    <form method="post" action="options.php">
-      <?php settings_fields('evc_options'); ?>
-      <table><tr>
-        <td style='vertical-align:top;'>
-          <?php do_settings_sections('evc'); ?>
-        </td>
-        <td style='vertical-align:top; width:25%; '>
-          <div style='width:20em; float:right; background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-            <h3 align='center'><?php _e('Хотите Больше Возможностей?',''); ?></h3>
-            <p><a href = "http://vk.com/wordpressvk" target = "_blank">WordPress ВКонтакте</a>.</p>
-            <p>Предложения о дополнительных возможностях оставляйте на <a href = "http://ukraya.ru/tag/easy-vkontakte-connect">сайте плагина</a>.</p>
-          </div>
 
-        </td>
-      </tr></table>
-      
-      <?php submit_button(); ?>
-    </form>
-  </div>
-<?php
-}
 
 add_action('post_submitbox_misc_actions','evc_wall_post_check_box');
 function evc_wall_post_check_box() {
@@ -342,7 +117,8 @@ function evc_wall_post_check_box() {
 // this function prevents edits to existing posts from auto-posting
 add_action('transition_post_status','evc_publish_auto_check',10,3);
 function evc_publish_auto_check($new, $old, $post) {
-  $options = get_option('evc_options');   
+  $options = get_option('evc_autopost'); 
+  
   if (($new == 'publish' && $old != 'publish' && $options['autopublish']) || ($_POST['evc_wall_post'] && $new == 'publish') ) {  
     if (!isset($options['exclude_cats']) || empty($options['exclude_cats']) || !in_category($options['exclude_cats'], $post))
       evc_wall_post($post->ID, $post);
@@ -351,8 +127,12 @@ function evc_publish_auto_check($new, $old, $post) {
 
 function evc_wall_post ($id, $post) {
 
-  $options = get_option('evc_options');   
-  
+  //$options = get_option('evc_options');   
+	$options = evc_get_all_options(array(
+		'evc_vk_api_autopost',
+		'evc_autopost'
+	));	 
+	
   // Post to wall 
   $m = array();
   preg_match_all('/%([\w-]*)%/m', $options['message'], $mt, PREG_PATTERN_ORDER);
@@ -390,9 +170,9 @@ function evc_wall_post ($id, $post) {
     'access_token' => $options['access_token'],  
     'owner_id' => apply_filters('evc_wall_post_gid', '-' . $options['page_id'], $post),
     // 1: from group name; 0: from username
-    'from_group' => $options['from_group'], 
+    'from_group' => isset($options['format']['from_group']) && !empty($options['format']['from_group']) ? 1 : 0, 
     // add username to post?
-    'signed' => isset($options['signed']) && !empty($options['signed']) ? $options['signed'] : 0,
+    'signed' => isset($options['format']['signed']) && !empty($options['format']['signed']) ? 1 : 0,
     'message' => $message,     
     // if no attachments - 'message' is available
     //'attachments' => $attachments 
@@ -445,7 +225,7 @@ function evc_wall_post ($id, $post) {
     delete_post_meta($post->ID, '_evc_wall_post_captcha');
     unset($options['error_email']);  
   }
-  update_option('evc_options', $options);     
+  update_option('evc_autopost', $options);     
 
   // Wall Post with link  
   if ($resp['response']['processing'] || $resp['response']['post_id']) {
@@ -458,7 +238,11 @@ function evc_wall_post ($id, $post) {
 
 function evc_upload_photo($id, $post) {
   
-  $options = get_option('evc_options');
+  //$options = get_option('evc_options');
+	$options = evc_get_all_options(array(
+		'evc_vk_api_autopost',
+		'evc_autopost'
+	));	
   
   if (!$options['upload_photo_count'])
     return false;
@@ -545,8 +329,8 @@ function evc_upload_photo($id, $post) {
 
 // Main Idea from Otto, http://ottopress.com/wordpress-plugins/simple-facebook-connect/
 function evc_make_excerpt($post) { 
-  $options = get_option('evc_options');  
-    
+  $options = get_option('evc_autopost');  
+	
   if ( !empty($post->post_excerpt) ) 
     $text = $post->post_excerpt;
   else 
@@ -594,7 +378,8 @@ function evc_make_excerpt($post) {
 
 
 function evc_excerpt_strlen ($text, $max_strlen = 2688) {
-  $options = get_option('evc_options');  
+  $options = get_option('evc_autopost');  
+	
   if (isset($options['excerpt_length_strings']) && !empty($options['excerpt_length_strings'])) {
     $max_strlen = $options['excerpt_length_strings'] > $max_strlen ? $max_strlen : $options['excerpt_length_strings'];
   }

@@ -1,6 +1,6 @@
 <?php
 
-add_action('admin_menu', 'evc_stats_add_page');
+add_action('admin_menu', 'evc_stats_add_page', 40);
 function evc_stats_add_page() {
 
   $page = add_submenu_page( 'evc', 'Анализ групп ВКонтакте', 'Анализ групп', 'activate_plugins', 'evc-stats', 'evc_stats_page' );
@@ -32,25 +32,20 @@ function evc_stats_filter_screen_options($status, $option, $value) {
 
 // display the admin options page
 function evc_stats_page() {
-  $options = get_option('evc_options');
+  $options = get_option('evc_vk_api_widgets');
+	
 ?>
   <div class="wrap">
     <h2><?php _e('Анализ групп ВКонтакте', 'evc'); ?></h2>
-<div class = "bootstrap-wpadmin">
-<div class = "well" style = "margin-top:10px;">
-<div><b><a href = "http://vk.com/wordpressvk" target = "_blank">WordPress ВКонтакте</a></b>.</div>
-<div><b>С чего начать:</b> <b><a href = "http://ukraya.ru/46/easy-vkontakte-connect-1-0-avtoposting-na-stenu-gruppy-s-kartinkami-analiz-grupp-vkontakte">руководство</a></b> по работе с модулем, все <a href = "http://ukraya.ru/44/analiz-grupp-vkontakte-s-plaginom-easy-vkontakte-connect-evc-1-0">возможности</a> пакета EVC 1.0, <b><a href = "http://ukraya.ru/116/reshenie-problem-po-rabote-s-plaginom-easy-vkontakte-connect-evc-1-1">техническая поддержка</a></b>.</div>
-</div>    
-</div>
-      
-<?php 
-  
+
+<?php
+    echo '<div class="updated"><p><a href = "http://ukraya.ru/46/easy-vkontakte-connect-1-0-avtoposting-na-stenu-gruppy-s-kartinkami-analiz-grupp-vkontakte">Руководство</a> по работе с модулем "<b>Анализ групп</b>" и <a href = "http://ukraya.ru/116/reshenie-problem-po-rabote-s-plaginom-easy-vkontakte-connect-evc-1-1">техническая поддержка</a>.</p></div>'; 
+		evc_ad();
+    
+  //print__r($options);
   // Need Access Token
-  if (!isset($options['access_token']) || empty($options['access_token'])){
-    $e['error']['error_code'] = '901';
-    $e['error']['error_msg'] = sprintf(__('Необходимо настроить плагин Easy VKontakte Connect на его <a href="%s">странице</a>.', 'evc'), admin_url('options-general.php?page=evc'));
-    echo evc_vk_error_handler ($e, 'evc_stats_get_group_id'); 
-    echo '</div>'; 
+  if (!isset($options['site_access_token']) || empty($options['site_access_token'])){   
+    echo '<div class="error"><p>Необходимо настроить API ВКонтакте. Откройте вкладку "<a href="'.admin_url('admin.php?page=evc-vk-api').'">Для виджетов</a>".</p></div>';
     return false;
   }  
   
@@ -177,7 +172,7 @@ function evc_stats_page() {
 
 function evc_stats_get_group_posts($owner_id, $captcha = array()) {
 
-  $options = get_option('evc_options');
+  $options = get_option('evc_vk_api_widgets');
   $time = current_time('timestamp', 1);
   
   $user = get_current_user_id();
@@ -204,7 +199,8 @@ function evc_stats_get_group_posts($owner_id, $captcha = array()) {
     
   $params = array();
   $params = array(
-    'access_token' => $options['access_token'],
+    //'access_token' => $options['access_token'], //
+    'access_token' => $options['site_access_token'], //
     'owner_id' => $owner_id < 0 ? $owner_id : -1 * $owner_id,
     'count' => $per_page,
     'extended' => 1,
@@ -330,7 +326,7 @@ function evc_stats_the_vkpost($w, $owner_id, $screen_name = '') {
 
 
 function evc_stats_get_group_id($gurl) {
-  $options = get_option('evc_options');  
+  $options = get_option('evc_vk_api_widgets');  
     
   $urla = explode ('/', $gurl);
   $group_screen_name = array_pop($urla);
@@ -360,7 +356,8 @@ function evc_stats_get_group_id($gurl) {
   // Refresh Group Info  
   $params = array();
   $params = array(
-    'access_token' => $options['access_token'],
+    //'access_token' => $options['access_token'],//
+    'access_token' => $options['site_access_token'],//
     'gid' => $group_screen_name,
     'fields' => 'members_count,description'
   );
@@ -394,7 +391,7 @@ function evc_stats_get_group_id($gurl) {
 
 
 function evc_stats_get_group($gid) {
-  $options = get_option('evc_options');  
+  //$options = get_option('evc_options');  
     
   // Only Groups, not users
   $gid = $gid < 0 ? -1 * $gid : $gid;   
@@ -449,7 +446,7 @@ function evc_wp_error_handler ($e, $fn) {
 
 
 function evc_stats_get_all_groups($count = 10) {
-  $options = get_option('evc_options');  
+  //$options = get_option('evc_options');  
   $out = array();
   
   //$evc_vk_groups = get_transient('evc_vk_groups');

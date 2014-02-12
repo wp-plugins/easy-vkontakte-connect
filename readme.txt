@@ -3,43 +3,47 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics
 Requires at least: 3.2
 Tested up to: 3.8
-Stable tag: 1.1
+Stable tag: 1.3
+License: GPLv2 or later
 
-Автопубликация записей с фото на стене ВКонтакте, анализ групп ВКонтакте.
+This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
 
 == Description ==
 
-Плагин позволяет публиковать на стене ВКонтакте статьи в автоматическом и ручном режиме вместе с изображениями, прикрепленными к статье и позволяет **анализировать сообщения со стены любой группы ВКонтакте** по лайкам, респостам, комментариям и времени публикации.
+**1. Автопубликация записей с фото на стену ВКонтакте**
 
-* Использует ВКонтакте API
+* Автоматический и ручной режимы.
+* Не публиковать записи из заданных рубрик и др.
 
-**Анализ записей со стены группы ВКонтакте**
+**2. Виджет сообществ ВКонтакте**
 
-* Плагин позволяет отобразить для анализа до 100 записей со стены любой открытой (и закрытой, если пользователь является ее членом) группы (или паблика) ВКонтакте.
-* Записи можно сортировать по 4 критериям: время публикации, число лайков, репостов, комментариев. Дополнительно возможна сортировка в двух направлениях: по возрастанию, по убыванию критерия.
-* При изменении параметров сортировки перемещение записей происходит без обновления страницы.    
+* **Асинхронная** загрузка (без тормозов!).
+* Три вида на выбор: название группы, стена группы, подписчики.
+* Легко разместить в любом месте сайта.
 
-**Автопубликация на стене группы ВКонтакте**
+**3. Дополнительные сайдбары для любых виджетов**
 
-* Автоматическая публикация новых статей на стену в ВКонтакте
-* Ручная публикация статей на стену ВКонтакте
-* Публикация **изображений**, прикрепленных к статье, на стене ВКонтакте
-* Отметить категории, статьи из которых не будут автоматически опубликованы ВКонтакте
+* Появление через **интервал** или **скроллинг** (после пролистывания экрана).
+* **Всплывающий** - появляется поверх основного содержания сайта.
+* **Выезжающий** - выезжает из правого нижнего угла сайта.
+* **До** и **после** контента.
 
+В сайдбары можно поместить виджет сообществ ВКонтакте, рекламу, список похожих постов или любую другую информацию.
 
-**TODO**
+**4. Анализ групп ВКонтакте**
 
-В скором времени будут добавлены все "Виджеты для сайтов" ВКонтакте http://vk.com/dev/sites
+* До 100 записей со стены любой группы
+* Сортировка по лайкам, репостам, комментариям и дате.
 
+**Помощь и пожелания**
 
-**Дополнительные возможности**
-
-Предложения о дополнительных возможностях оставляйте на сайте плагина: http://ukraya.ru/tag/easy-vkontakte-connect
-
+Техническая поддержка на сайте плагина: http://ukraya.ru/tag/easy-vkontakte-connect . 
 
 This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
 
 * Uses the API VKontakte
+* VK Community Widget
+* Sidebars: overlay, slide, before and after posts; triggered by timeout or scrolling actions.
 * **NEW in 1.0** Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time
 * Automatically publish new posts on the VKontakte wall
 * Manually publish posts on the VKontakte wall
@@ -56,12 +60,18 @@ Requires WordPress 3.2 and PHP 5.
 
 == Screenshots ==
 
-1. Option Page - 1.
-2. Option Page - 2.
-3. Edit Post Page.
-4. VKontakte Wall Analytics page.
+1. VK API Settings.
+2. Sidebars Settings.
+3. Autopost Settings.
+4. VK Community Widget.
+5. Edit Post Page.
+6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.3 =
+* VK Community Widget
+* Sidebars: overlay, slide, before and after posts; triggered by timeout or scrolling actions.
 
 = 1.1 =
 * **Important:** Correct to correspond VK API changes in photos.getWallUploadServer, photos.saveWallPhoto.

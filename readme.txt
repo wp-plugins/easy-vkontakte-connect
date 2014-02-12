@@ -6,7 +6,7 @@ Tested up to: 3.8
 Stable tag: 1.3
 License: GPLv2 or later
 
-This plugin allows you autopublish blog posts with pictures to VKontakte wall and provide VKontakte Wall Analytics. 
+Автопубликация записей с фото на стене ВКонтакте, анализ групп, кнопки, виджеты...
 
 == Description ==
 

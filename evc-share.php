@@ -1122,7 +1122,7 @@ function evc_sidebar_settings_page() {
 	echo '</div>';
 }
 
-add_filter ('pre_update_option_evc_options', 'evc_update_option_filter',10,2);
+add_filter ('pre_update_option_evc_vk_api_autopost', 'evc_update_option_filter',10,2);
 function evc_update_option_filter($newvalue, $oldvalue) {
 	
 	if (isset($newvalue['access_token_url']) && !empty($newvalue['access_token_url'])) {

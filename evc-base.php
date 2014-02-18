@@ -24,7 +24,7 @@ add_action('admin_menu', 'evc_add_page');
 function evc_add_page() {
   global $evc_options_page;
   
-	add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_vk_api_settings_page', '', '99.02' ); 
+  add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_vk_api_settings_page', '', '99.02' ); 
 }
 
 
@@ -38,7 +38,7 @@ function evc_admin_init(){
   // Isotope DEPRECATED because:
   // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/ 
   //wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
-	
+  
   wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry'), '1.0', true);  
   wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
   wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
@@ -49,7 +49,7 @@ function evc_admin_init(){
 class EVC_Walker_Checklist extends Walker {
   var $tree_type = 'category';
   var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
-	
+  
   function start_lvl(&$output, $depth, $args) {
     $indent = str_repeat("\t", $depth);
     $output .= "$indent<ul class='children'>\n";
@@ -64,20 +64,20 @@ class EVC_Walker_Checklist extends Walker {
     extract($args);
     if ( empty($taxonomy) )
       $taxonomy = 'category';
-		$_name = apply_filters('wpsapi_checklist_name', '');
+    $_name = apply_filters('wpsapi_checklist_name', '');
     /*
     if ( $taxonomy == 'category' ) {
       $name = 'evc_options[post_category]';
-			//$name = $_name . '[post_category]';
-		}
+      //$name = $_name . '[post_category]';
+    }
     else {
       $name = 'evc_options[tax_input]['.$taxonomy.']';
-			//$name = $_name . '[tax_input]['.$taxonomy.']';
-		}
+      //$name = $_name . '[tax_input]['.$taxonomy.']';
+    }
     */
-		$name = $_name ;
+    $name = $_name ;
     
-		$class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category"' : '';
+    $class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category"' : '';
     $output .= "\n<li id='{$taxonomy}-{$category->term_id}'$class>" . '<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$taxonomy.'-' . $category->term_id . '"' . checked( in_array( $category->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $category->name )) . '</label>';
   }
 
@@ -128,11 +128,11 @@ function evc_publish_auto_check($new, $old, $post) {
 function evc_wall_post ($id, $post) {
 
   //$options = get_option('evc_options');   
-	$options = evc_get_all_options(array(
-		'evc_vk_api_autopost',
-		'evc_autopost'
-	));	 
-	
+  $options = evc_get_all_options(array(
+    'evc_vk_api_autopost',
+    'evc_autopost'
+  ));   
+  
   // Post to wall 
   $m = array();
   preg_match_all('/%([\w-]*)%/m', $options['message'], $mt, PREG_PATTERN_ORDER);
@@ -155,7 +155,7 @@ function evc_wall_post ($id, $post) {
   $message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
   $message = htmlspecialchars_decode($message);  
  
-  $permalink = $options['add_link'] ? apply_filters('evc_publish_permalink', wp_get_shortlink($post->ID), $post->ID) : ''; 
+  $permalink = $options['format']['add_link'] ? apply_filters('evc_publish_permalink', wp_get_shortlink($post->ID), $post->ID) : ''; 
   
   $attach = array();
   $images = evc_upload_photo($id, $post);  
@@ -239,10 +239,10 @@ function evc_wall_post ($id, $post) {
 function evc_upload_photo($id, $post) {
   
   //$options = get_option('evc_options');
-	$options = evc_get_all_options(array(
-		'evc_vk_api_autopost',
-		'evc_autopost'
-	));	
+  $options = evc_get_all_options(array(
+    'evc_vk_api_autopost',
+    'evc_autopost'
+  ));  
   
   if (!$options['upload_photo_count'])
     return false;
@@ -330,7 +330,7 @@ function evc_upload_photo($id, $post) {
 // Main Idea from Otto, http://ottopress.com/wordpress-plugins/simple-facebook-connect/
 function evc_make_excerpt($post) { 
   $options = get_option('evc_autopost');  
-	
+  
   if ( !empty($post->post_excerpt) ) 
     $text = $post->post_excerpt;
   else 
@@ -379,7 +379,7 @@ function evc_make_excerpt($post) {
 
 function evc_excerpt_strlen ($text, $max_strlen = 2688) {
   $options = get_option('evc_autopost');  
-	
+  
   if (isset($options['excerpt_length_strings']) && !empty($options['excerpt_length_strings'])) {
     $max_strlen = $options['excerpt_length_strings'] > $max_strlen ? $max_strlen : $options['excerpt_length_strings'];
   }

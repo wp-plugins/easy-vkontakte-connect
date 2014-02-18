@@ -488,6 +488,9 @@ add_action( 'wp_enqueue_scripts', 'evc_share_styles' );
 function evc_share_styles () {
   wp_register_style( 'evc-share-style', plugins_url('css/style-share.css', __FILE__) );
   wp_enqueue_style( 'evc-share-style' );
+  
+  // Enqueue DashIcons
+  wp_enqueue_style( 'dashicons' );  
 }
 
 

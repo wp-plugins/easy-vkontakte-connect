@@ -427,7 +427,7 @@ function evc_overlay_sidebar () {
 	
 	
 	$o_sidebar = true;
-	if ((isset($_COOKIE['oSidebar']) && $s['o_sidebar_times'] && $_COOKIE['oSidebar'] > $options['o_sidebar_times']) || !evc_sidebar_is() ) 
+	if ((isset($_COOKIE['oSidebar']) && $options['o_sidebar_times'] && $_COOKIE['oSidebar'] > $options['o_sidebar_times']) || !evc_sidebar_is() ) 
 		$o_sidebar = false;
   
 	if ( is_active_sidebar( 'overlay-sidebar' ) && $o_sidebar ) {
@@ -441,7 +441,7 @@ function evc_overlay_sidebar () {
   }
 	
 	$s_sidebar = true;
-	if ((isset($_COOKIE['sSidebar']) && $s['s_sidebar_times'] && $_COOKIE['sSidebar'] > $options['s_sidebar_times'] ) || !evc_sidebar_is('s') )
+	if ((isset($_COOKIE['sSidebar']) && $options['s_sidebar_times'] && $_COOKIE['sSidebar'] > $options['s_sidebar_times'] ) || !evc_sidebar_is('s') )
 		$s_sidebar = false;
 		
   if ( is_active_sidebar( 'slide-sidebar' ) && $s_sidebar  ) {

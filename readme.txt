@@ -88,7 +88,7 @@ Requires WordPress 3.2 and PHP 5.
 == Changelog ==
 
 = 1.4 =
-* Виджет комментариев ВКонтакте.
+* Add VK Comments Widget.
 
 = 1.3.1 =
 * Correct links in message.

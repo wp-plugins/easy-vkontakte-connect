@@ -43,6 +43,7 @@ function evc_update_share () {
 
 add_action('wp_head', 'evc_share_meta', 99 );
 function evc_share_meta () {
+  global $post;
   //$options = get_option('evc_options');
 	$options = evc_get_all_options(array('evc_vk_api_widgets','evc_sidebar_overlay','evc_sidebar_slide'));
 	$s = $options;
@@ -70,9 +71,11 @@ function evc_share_meta () {
 
 	echo '<script type="text/javascript">
     var VKWidgetsGroup = [];
+    var VKWidgetsComments = [];
 		if (typeof ajaxurl == "undefined")
 			ajaxurl = "' . 'http://'.$_SERVER['HTTP_HOST']. '/wp-admin/admin-ajax.php' .'";
 	';
+  //echo 'var post_id = ' . $post->ID .';';
 		/*  
     o_sidebar_action
     o_sidebar_bottom
@@ -145,15 +148,93 @@ function evc_post_sidebar_css($sidebar = 'bp') {
 	return $out;
 }
 
-//add_action('wp_footer', 'evc_vk_widgets_async_load'); 
-function evc_vk_widgets_async_load(){
+add_action('wp_footer', 'evc_vk_async_init'); 
+function evc_vk_async_init(){
   $options = get_option('evc_options');
   ?>
   <script type="text/javascript">
   /* <![CDATA[ */
-
-
+  function async_load(u,id) {
+    if (!gid(id)) {
+      s="script", d=document,
+      o = d.createElement(s);
+      o.type = 'text/javascript';
+      o.id = id;
+      o.async = true;
+      o.src = u;
+      // Creating scripts on page
+      x = d.getElementsByTagName(s)[0];
+      x.parentNode.insertBefore(o,x);
+    }
+  }
   
+  function gid (id){
+    return document.getElementById(id);
+  }
+  
+  window.onload = function() {  
+    async_load("//vk.com/js/api/openapi.js", "id-vkontakte");//vkontakte
+  };
+   
+  // Инициализация vkontakte
+  window.vkAsyncInit = function(){
+    
+    //console.log(VKWidgetsLike);
+    if (typeof VKWidgetsLike !== 'undefined' && VKWidgetsLike.length > 0) {
+      for (index = 0; index < VKWidgetsLike.length; ++index) {
+        VK.Widgets.Like(VKWidgetsLike[index].element_id, VKWidgetsLike[index].options);
+      }
+    }
+    
+    if (typeof VKWidgetsGroup !== 'undefined' && VKWidgetsGroup.length > 0) {
+      for (index = 0; index < VKWidgetsGroup.length; ++index) {
+        //console.log(VKWidgetsGroup);
+        VK.Widgets.Group(VKWidgetsGroup[index].element_id, VKWidgetsGroup[index].options, VKWidgetsGroup[index].group_id);
+      }
+      
+      VK.Observer.subscribe('widgets.groups.joined', function(n) {
+        console.log(VKWidgetsGroup[n - 1].group_id);
+        
+        var data = {
+          action: 'evc_add_vk_widget_stats',
+          gid: VKWidgetsGroup[n - 1].group_id,
+          widget: 'group',
+          waction: 'joined'
+        };
+        jQuery.ajax({
+          url: ajaxurl,
+          data: data,
+          type:"POST",
+          dataType: 'json'
+        }); 
+        
+      });
+      
+      VK.Observer.subscribe('widgets.groups.leaved', function(n) {
+        //console.log(VKWidgetsGroup[n - 1].group_id);
+        
+        var data = {
+          action: 'evc_add_vk_widget_stats',
+          gid: VKWidgetsGroup[n - 1].group_id,
+          widget: 'group',
+          waction: 'leaved'
+        };
+        jQuery.ajax({
+          url: ajaxurl,
+          data: data,
+          type:"POST",
+          dataType: 'json'
+        });         
+
+      });    
+    }    
+    
+    <?php  
+      do_action('evc_vk_async_init');
+    ?>   
+    
+  };  
+   
   /* ]]> */
   </script><?php
   
@@ -397,7 +478,6 @@ add_action('widgets_init', 'evc_widgets_init');
 
 
 function evc_sidebar_is ($sidebar = 'o' ) {
-	//$options = get_option('evc_options'); 
 	$options = evc_get_all_options(array(
 		'evc_sidebar_overlay', 
 		'evc_sidebar_slide',
@@ -458,7 +538,9 @@ add_action('the_content', 'evc_content_sidebar');
 function evc_content_sidebar ($content) {
   if (!is_single())
 		return $content;
-		
+	
+  $out = '';
+  	
 	if ( is_active_sidebar( 'before-post-content-sidebar' ) ) {
 		ob_start();
 		echo '<div id="before-post-content-sidebar-wrap" class = "">';
@@ -496,7 +578,7 @@ function evc_share_styles () {
 
 /* Admin Page */
 
-if (!class_exists(WP_Settings_API_Class))
+if (!class_exists('WP_Settings_API_Class'))
 	include_once('inc/wp-settings-api-class.php'); 
 	
 
@@ -583,7 +665,7 @@ function evc_vk_api_settings_admin_init() {
     
   }
 
-  $url = get_bloginfo('wpurl');
+  $url = site_url();
   $url_arr = explode(".", basename($url));
   $domain = $url_arr[count($url_arr)-2] . "." . $url_arr[count($url_arr)-1];
   
@@ -719,8 +801,6 @@ function evc_vk_api_admin_menu() {
   
   $evc_vk_api_settings_page = add_submenu_page( 'evc', 'Настройки API ВКонтакте', 'Настройки VK API', 'activate_plugins', 'evc', 'evc_vk_api_settings_page' );
  
-  //add_action("load-$evc_sidebar_settings_page", 'evc_stats_screen_options');
-  //add_action( 'admin_print_styles-' . $evc_sidebar_settings_page, 'evc_stats_styles' );
   add_action( 'admin_footer-'. $evc_vk_api_settings_page, 'evc_vk_api_settings_page_js' );
 }
 add_action( 'admin_menu', 'evc_vk_api_admin_menu', 20 );
@@ -752,7 +832,7 @@ function evc_vk_api_settings_page_js () {
 // Display the plugin settings options page
 function evc_vk_api_settings_page() {
   global $evc_vk_api_settings;
-	
+
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Настройки API ВКонтакте</h2>';
@@ -777,7 +857,7 @@ function evc_vk_api_settings_page() {
 
 function evc_sidebar_settings_admin_init() {
   global $evc_sidebar_settings;
-  
+
 	$evc_sidebar_settings = new WP_Settings_API_Class;
   //$options = get_option('evc_options'); 
 	$options = evc_get_all_options(array(
@@ -1066,8 +1146,6 @@ function evc_sidebar_settings_admin_init() {
 		
 	);
  
- 
-  
 
  //set sections and fields
  $evc_sidebar_settings->set_option_name( 'evc_options' );
@@ -1085,9 +1163,6 @@ function evc_sidebar_admin_menu() {
    
 	$evc_sidebar_settings_page = add_submenu_page( 'evc', 'Настройки сайдбаров', 'Сайдбары', 'activate_plugins', 'evc-sidebar', 'evc_sidebar_settings_page' );
  
-  //add_action("load-$evc_sidebar_settings_page", 'evc_stats_screen_options');
-  //add_action( 'admin_print_styles-' . $evc_sidebar_settings_page, 'evc_stats_styles' );
-	//add_action( 'admin_footer-'. $evc_sidebar_settings_page, 'evc_sidebar_settings_page_js' );
 }
 add_action( 'admin_menu', 'evc_sidebar_admin_menu', 50 );
 
@@ -1270,8 +1345,6 @@ function evc_autopost_admin_menu() {
    
   $evc_autopost_settings_page = add_submenu_page( 'evc', 'Автопостинг на стену ВКонтакте', 'Автопостинг', 'activate_plugins', 'evc-autopost', 'evc_autopost_settings_page' );
  
-  //add_action("load-$evc_sidebar_settings_page", 'evc_stats_screen_options');
-  //add_action( 'admin_print_styles-' . $evc_sidebar_settings_page, 'evc_stats_styles' );
   add_action( 'admin_footer-'. $evc_autopost_settings_page, 'evc_autopost_settings_page_js' );
 }
 add_action( 'admin_menu', 'evc_autopost_admin_menu', 20 );
@@ -1339,9 +1412,7 @@ function evc_autopost_settings_page() {
 		'evc_autopost',
 		'evc_vk_api_autopost'
 	));	
-
-
-  
+	 
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Настройки автопостинга</h2>';
@@ -1410,15 +1481,7 @@ function evc_widget_settings_admin_init() {
   );  
   
   $fields = array(
-   /*
-	 'evc_widget_groups_section' => array(
-      array(
-        'name' => 'widget_groups_desc',
-        'desc' => '',
-        'type' => 'html',
-      ),                      
-    )   
-		*/
+  
   );
 
  //set sections and fields
@@ -1437,10 +1500,7 @@ function evc_widget_admin_menu() {
   global $evc_widget_settings_page; 
    
   $evc_widget_settings_page = add_submenu_page( 'evc', 'Кнопки и виджеты ВКонтакте', 'Кнопки и виджеты', 'activate_plugins', 'evc-widgets', 'evc_widget_settings_page' );
- 
-  //add_action("load-$evc_sidebar_settings_page", 'evc_stats_screen_options');
-  //add_action( 'admin_print_styles-' . $evc_sidebar_settings_page, 'evc_stats_styles' );
-  //add_action( 'admin_footer-'. $evc_widget_settings_page, 'evc_widget_settings_page_js' );
+
 }
 add_action( 'admin_menu', 'evc_widget_admin_menu', 30 );
 
@@ -1481,13 +1541,51 @@ function evc_widget_settings_page() {
 function evc_ad () {
 	echo '
 		<div class = "evc-boxx">
-			<p><a href = "http://ukraya.ru/192/easy-vk-connect-1-3" target = "_blank">Руководство</a> и <a href = "http://ukraya.ru/196/easy-vkontakte-connect-1-3-support" target = "_blank">помощь</a> по настройке плагина.</p>
+			<p><a href = "http://ukraya.ru/286/easy-vkontakte-connect-1-4" target = "_blank">Руководство</a> и <a href = "http://ukraya.ru/284/easy-vkontakte-connect-1-4-support" target = "_blank">помощь</a> по настройке плагина.</p>
 		</div>
-		<h3>Автонаполняемый сайт из группы ВКонтакте в один клик!</h3>
-		<p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группой ВКонтакте и автообновляемый по графику.</p>
-		<p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>';
+		<h3>Тонны бесплатного уникального контента на ваш сайт!</h3>
+		<p>Плагин <a href = "http://ukraya.ru/242/vk-seo-comments" target = "_blank">VK SEO комментарии</a> <b>импортирует комментарии</b>, оставленные через виджет комментариев ВКонтакте на ваш сайт. 
+    <p>Теперь они <b>индексируются</b> поисковыми системами и <b>привлекают дополнительный трафик</b> по низкочастотным запросам.</p>
+    <p>'.get_submit_button('Установить сейчас', 'primary', 'get_vk_seo_comments3', false).'</p>    
+		';
+    
+  echo '
+    <h3>Автонаполняемый сайт из группы ВКонтакте в один клик!</h3>
+    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группой ВКонтакте и автообновляемый по графику.</p>
+    <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
+    <p>'.get_submit_button('Установить сейчас', 'primary', 'get_vk_wp_bridge', false).'</p>       
+    ';    
 				
 }
+
+add_action( 'admin_footer', 'evc_ad_js', 30 );
+function evc_ad_js () {
+?>
+<script type="text/javascript" >
+  jQuery(document).ready(function($) {
+
+    $(document).on( 'click', '#get_vk_seo_comments, #get_vk_seo_comments2, #get_vk_seo_comments3', function (e) {    
+      e.preventDefault();
+      window.open(
+        ' http://ukraya.ru/242/vk-seo-comments',
+        '_blank'
+      );
+    });  
+
+    $(document).on( 'click', '#get_vk_wp_bridge', function (e) {    
+      e.preventDefault();
+      window.open(
+        'http://ukraya.ru/162/vk-wp-bridge',
+        '_blank'
+      );
+    });      
+
+  
+  }); // jQuery End
+</script>
+<?php  
+}
+
 
 add_action('admin_head', 'evc_admin_head', 99 );
 function evc_admin_head () {
@@ -1518,9 +1616,10 @@ function evc_admin_head () {
   </style>'; 
 }
 
-
-define('EVC_TOKEN_URL', 'https://oauth.vk.com/access_token');
-define('EVC_AUTORIZATION_URL', 'https://oauth.vk.com/authorize');
+if (!defined('EVC_TOKEN_URL'))
+  define('EVC_TOKEN_URL', 'https://oauth.vk.com/access_token');
+if (!defined('EVC_AUTORIZATION_URL'))
+  define('EVC_AUTORIZATION_URL', 'https://oauth.vk.com/authorize');
 function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   //$options = get_option('evc_options');
 	$options = evc_get_all_options(array(
@@ -1571,8 +1670,6 @@ function evc_share_get_token () {
   $options = get_option('evc_vk_api_widgets');	  
 	
   if (isset($_GET['code']) && !empty($_GET['code'])) {
-  // http://example.com/?code=df75esdf514c8b0c5e70b
-  // http://example.com/?error=access_denied&error_reason=user_denied&error_description=User+denied+your+request
    
     $_SERVER['REQUEST_URI'] = remove_query_arg( array('code'), $_SERVER['REQUEST_URI'] );   
       
@@ -1595,10 +1692,6 @@ function evc_share_get_token () {
     }
   
     $resp = json_decode($data['body'],true);
-    // {"error":"invalid_grant","error_description":"Code is invalid or expired."}
-    // {"access_token":"e4cfd9sdfsdf123456929df640b6ab298aa77d87a250900b9393a4e46","expires_in":8456456345,"user_id":1}
-    //print__r($resp);
-		//exit;
     if (isset($resp['error'])) {
       return false; 
     }

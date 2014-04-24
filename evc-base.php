@@ -17,6 +17,7 @@ add_action('plugins_loaded','evc_plugin_loader');
 function evc_plugin_loader() {
   include_once('evc-share.php');
   include_once('evc-stats.php');
+	include_once('evc-comments.php');
 }
 
 // add the theme page
@@ -50,17 +51,17 @@ class EVC_Walker_Checklist extends Walker {
   var $tree_type = 'category';
   var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
   
-  function start_lvl(&$output, $depth, $args) {
+  function start_lvl(&$output, $depth = 0, $args = array()) {
     $indent = str_repeat("\t", $depth);
     $output .= "$indent<ul class='children'>\n";
   }
 
-  function end_lvl(&$output, $depth, $args) {
+  function end_lvl(&$output, $depth = 0, $args = array()) {
     $indent = str_repeat("\t", $depth);
     $output .= "$indent</ul>\n";
   }
 
-  function start_el(&$output, $category, $depth, $args) {
+  function start_el(&$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
     extract($args);
     if ( empty($taxonomy) )
       $taxonomy = 'category';
@@ -77,11 +78,11 @@ class EVC_Walker_Checklist extends Walker {
     */
     $name = $_name ;
     
-    $class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category"' : '';
-    $output .= "\n<li id='{$taxonomy}-{$category->term_id}'$class>" . '<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$taxonomy.'-' . $category->term_id . '"' . checked( in_array( $category->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $category->name )) . '</label>';
+    $class = in_array( $object->term_id, $popular_cats ) ? ' class="popular-category"' : '';
+    $output .= "\n<li id='{$taxonomy}-{$object->term_id}'$class>" . '<label class="selectit"><input value="' . $object->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$taxonomy.'-' . $object->term_id . '"' . checked( in_array( $object->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $object->name )) . '</label>';
   }
 
-  function end_el(&$output, $category, $depth, $args) {
+  function end_el(&$output, $object, $depth = 0, $args = array()) {
     $output .= "</li>\n";
   }
 }
@@ -92,6 +93,9 @@ add_action('post_submitbox_misc_actions','evc_wall_post_check_box');
 function evc_wall_post_check_box() {
   global $post;
   $options = get_option('evc_options');
+  
+  if (!isset($options['wall_post_flag']))
+    $options['wall_post_flag'] = false;
   
   $captcha = get_post_meta($post->ID, '_evc_wall_post_captcha', true);
   if (isset($captcha) && !empty($captcha))

@@ -1,9 +1,9 @@
 === Easy VKontakte Connect ===
 Contributors: alekseysolo
-Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics
+Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments
 Requires at least: 3.2
 Tested up to: 3.9
-Stable tag: 1.3.2
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 * *Маска* сообщения для стены ВКонтакте.
 
 *Быстрый старт*: подключите VK API и укажите урл группы, куда транслировать записи.
+
+**2. Виджет комментариев ВКонтакте**
+
+* Самые гибкие настройки.
 
 **2. Виджет сообществ ВКонтакте**
 
@@ -82,6 +86,9 @@ Requires WordPress 3.2 and PHP 5.
 6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.4 =
+* Виджет комментариев ВКонтакте.
 
 = 1.3.1 =
 * Correct links in message.

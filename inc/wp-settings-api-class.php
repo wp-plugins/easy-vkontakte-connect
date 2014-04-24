@@ -190,7 +190,7 @@ class WP_Settings_API_Class {
             foreach ( $field as $option ) {
 
                 $type = isset( $option['type'] ) ? $option['type'] : 'text';
-
+                $option['label'] = (isset($option['label'])) ? $option['label'] : '';
                 $args = array(
                     'id' => $option['name'],
                     'desc' => isset( $option['desc'] ) ? $option['desc'] : '',
@@ -599,7 +599,7 @@ class WP_Settings_API_Class {
                             <?php do_settings_sections( $form['id'] ); ?>
                             <?php do_action( 'wsa_form_bottom_' . $form['id'], $form ); ?>
                             <?php
-                              if ($form['submit_button'] !== false){  
+                              if (!isset($form['submit_button']) || $form['submit_button'] !== false){ 
                             ?>
                             <div style="padding-left: 10px">
                                 <?php submit_button(); ?>
@@ -630,7 +630,7 @@ class WP_Settings_API_Class {
                 var activetab = '';
                 if (typeof(localStorage) != 'undefined' ) {
                     activetab = localStorage.getItem(page);
-                    console.log(page + '/' + activetab); 
+                    //console.log(page + '/' + activetab); 
                 }
                 if (activetab != '' && $(activetab).length ) {
                     $(activetab).fadeIn();

@@ -362,7 +362,7 @@ class VK_Widget_Group extends WP_Widget {
       'title' => '', 
       'group_url' => '', 
       'mode' => 0,
-      'wide' => 2,
+      'wide' => 0,
       'width' => '0',
       'height' => '200',
       'color1' =>'FFFFFF',
@@ -389,8 +389,7 @@ class VK_Widget_Group extends WP_Widget {
         <option value="1"<?php selected( $instance['mode'], '1' ); ?>><?php _e('Только название' ); ?></option>
       </select>
     </p>    
-    <?php 
-    /*
+
     <p>
       <label for="<?php echo $this->get_field_id('wide'); ?>"><?php _e( 'Вид стены группы:' ); ?></label>
       <select name="<?php echo $this->get_field_name('wide'); ?>" id="<?php echo $this->get_field_id('wide'); ?>" class="widefat">
@@ -399,8 +398,6 @@ class VK_Widget_Group extends WP_Widget {
       </select>
       <small><b>Расширенный</b> - к каждой записи будет добавлено фото группы и кнопка "Мне нравится". <b>Только</b> если в предыдущем поле выбрано "Стена группы".</small>
     </p> 
-    */
-    ?>
     
     <p>
       <label ><?php _e('Ширина х высота:'); ?></label>
@@ -666,7 +663,8 @@ function evc_vk_api_settings_admin_init() {
   }
 
   $url = site_url();
-  $url_arr = explode(".", basename($url));
+  $url2 = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+  $url_arr = explode(".", basename($url2));
   $domain = $url_arr[count($url_arr)-2] . "." . $url_arr[count($url_arr)-1];
   
   $site_app_id_desc = '<p>Чтобы получить доступ к <b>API ВКонтакте</b>, вам нужно <a href="http://vk.com/editapp?act=create" target="_blank">создать приложение</a> со следующими настройками:</p>
@@ -1543,17 +1541,17 @@ function evc_ad () {
 		<div class = "evc-boxx">
 			<p><a href = "http://ukraya.ru/286/easy-vkontakte-connect-1-4" target = "_blank">Руководство</a> и <a href = "http://ukraya.ru/284/easy-vkontakte-connect-1-4-support" target = "_blank">помощь</a> по настройке плагина.</p>
 		</div>
-		<h3>Тонны бесплатного уникального контента на ваш сайт!</h3>
-		<p>Плагин <a href = "http://ukraya.ru/242/vk-seo-comments" target = "_blank">VK SEO комментарии</a> <b>импортирует комментарии</b>, оставленные через виджет комментариев ВКонтакте на ваш сайт. 
-    <p>Теперь они <b>индексируются</b> поисковыми системами и <b>привлекают дополнительный трафик</b> по низкочастотным запросам.</p>
-    <p>'.get_submit_button('Установить сейчас', 'primary', 'get_vk_seo_comments3', false).'</p>    
+    <h3>Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
+    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
+    <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
+    <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
 		';
     
   echo '
-    <h3>Автонаполняемый сайт из группы ВКонтакте в один клик!</h3>
-    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группой ВКонтакте и автообновляемый по графику.</p>
-    <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
-    <p>'.get_submit_button('Установить сейчас', 'primary', 'get_vk_wp_bridge', false).'</p>       
+    <h3>Онлайн кинотеатр из видеоальбомов ВКонтакте! Просто. Бесплатно</h3>
+    <p>Плагин <a href = "http://ukraya.ru/314/vk-wp-video" target = "_blank">VKontakte Online Cinema</a> позволяет выгрузить все видеозаписи с описаниями из группы или со стены ВКонтакте, задать автора и рубрику.</p>
+    <p>Каждое видео становится отдельным постом WordPress, адаптивный (responsive) плеер ВКонтакте встраивается автоматически.</p>
+    <p>'.get_submit_button('Установить бесплатно', 'primary', 'get_vk_wp_video', false).'</p>       
     ';    
 				
 }
@@ -1579,7 +1577,14 @@ function evc_ad_js () {
         '_blank'
       );
     });      
-
+ 
+    $(document).on( 'click', '#get_vk_wp_video', function (e) {    
+      e.preventDefault();
+      window.open(
+        '<?php echo site_url('wp-admin/plugin-install.php?tab=search&s=vkontakte+online+cinema&plugin-search-input=Search+Plugins'); ?>',
+        '_blank'
+      );
+    }); 
   
   }); // jQuery End
 </script>
@@ -1628,7 +1633,8 @@ function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   
 	if (!$redirect_url) {
     $redirect_url = remove_query_arg( array('code', 'redirect_uri', 'settings-updated'), $_SERVER['REQUEST_URI'] );
-    $redirect_url = get_bloginfo('wpurl') . $redirect_url;
+    //$redirect_url = get_bloginfo('wpurl') . $redirect_url;
+    $redirect_url = site_url($redirect_url);
   }
 
   $params = array(

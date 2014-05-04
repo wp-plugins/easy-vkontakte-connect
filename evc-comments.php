@@ -172,8 +172,8 @@ function evc_comments_admin_init() {
     'evc_comments_pro' =>  array(
       'id' => 'evc_comments_pro',
       'name' => 'evc_comments_pro',
-      'title' => __( 'Премиум версия', 'evc' ),
-      'desc' => __( 'Премиум версия', 'evc' ),
+      'title' => __( 'Расширенная версия', 'evc' ),
+      'desc' => __( 'Расширенная версия', 'evc' ),
       'submit_button' => false,
       'sections' => array(
         'evc_comments_pro_section' => array(
@@ -308,7 +308,7 @@ function evc_comments_admin_init() {
         'label' => __( 'Скрывать комментарии', 'evc' ),
         'desc' => __( 'Скрывать вордпресс комментарии от посетителей.', 'evc' ),
         'type' => 'radio',
-        'default' => '0',
+        'default' => '1',
         'options' => array(
           '1' => 'Да',
           '0' => 'Нет',
@@ -366,10 +366,9 @@ function evc_comments_admin_menu() {
   global $evc_comments_page; 
    
   $evc_comments_page = add_submenu_page( 'evc', 'Виджет комментариев ВКонтакте', 'Комментарии', 'activate_plugins', 'evc-comments', 'evc_comments_page' );
-  
+
 }
 add_action( 'admin_menu', 'evc_comments_admin_menu', 25 );
-
 
 
 add_action('evc_vk_async_init', 'evc_comments_vk_async_init');

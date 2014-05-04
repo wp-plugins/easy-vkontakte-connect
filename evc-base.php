@@ -18,6 +18,7 @@ function evc_plugin_loader() {
   include_once('evc-share.php');
   include_once('evc-stats.php');
 	include_once('evc-comments.php');
+  include_once('evc-comments-seo.php');
 }
 
 // add the theme page
@@ -94,9 +95,6 @@ function evc_wall_post_check_box() {
   global $post;
   $options = get_option('evc_options');
   
-  if (!isset($options['wall_post_flag']))
-    $options['wall_post_flag'] = false;
-  
   $captcha = get_post_meta($post->ID, '_evc_wall_post_captcha', true);
   if (isset($captcha) && !empty($captcha))
     $options['wall_post_flag'] = true;
@@ -123,7 +121,7 @@ add_action('transition_post_status','evc_publish_auto_check',10,3);
 function evc_publish_auto_check($new, $old, $post) {
   $options = get_option('evc_autopost'); 
   
-  if (($new == 'publish' && $old != 'publish' && $options['autopublish']) || ($_POST['evc_wall_post'] && $new == 'publish') ) {  
+  if (($new == 'publish' && $old != 'publish' && $options['autopublish']) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish') ) {  
     if (!isset($options['exclude_cats']) || empty($options['exclude_cats']) || !in_category($options['exclude_cats'], $post))
       evc_wall_post($post->ID, $post);
   }

@@ -19,6 +19,7 @@ function evc_plugin_loader() {
   include_once('evc-stats.php');
 	include_once('evc-comments.php');
   include_once('evc-comments-seo.php');
+  include_once('evc-polls.php');
 }
 
 // add the theme page
@@ -26,7 +27,7 @@ add_action('admin_menu', 'evc_add_page');
 function evc_add_page() {
   global $evc_options_page;
   
-  add_menu_page( 'Easy VKontakte Connect', 'Easy VK Connect', 'activate_plugins', 'evc', 'evc_vk_api_settings_page', '', '99.02' ); 
+  add_menu_page( 'Easy VKontakte Connect', 'EVC', 'activate_plugins', 'evc', 'evc_vk_api_settings_page', plugins_url( 'img/vk-logo.png', __FILE__ ), '99.02' ); 
 }
 
 
@@ -98,6 +99,8 @@ function evc_wall_post_check_box() {
   $captcha = get_post_meta($post->ID, '_evc_wall_post_captcha', true);
   if (isset($captcha) && !empty($captcha))
     $options['wall_post_flag'] = true;
+  else
+    $options['wall_post_flag'] = false;  
 ?>
 <div class="misc-pub-section">
 <p><input type="checkbox" <?php checked($options['wall_post_flag'],true); ?> name="evc_wall_post" /> Опубликовать на стене ВКонтакте (EVC)</p>
@@ -411,7 +414,7 @@ function theme_evc_excerpt_length() {
 // fix shortlink 
 add_filter('evc_publish_permalink', 'evc_publish_shortlink_fix', 10, 2);
 function evc_publish_shortlink_fix($link, $id) {
-  if (empty($link)) 
+  //if (empty($link)) 
     $link = get_permalink($id);
   
   return $link;

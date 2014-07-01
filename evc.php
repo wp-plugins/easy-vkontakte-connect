@@ -2,8 +2,8 @@
 /*
 Plugin Name: Easy VKontakte Connect
 Plugin URI: http://ukraya.ru/tag/easy-vkontakte-connect/
-Description: Автопубликация записей с фото на стене ВКонтакте, анализ групп, кнопки, виджеты... 
-Version: 1.5
+Description: Автопубликация записей с фото на стене ВКонтакте, опросы VK, анализ групп, кнопки, виджеты... 
+Version: 1.6
 Author: Aleksej Solovjov
 Author URI: http://ukraya.ru
 License: GPL2
@@ -27,7 +27,7 @@ License: GPL2
 
 
 function evc_version() {
-  return '1.4';
+  return '1.6';
 }
 
 // prevent parsing errors on PHP 4 or old WP installs

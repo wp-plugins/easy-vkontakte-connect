@@ -1,9 +1,9 @@
 === Easy VKontakte Connect ===
 Contributors: alekseysolo
-Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments
+Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 3.9
-Stable tag: 1.5
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Весь API ВКонтакте. 
 
 * Автопубликация записей с фото на стену группы ВКонтакте.
+* **!!!** Опросы ВКонтакте: создать, добавить на сайт, поделиться.
 * Виджет комментариев ВКонтакте.
 * Индексация & импорт комментариев, оставленных через виджет комментариев ВКонтакте.
 * Виджет сообществ ВКонтакте.
@@ -52,6 +53,14 @@ Requires WordPress 3.2 and PHP 5.
 6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.6 / 2014-07-01 =
+* Add VK Polls widget.
+* Fix error in VK Community Widget.
+* Etc...
+
+= 1.5.1 / 2014-05-06 =
+* Fix undefined variable in evc_share_meta.
 
 = 1.5 =
 * **Important** Added VK Comments Indexation feature.

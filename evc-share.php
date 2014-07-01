@@ -48,7 +48,8 @@ function evc_share_meta () {
 	$options = evc_get_all_options(array('evc_vk_api_widgets','evc_sidebar_overlay','evc_sidebar_slide'));
 	$s = $options;
 	//print__r($s);
-	echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />';
+  if (isset($options['site_app_id']) && !empty($options['site_app_id']))
+	  echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />';
 	
 	echo '<style type="text/css">';
 	
@@ -72,6 +73,7 @@ function evc_share_meta () {
 	echo '<script type="text/javascript">
     var VKWidgetsGroup = [];
     var VKWidgetsComments = [];
+    var VKWidgetsPolls = [];
 		if (typeof ajaxurl == "undefined")
 			ajaxurl = "' . 'http://'.$_SERVER['HTTP_HOST']. '/wp-admin/admin-ajax.php' .'";
 	';
@@ -148,9 +150,28 @@ function evc_post_sidebar_css($sidebar = 'bp') {
 	return $out;
 }
 
+add_action('admin_head', 'evc_vk_init'); 
+function evc_vk_init(){
+  global $post_type;;
+  
+  if ((isset($_GET['post_type']) && $_GET['post_type'] == 'evc_poll') || (isset($post_type) && $post_type == 'evc_poll') ) {
+  //$options = get_option('evc_options');
+  //$options = evc_get_all_options(array('evc_vk_api_widgets','evc_options'));
+  ?>
+  <script src="//vk.com/js/api/openapi.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  /* <![CDATA[ */
+  /* ]]> */
+  </script>
+  <?php
+  }
+}    
+
+//add_action('admin_footer', 'evc_vk_async_init'); 
 add_action('wp_footer', 'evc_vk_async_init'); 
 function evc_vk_async_init(){
-  $options = get_option('evc_options');
+  //$options = get_option('evc_options');
+  $options = evc_get_all_options(array('evc_vk_api_widgets','evc_options'));
   ?>
   <script type="text/javascript">
   /* <![CDATA[ */
@@ -178,7 +199,6 @@ function evc_vk_async_init(){
    
   // Инициализация vkontakte
   window.vkAsyncInit = function(){
-    
     //console.log(VKWidgetsLike);
     if (typeof VKWidgetsLike !== 'undefined' && VKWidgetsLike.length > 0) {
       for (index = 0; index < VKWidgetsLike.length; ++index) {
@@ -297,7 +317,9 @@ function evc_vk_widget_group ($data, $echo = 1) {
     return $out;
 }
 
-function evc_vk_widget_data_encode($data) {
+function evc_vk_widget_data_encode($data = null) {
+  if (!isset($data) || empty($data) )
+    return '{}';
   foreach($data as $key => $value)
     $out[] = $key . ': ' . (is_numeric($value) ? $value : '"'.$value.'"'); 
     
@@ -325,7 +347,12 @@ class VK_Widget_Group extends WP_Widget {
     unset ($options['group_url'], $options['title']);
     $data['options'] = $options;
     
-    $data['group_id'] = evc_stats_get_group_id($instance['group_url']);
+    
+    if (!isset($instance['group_id']) || empty($instance['group_id']))
+      $data['group_id'] = evc_stats_get_group_id($instance['group_url']);
+    else
+      $data['group_id'] = $instance['group_id'];
+      
     $data['element_id'] = $this->id;
     
 		//print__r($data);
@@ -352,6 +379,8 @@ class VK_Widget_Group extends WP_Widget {
 		else
       $instance['height'] = $new_instance['height'];  
       
+    $instance['group_id'] = evc_stats_get_group_id($new_instance['group_url']);      
+    
     $instance = wp_parse_args($instance, $new_instance);
 		return $instance;
 	}
@@ -1584,7 +1613,9 @@ function evc_ad_js () {
         '<?php echo site_url('wp-admin/plugin-install.php?tab=search&s=vkontakte+online+cinema&plugin-search-input=Search+Plugins'); ?>',
         '_blank'
       );
-    }); 
+    });
+    
+  
   
   }); // jQuery End
 </script>

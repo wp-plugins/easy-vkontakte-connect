@@ -149,3 +149,7 @@
   position: relative;
   overflow: hidden;
 }
+
+.widget .vk_poll .vk_widget_polls {
+  margin-bottom:20px;
+}

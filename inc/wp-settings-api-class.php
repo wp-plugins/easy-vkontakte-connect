@@ -631,6 +631,9 @@ class WP_Settings_API_Class {
                 if (typeof(localStorage) != 'undefined' ) {
                     activetab = localStorage.getItem(page);
                     //console.log(page + '/' + activetab); 
+                    //console.log (window.location.hash);
+                    if (window.location.hash)
+                      activetab = window.location.hash;
                 }
                 if (activetab != '' && $(activetab).length ) {
                     $(activetab).fadeIn();

@@ -148,7 +148,7 @@ function evc_poll_columns($column, $post_id) {
   $meta['response'] = maybe_unserialize($meta['response']);
   switch ($column){
     case "title":
-      echo $post->title;
+      echo $post->post_title;
     break;    
     case "evc_poll_shortcode":
       echo '[vk_poll id="' . $meta['response']['id'] . '"]';
@@ -230,16 +230,16 @@ function evc_poll_meta_option() {
 
 <table class="form-table">
   <tbody>
-    <?php if (isset($args['response']['id'])) { ?>
+    <?php if (!isset($options['access_token']) || empty($options['access_token'])) { ?>
     <tr>
-      <th scope="row">Виджет</th>
+      <th scope="row"></th>
       <td>
-      <?php if (!isset($options['access_token']) || empty($options['access_token'])) {
+      <?php 
         echo '<div class="error"><p>Необходимо настроить API ВКонтакте. Откройте вкладку "<a href="'.admin_url('admin.php?page=evc').'">Для автопостинга</a>".</p></div>';
-      } ?>
+      ?>
       </td>
     </tr>  
-    <?php } ?>        
+    <?php } ?>      
     <?php if (isset($args['response']['id'])) { ?>
     <tr>
       <th scope="row">Виджет</th>

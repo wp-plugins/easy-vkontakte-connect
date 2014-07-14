@@ -20,6 +20,8 @@ function evc_plugin_loader() {
 	include_once('evc-comments.php');
   include_once('evc-comments-seo.php');
   include_once('evc-polls.php');
+  include_once('evc-authorization.php');
+  include_once('evc-lock.php');
 }
 
 // add the theme page
@@ -123,12 +125,17 @@ function evc_wall_post_check_box() {
 add_action('transition_post_status','evc_publish_auto_check',10,3);
 function evc_publish_auto_check($new, $old, $post) {
   $options = get_option('evc_autopost'); 
+
+  $filter = apply_filters('evc_autopost_filter', true, $new, $old, $post, $_POST);
   
-  if (($new == 'publish' && $old != 'publish' && $options['autopublish']) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish') ) {  
+  if (($new == 'publish' && $old != 'publish' && $options['autopublish'] && $post->post_type == 'post' && $filter ) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish')) {  
+    
     if (!isset($options['exclude_cats']) || empty($options['exclude_cats']) || !in_category($options['exclude_cats'], $post))
       evc_wall_post($post->ID, $post);
   }
 }
+
+
 
 function evc_wall_post ($id, $post) {
 
@@ -155,10 +162,14 @@ function evc_wall_post ($id, $post) {
   if (in_array('link', $mt[1]))
     $m['%link%'] = apply_filters('evc_publish_permalink', null, $post->ID);    
 
+  $m = apply_filters('evc_autopost_mask', $m, $mt, $id, $post);
+
   $message = str_replace( array_keys($m), array_values($m), $options['message'] );
   $message = strip_tags($message);
   $message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
   $message = htmlspecialchars_decode($message);  
+ 
+  $message = apply_filters('evc_autopost_message', $message, $id, $post);
  
   $permalink = $options['format']['add_link'] ? apply_filters('evc_publish_permalink', wp_get_shortlink($post->ID), $post->ID) : ''; 
   
@@ -197,34 +208,48 @@ function evc_wall_post ($id, $post) {
   
   $data = wp_remote_get(EVC_API_URL.'wall.post?'.$query, array('sslverify' => false)); 
   
-  if (is_wp_error($data))
-    return $data->get_error_message();
+  if (is_wp_error($data)) {
+    evc_add_log('evc_wall_post: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
+    return false;
+  }  
   
   $resp = json_decode($data['body'],true);  
 
-  if ($resp['error']) {
-    if ($resp['error']['error_code'] == 14) {
-      $captcha = array(
-        'sid' => $resp['error']['captcha_sid'],
-        'img' => $resp['error']['captcha_img']
-      );
-      update_post_meta($post->ID, '_evc_wall_post_captcha', $captcha);
+  if ($resp['error']) {    
+    
+    if (isset($resp['error']['error_code'])) {
+      
+      if ($resp['error']['error_code'] == 14) {
+        $captcha = array(
+          'sid' => $resp['error']['captcha_sid'],
+          'img' => $resp['error']['captcha_img']
+        );
+        update_post_meta($post->ID, '_evc_wall_post_captcha', $captcha);
+            
+        if (!isset($options['error_email'])) {
+          // Admin Notification
+          $from = array('From:"'.get_option('blogname').'" <'.get_option('admin_email').'>');  
+
+          $message  = 'Запись ВКонтакте не опубликована' . "\r\n\r\n";
+          $message  .= 'Требуется captcha (пройдите по ссылке): ' . admin_url('post.php?post='.$post->ID.'&action=edit') . "\r\n\r\n";
+          $message  .= 'ВНИМАНИЕ!'."\r\n".'Это уведомление отправляется только ОДИН раз.'."\r\n".'Пока не введена captcha дальнейшая публикация записей ВКонтакте НЕВОЗМОЖНА.';
+          $message  .= "\r\n\r\n".'Ответы на ваши вопросы можно найти тут: .';
+          $message  .= "\r\n\r\n".'Спасибо, что выбрали Easy VKontakte Connect (EVC), пожалуй один из лучших плагинов интеграции с ВКонтактом )';
+
+          @wp_mail(get_option('admin_email'), 'EVC: требуется captcha!', $message, $from);
+
+          $options['error_email'] = current_time('timestamp', 1);
           
-      if (!isset($options['error_email'])) {
-        // Admin Notification
-        $from = array('From:"'.get_option('blogname').'" <'.get_option('admin_email').'>');  
-
-        $message  = 'Запись ВКонтакте не опубликована' . "\r\n\r\n";
-        $message  .= 'Требуется captcha (пройдите по ссылке): ' . admin_url('post.php?post='.$post->ID.'&action=edit') . "\r\n\r\n";
-        $message  .= 'ВНИМАНИЕ!'."\r\n".'Это уведомление отправляется только ОДИН раз.'."\r\n".'Пока не введена captcha дальнейшая публикация записей ВКонтакте НЕВОЗМОЖНА.';
-        $message  .= "\r\n\r\n".'Ответы на ваши вопросы можно найти тут: .';
-        $message  .= "\r\n\r\n".'Спасибо, что выбрали Easy VKontakte Connect (EVC), пожалуй один из лучших плагинов интеграции с ВКонтактом )';
-
-        @wp_mail(get_option('admin_email'), 'EVC: требуется captcha!', $message, $from);
-
-        $options['error_email'] = current_time('timestamp', 1);
-      }
+          update_option('evc_autopost', $options);  
+        }
+      }    
+      else
+        evc_add_log('evc_wall_post: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
     }
+    else
+      evc_add_log('evc_wall_post: VK Error. ' . $resp['error']);           
+    
+    return false;    
   }
   else {
     delete_post_meta($post->ID, '_evc_wall_post_captcha');
@@ -236,8 +261,13 @@ function evc_wall_post ($id, $post) {
   if ($resp['response']['processing'] || $resp['response']['post_id']) {
     update_post_meta($post->ID, '_evc_wall_post', date("Y-m-d H:i:s"));
     update_post_meta($post->ID, '_evc_wall_post_id', $resp['response']['post_id']);
+    
+    $vk_item_id = $params['owner_id'] . '_' . $resp['response']['post_id'];
+    if (!update_post_meta($post->ID, 'vk_item_id', $vk_item_id ))
+      add_post_meta($post->ID, 'vk_item_id', $vk_item_id, true);  
   }
-
+  
+  do_action('evc_wall_post', $params, $resp, $post);
   return true;
 }
 
@@ -421,4 +451,14 @@ function evc_publish_shortlink_fix($link, $id) {
 }
 
 
+add_action( 'save_post', 'evc_autopost_default_meta' );
+function evc_autopost_default_meta($post_id) {   
+        
+  $wall_post_id = get_post_meta($post_id, '_evc_wall_post_id', true);
+  if ( $wall_post_id === 0 || $wall_post_id > 0 )
+    return;
+        
+  if (!update_post_meta($post_id, '_evc_wall_post_id', 0 ))
+    add_post_meta($post_id, '_evc_wall_post_id', 0, true);    
+}
 

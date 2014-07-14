@@ -109,8 +109,17 @@ jQuery(document).ready(function($) {
           $.cookie('sSidebar', parseInt($.cookie('sSidebar')) + 1, { expires: sCookieExpires, path: '/' });
       }
     }  // Slide Sidebar End
+
     
-   
+    
+    if (typeof vkUnLock !== 'undefined' && vkUnLock.length > 0){
+      for (index = 0; index < vkUnLock.length; ++index) {
+        if ($.cookie('vkUnLock' + vkUnLock[index]) == 'undefined' || !$.cookie('vkUnLock' + vkUnLock[index]) || $.cookie('vkUnLock' + vkUnLock[index]) !=  vkUnLock[index] ) {
+          $.cookie('vkUnLock' + vkUnLock[index], vkUnLock[index], { expires: subscribeCookieExpires, path: '/' });
+        }        
+      }      
+    }
+  
   
   }); // End jQuery 
   

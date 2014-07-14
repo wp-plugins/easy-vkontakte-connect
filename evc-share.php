@@ -49,7 +49,7 @@ function evc_share_meta () {
 	$s = $options;
 	//print__r($s);
   if (isset($options['site_app_id']) && !empty($options['site_app_id']))
-	  echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />';
+	  echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />'; // https://vk.com/dev/widget_like
 	
 	echo '<style type="text/css">';
 	
@@ -70,10 +70,17 @@ function evc_share_meta () {
 	echo '</style>';
   
 
+  
 	echo '<script type="text/javascript">
     var VKWidgetsGroup = [];
     var VKWidgetsComments = [];
     var VKWidgetsPolls = [];
+    var VKWidgetsSubscribe = [];
+    var VKWidgets = [];
+    
+    var vkUnLock = [];
+    var subscribeCookieExpires = 1;
+    
 		if (typeof ajaxurl == "undefined")
 			ajaxurl = "' . 'http://'.$_SERVER['HTTP_HOST']. '/wp-admin/admin-ajax.php' .'";
 	';
@@ -299,17 +306,21 @@ function evc_vk_widget_group ($data, $echo = 1) {
   if ($data['options']['width'] === 0)
     $data['options']['width'] = 'auto';
   
-  $out = '
-    <script type="text/javascript">
-      VKWidgetsGroup.push ({
-        element_id: "vk-widget-'.$data['element_id'].'",
-        options: '.evc_vk_widget_data_encode($data['options']).',
-        group_id: '.(-1*$data['group_id']).'
-      });  
-    </script>
+  if (isset($data['group_id']) && !empty($data['group_id'])) {
+    $out = '
+      <script type="text/javascript">
+        VKWidgetsGroup.push ({
+          element_id: "vk-widget-'.$data['element_id'].'",
+          options: '.evc_vk_widget_data_encode($data['options']).',
+          group_id: '.(-1*$data['group_id']).'
+        });         
+      </script>
 
-		<div class = "vk_widget_group" id = "vk-widget-'.$data['element_id'].'"></div>	
-  ';
+		  <div class = "vk_widget_group" id = "vk-widget-'.$data['element_id'].'"></div>	
+    ';
+  }
+  else
+    $out = '';
   
   if ($echo)
     echo $out;
@@ -628,8 +639,12 @@ function evc_get_all_options ($options) {
 	$out = array();
 	foreach($options as $option) {
 		$values = get_option($option);
-		if ($values && !empty($values))
-			$out += $values;
+		if ($values && !empty($values)) {
+      if (!is_array($values))
+        $out[$option] = $values;
+      else
+			  $out += $values;
+    }
 	}
 	return $out;
 }
@@ -1239,9 +1254,25 @@ function evc_update_option_filter($newvalue, $oldvalue) {
 	return $newvalue;
 }
 
+add_action('admin_init', 'evc_autopost_settings_defaults');
+function evc_autopost_settings_defaults() {
+  $options = get_option('evc_autopost');
+  if ($options) {
+    
+    $options['autopost_old'] = (!isset($options['autopost_old']) || empty($options['autopost_old'])) ? 0 : $options['autopost_old'];
+    
+    $options['autopost_old_order'] = (!isset($options['autopost_old_order']) || empty($options['autopost_old_order'])) ? 'DESC' : $options['autopost_old_order'];
+    
+    $options['autopost_time_cron'] = (!isset($options['autopost_time_cron']) || empty($options['autopost_time_cron'])) ? '09:00 11:00 12:00 13:00 14:00 15:00 16:00 17:00 18:00 19:00 20:00 22:00 00:00' : $options['autopost_time_cron'];
+    
+    update_option('evc_autopost', $options);
+  }
+}
 
 function evc_autopost_settings_admin_init() {
   global $evc_autopost_settings;
+  
+  $evc_activation_date = evc_activation_date();
   
   $evc_autopost_settings = new WP_Settings_API_Class;
   
@@ -1255,12 +1286,43 @@ function evc_autopost_settings_admin_init() {
         'evc_autopost_section' => array(
           'id' => 'evc_autopost_section',
           'name' => 'evc_autopost_section',
+          'title' => __( 'Страница ВКонтакте', 'evc' ),
+          'desc' => __( 'Страница ВКонтакте на которую будут транслироваться записи сайта.', 'evc' ),          
+        ),
+        'evc_autopost_autopost_section' => array(
+          'id' => 'evc_autopost_autopost_section',
+          'name' => 'evc_autopost_autopost_section',
           'title' => __( 'Настройки автопостинга', 'evc' ),
-          'desc' => __( 'Настройки автопостинга записей из WordPress на стену группы ВКонтакте.', 'evc' ),          
-        )
+          'desc' => __( 'Настройки автопостинга записей из WordPress на стену группы ВКонтакте.', 'evc' )
+        ),
+        'evc_autopost_delay_section' => array(
+          'id' => 'evc_autopost_delay_section',
+          'name' => 'evc_autopost_delay_section',
+          'title' => __( 'Автопостинг с задержкой', 'evc' ),
+          'desc' => __( 'Задержка между публикацией записи на сайте и ВКонтакте.', 'evc' )
+        ),
+        'evc_autopost_old_section' => array(
+          'id' => 'evc_autopost_old_section',
+          'name' => 'evc_autopost_old_section',
+          'title' => __( 'Автопостинг старых записей', 'evc' ),
+          'desc' => __( 'Автопостинг записей, которые были опубликованы на сайте до установки плагина EVC (до <code>'.$evc_activation_date.'</code>). Если плагин был установлен раньше указанной даты, и ВКонтакте уже были опубликованы записи с сайта, то они <b><u>не будут</u></b> опубликованы повторно.', 'evc' )
+        ),
+        'evc_autopost_time_section' => array(
+          'id' => 'evc_autopost_time_section',
+          'name' => 'evc_autopost_time_section',
+          'title' => __( 'Автопубликация по графику', 'evc' ),
+          'desc' => __( 'Время публикации записей для <em>Автопостинга с задержкой</em> и <em>Автопостинга старых записей</em>.', 'evc' )
+        ),
+        'evc_autopost_format_section' => array(
+          'id' => 'evc_autopost_format_section',
+          'name' => 'evc_autopost_format_section',
+          'title' => __( 'Формат записи ВКонтакте', 'evc' ),
+          'desc' => __( 'Как будет выглядеть запись на стене ВКонтакте.', 'evc' )
+        )                 
       )
-    ),  
-  );  
+    )    
+  ); 
+  $tabs = apply_filters('evc_autopost_tabs', $tabs, $tabs); 
   
   $fields = array(
    'evc_autopost_section' => array(
@@ -1272,14 +1334,25 @@ function evc_autopost_settings_admin_init() {
         <br/><br/>Вы можете создать <a href="http://vk.com/public.php?act=new" target="_blank">новую страницу</a> ВКонтакте или найти среди ваших уже <a href="http://vk.com/public.php?act=newY" target="_blank">созданных страниц</a>.', 'evc' ),
         'type' => 'text'    
       ),      
-     array(
+      array(
         'name' => 'page_id',
         'label' => __( 'ID страницы ВКонтакте', 'evc' ),
         'desc' => __( 'Значение будет подставлено автоматически.', 'evc' ),
         'type' => 'text',
         'readonly' => true              
-      ),     
-     array(
+      ),    
+      array(
+        'name' => 'page_screen_name',
+        'label' => __( 'Короткое имя', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Значение будет подставлено автоматически.
+        <br/>Испрользуется для преобразования меток (тегов) и рубрик записи из блога <b><u>в хэштеги ВКонтакте</u></b>.', 'evc' ),
+        'type' => 'text',
+        'readonly' => true              
+      )
+   ),         
+   'evc_autopost_autopost_section' => array(
+      array(
         'name' => 'autopublish',
         'label' => __( 'Автопубликация', 'evc' ),
         'desc' => __( 'Запустить или остановить автоматическую публикацию новых материалов на стене ВКонтакте.', 'evc' ),
@@ -1289,7 +1362,85 @@ function evc_autopost_settings_admin_init() {
           '1' => 'Запущена',
           '0' => 'Остановлена',
         )
+      )
+   ),  
+   
+   'evc_autopost_delay_section' => array(   
+      array(
+        'name' => 'autopost_delay',
+        'label' => __( 'Задержка', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Через сколько часов после публикации записи на сайте, опубликовать ее ВКонтакте. Чтобы отключить задержку, установите <code>0</code>.
+        <br/><strong><u>Зачем</u>:</strong> чтобы поисковые системы воспринимали запись на сайте как <strong>первоисточник</strong>.', 'evc' ),
+        'type' => 'text',
+        'default' => 24,
+        'readonly' => true 
+      )
+   ),
+   
+   'evc_autopost_old_section' => array(   
+     array(
+        'name' => 'autopost_old',
+        'label' => __( 'Автопубликация', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Запустить или остановить автоматическую публикацию на стене ВКонтакте материалов, опубликованных на сайте до установки плагина EVC.', 'evc' ),
+        'type' => 'radio',
+        'default' => '0',
+        'options' => array(
+          '1' => 'Запущена',
+          '0' => 'Остановлена',
+        )
       ),  
+     array(
+        'name' => 'autopost_old_order',
+        'label' => __( 'Очередность', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>В какой очередности публиковать ВКонтакте материалы сайта.', 'evc' ),
+        'type' => 'radio',
+        'default' => 'ASC',
+        'options' => array(
+          'DESC' => 'От новых к старым.',
+          'ASC' => 'От старых к новым.',
+        )
+      )
+   ),
+   
+   'evc_autopost_time_section' => array(      
+       array(
+        'name' => 'autopost_time_cron',
+        'label' => __( 'Время', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Записи будут опубликованы ВКонтакте примерно в указанное время. 
+        <br/>Время нужно указывать в формате: <code>ЧЧ:ММ</code> разделяя пробелом.
+        <br/>Крон запускается один раз в 15 минут, поэтому для минут следует устанавливать только значения кратные 15 (00, 15, 30, 45).', 'evc' ),
+        'type' => 'textarea',
+        'default' => '09:00 11:00 12:00 13:00 14:00 15:00 16:00 17:00 18:00 19:00 20:00 22:00 00:00'
+      ),       
+      /*
+      array(
+        'name' => 'autopost_time_interval',
+        'label' => __( 'Интервал', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Записи будут опубликованы ВКонтакте в случайное время из указанного интервала.
+        <br/>Нужно указать начало интервала и его конец в формате: <code>ЧЧ:ММ ЧЧ:ММ</code> разделяя пробелом.
+        <br/>Крон запускается один раз в 15 минут, поэтому для минут следует устанавливать только значения кратные 15 (00, 15, 30, 45).', 'evc' ),
+        'type' => 'text',
+        'default' => '',
+        'readonly' => true 
+      ),      
+      
+      array(
+        'name' => 'autopost_per_day',
+        'label' => __( 'Записей в день', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Сколько записей публиковать ВКонтакте в течении дня.', 'evc' ),
+        'type' => 'text',
+        'default' => '',
+        'readonly' => true 
+      )
+      */
+   ),
+   'evc_autopost_format_section' => array(               
       array(
         'name' => 'format',
         'label' => __( 'Оформление', 'evc' ),
@@ -1316,7 +1467,8 @@ function evc_autopost_settings_admin_init() {
       array(
         'name' => 'upload_photo_count',
         'label' => __( 'Изображения', 'evc' ),
-        'desc' => __( 'Сколько изображений из статьи прикрепить к сообщению ВКонтакте.', 'evc' ),
+        'desc' => __( 'Сколько изображений из статьи прикрепить к сообщению ВКонтакте.
+        <br/><br/><strong>Внимание!</strong> ВКонтакте будут опубликованы только те изображения, которые прикреплены к статье через опцию "Добавить медиа" при редактировании или создании записи.', 'evc' ),
         'type' => 'select',
         'default' => '4',
         'options' => array(
@@ -1346,15 +1498,21 @@ function evc_autopost_settings_admin_init() {
         'name' => 'message',
         'label' => __( 'Сообщение', 'evc_bridge' ),
         'desc' => __( 'Маска сообщения для стены ВКонтакте:
-        <br/><code>%title%</code> - заголовок статьи.
+        <br/><code>%title%</code> - заголовок статьи,
         <br/><code>%excerpt%</code> - анонс статьи,
-        <br/><code>%link%</code> - ссылка на статью.', 'evc' ),
+        <br/><code>%link%</code> - ссылка на статью.
+        <br/>
+        <br/><small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/><code>%tags%</code> - метки (теги) записи,
+        <br/><code>%cats%</code> - рубрики записи.
+        <br/>Метки и рубрики будут <b><u>преобразованы в хэштеги ВКонтакте</u></b>, что может повысить количество просмотров материалов группы ВК.', 'evc' ),
         'type' => 'textarea',
         'default' => "%title%\n\n%excerpt%"
       )                
-    )   
+    )     
   );
-
+  $fields = apply_filters('evc_autopost_fields', $fields, $fields);
+  
  //set sections and fields
  $evc_autopost_settings->set_option_name( 'evc_options' );
  $evc_autopost_settings->set_sections( $tabs );
@@ -1400,11 +1558,15 @@ function evc_autopost_settings_page_js() {
           if (data['gid'] < 0)
             data['gid'] = -1 * data['gid'];
           $("#evc_autopost\\[page_id\\]").val(data['gid']);
+          $("#evc_autopost\\[page_screen_name\\]").val(data['screen_name']);
           
           //console.log(data);
         }
       });                   
     });
+    
+    <?php do_action('evc_autopost_settings_page_js'); ?>
+    
   }); // jQuery End
 </script>
 <?php
@@ -1421,8 +1583,22 @@ function evc_share_get_group_id() {
     $gid = evc_stats_get_group_id($group_url);
     if (!$gid)
       $out['error'] = 'Error';
-    else
+    else {
       $out['gid'] = $gid;
+      
+      $gid_abs = -1 * $gid;
+      
+      $out['group'] = get_transient('evc-g_' . $gid_abs );
+      
+      preg_match('/^(id|public|club|event)([0-9]+)/', $out['group']['screen_name'], $matches);
+      
+      if (!empty($matches[1]) && !empty($matches[2])) {
+        $out['screen_name'] = '';
+      }
+      else
+        $out['screen_name'] = $out['group']['screen_name'];
+      
+    }
   }
   else 
     $out['error'] = 'Error';
@@ -1568,8 +1744,17 @@ function evc_widget_settings_page() {
 function evc_ad () {
 	echo '
 		<div class = "evc-boxx">
-			<p><a href = "http://ukraya.ru/286/easy-vkontakte-connect-1-4" target = "_blank">Руководство</a> и <a href = "http://ukraya.ru/284/easy-vkontakte-connect-1-4-support" target = "_blank">помощь</a> по настройке плагина.</p>
-		</div>
+			<p><a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">Помощь</a> и <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">решение</a> проблем.
+      <br/>Возможна <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">доработка</a> под ваши задачи.</p>
+		</div>';
+    
+  echo '
+    <h3>EVC PRO: грандиозные возможности!</h3>
+    <p>Плагин <a href = "http://ukraya.ru/421/evc-pro" target = "_blank">EVC PRO</a> даст вам возможности, которых нет у других пользователей. Вы сможете, не прилагая усилий, получить больше подписчиков в свои группы ВКонтакте, больше лайков, репостов, комментариев к материалам...</p>
+    <p>'.get_submit_button('Узнать больше', 'primary', 'get_evc_pro', false).'</p>  
+    ';    
+  
+  echo '
     <h3>Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
     <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
     <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
@@ -1615,7 +1800,13 @@ function evc_ad_js () {
       );
     });
     
-  
+    $(document).on( 'click', '#get_evc_pro, .get-evc-pro', function (e) {    
+      e.preventDefault();
+      window.open(
+        'http://ukraya.ru/421/evc-pro',
+        '_blank'
+      );
+    });   
   
   }); // jQuery End
 </script>
@@ -1654,16 +1845,16 @@ function evc_admin_head () {
 
 if (!defined('EVC_TOKEN_URL'))
   define('EVC_TOKEN_URL', 'https://oauth.vk.com/access_token');
-if (!defined('EVC_AUTORIZATION_URL'))
-  define('EVC_AUTORIZATION_URL', 'https://oauth.vk.com/authorize');
+if (!defined('EVC_AUTHORIZATION_URL'))
+  define('EVC_AUTHORIZATION_URL', 'https://oauth.vk.com/authorize');
 function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   //$options = get_option('evc_options');
 	$options = evc_get_all_options(array(
 		'evc_vk_api_widgets'
 	));	
-  
+
 	if (!$redirect_url) {
-    $redirect_url = remove_query_arg( array('code', 'redirect_uri', 'settings-updated'), $_SERVER['REQUEST_URI'] );
+    $redirect_url = remove_query_arg( array('code', 'redirect_uri', 'settings-updated', 'loggedout', 'error', 'access_denied', 'error_reason', 'error_description', 'reauth'), $_SERVER['REQUEST_URI'] );
     //$redirect_url = get_bloginfo('wpurl') . $redirect_url;
     $redirect_url = site_url($redirect_url);
   }
@@ -1677,7 +1868,7 @@ function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   );
   $query = http_build_query($params);  
   
-  $out = EVC_AUTORIZATION_URL . '?' . $query;
+  $out = EVC_AUTHORIZATION_URL . '?' . $query;
   
   if ($echo)
     echo $out;
@@ -1736,4 +1927,80 @@ function evc_share_get_token () {
     return $resp;  
   }
   return false;  
+}
+
+function evc_log_admin_init() {
+  global $evc_log;
+  
+  $evc_log = new WP_Settings_API_Class;
+  
+  $tabs = array(
+    'evc_log' => array(
+      'id' => 'evc_log',
+      'name' => 'evc_log',
+      'title' => __( 'Лог', 'evc' ),
+      'desc' => __( '', 'evc' ),
+      'submit_button' => false,
+      'sections' => array(       
+        'evc_log_section' => array(
+          'id' => 'evc_log_section',
+          'name' => 'evc_log_section',
+          'title' => __( 'Лог действий плагина', 'evc' ),
+          'desc' => __( '<pre>' . evc_get_log(100) . '</pre>', 'evc' ),          
+        )
+      )
+    )
+  );
+  
+  $fields = array();
+
+ //set sections and fields
+ $evc_log->set_option_name( 'evc_options' );
+ $evc_log->set_sections( $tabs );
+ $evc_log->set_fields( $fields );
+
+ //initialize them
+ $evc_log->admin_init();
+}
+add_action( 'admin_init', 'evc_log_admin_init' );
+
+
+// Register the plugin page
+function evc_log_admin_menu() {
+  global $evc_log_settings_page; 
+  
+  $evc_log_settings_page = add_submenu_page( 'evc', 'Лог действий плагина', 'Лог', 'activate_plugins', 'evc-log', 'evc_log_settings_page' );
+}
+add_action( 'admin_menu', 'evc_log_admin_menu', 60 );
+
+// Display the plugin settings options page
+function evc_log_settings_page() {
+  global $evc_log;
+print__r(get_option('evc_resolve_screen_names')); //
+  echo '<div class="wrap">';
+    echo '<div id="icon-options-general" class="icon32"><br /></div>';
+    echo '<h2>Лог действий плагина</h2>';
+    
+    echo '<div id = "col-container">';  
+      echo '<div id = "col-right" class = "evc">';
+        echo '<div class = "evc-box">';
+        evc_ad();
+        echo '</div>';
+      echo '</div>';
+      echo '<div id = "col-left" class = "evc">';
+        settings_errors();
+        $evc_log->show_navigation();
+        $evc_log->show_forms();
+      echo '</div>';
+    echo '</div>';    
+
+  echo '</div>';
+}
+
+function evc_is_pro() {
+  
+  if( function_exists('evc_pro_version') )
+    return evc_pro_version();
+  else
+    return false;
 }

@@ -127,6 +127,19 @@ function evc_vk_widget_comments ($element_id = null, $args = array(), $page_id =
   
   $out .= '
   });  
+  
+  VKWidgets.push ({
+    type: "comments",
+    element_id: "'.$element_id.'",
+    options: '.$o;
+  
+  if (isset($page_id))
+    $out .= ',page_id: '.$page_id;
+  elseif (isset($options['comment_widget_page_id']) && $options['comment_widget_page_id'])
+    $out .= ',page_id: '.$post->ID;
+  
+  $out .= '
+  });    
 </script>';
 
 		$out .= '<div class = "vk_widget_comments" id = "'.$element_id.'"></div>	

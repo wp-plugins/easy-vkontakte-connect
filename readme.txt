@@ -3,7 +3,7 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 3.9
-Stable tag: 1.6
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,14 +14,16 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Весь API ВКонтакте. 
 
 * Автопубликация записей с фото на стену группы ВКонтакте.
-* **!!!** Опросы ВКонтакте: создать, добавить на сайт, поделиться.
+* **!!!** Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
+* **!!!** Авторизация через ВКонтакте.
+* Опросы ВКонтакте: создать, добавить на сайт, поделиться.
 * Виджет комментариев ВКонтакте.
 * Индексация & импорт комментариев, оставленных через виджет комментариев ВКонтакте.
 * Виджет сообществ ВКонтакте.
 * Невероятная четверка сайдбаров: всплывающий, выезжающий, до и после контента.
 * Анализ групп ВКонтакте.
 
-Подробности и техническая поддержка [на сайте плагина](http://ukraya.ru/286/easy-vkontakte-connect-1-4 "Техническая поддержка"). 
+Подробности и техническая поддержка [на сайте плагина](http://ukraya.ru/428/easy-vkontakte-connect-evc "Техническая поддержка"). 
 
 
 This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
@@ -53,6 +55,11 @@ Requires WordPress 3.2 and PHP 5.
 6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.7 / 2014-07-14 =
+* Added VK Athorization.
+* Added Social Locker.
+* Etc...
 
 = 1.6 / 2014-07-01 =
 * Add VK Polls widget.

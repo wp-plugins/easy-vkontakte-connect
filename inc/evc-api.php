@@ -481,3 +481,199 @@ function evc_refresh_vk_img_all () {
 endif;
   
 
+function evc_vkapi_get_users ($params) {
+  $options = get_option('evc_vk_api_widgets'); 
+  
+  // http://vk.com/developers.php?oid=-1&p=users.get    
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    //'user_ids' => $vk_user_id, // max: 1000; comma separated
+    'fields' => 'screen_name,sex,photo_100,photo_max_orig',   
+    //uid,first_name,last_name,nickname,screen_name,sex,bdate,city,country,timezone,photo,photo_medium,photo_big,has_mobile,rate,contacts,education,online,counters  
+    //'name_case' => ''
+    'v' => '5.21'
+  );
+  $params = wp_parse_args($params, $default);
+  $params = apply_filters('evc_vkapi_get_users', $params);  
+  
+  $query = http_build_query($params);
+  $data = wp_remote_post(EVC_API_URL.'users.get?'.$query);
+  
+  //evc_add_log('evc_vk_get_users: VK Error. ' . print_r($params,1)); 
+
+  if (is_wp_error($data)) {
+    evc_add_log('evc_vkapi_get_users: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
+    return false;
+  }
+  
+  $resp = json_decode($data['body'],true);
+  
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log('evc_vkapi_get_users: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log('evc_vkapi_get_users: VK Error. ' . $resp['error']);           
+    return false; 
+  }   
+
+  //evc_bridge_add_log(print_r($resp['response'],1));
+  evc_add_log('evc_vkapi_get_users: VK API ');
+  return $resp['response'];
+}
+
+function evc_vkapi_users_get_subscription ($params) {
+  $options = get_option('evc_vk_api_widgets'); 
+    
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    'user_id' => '',
+    'extended' => '',
+    'offset' => '',
+    'count' => '',
+    'fields' => '',
+    'v' => '5.21'
+  );
+  $params = wp_parse_args($params, $default);
+  $params = apply_filters('evc_vkapi_users_get_subscription', $params);  
+  
+  $query = http_build_query($params);
+  $data = wp_remote_post(EVC_API_URL.'users.getSubscriptions?'.$query);
+  
+  //evc_add_log('evc_vk_get_users: VK Error. ' . print_r($params,1)); 
+
+  if (is_wp_error($data)) {
+    evc_add_log('evc_vkapi_users_get_subscription: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
+    return false;
+  }
+  
+  $resp = json_decode($data['body'],true);
+  
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log('evc_vkapi_users_get_subscription: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log('evc_vkapi_users_get_subscription: VK Error. ' . $resp['error']);           
+    return false; 
+  }   
+
+  //evc_bridge_add_log(print_r($resp['response'],1));
+  evc_add_log('evc_vkapi_users_get_subscription: VK API ');
+  return $resp['response'];
+}
+
+
+function evc_vkapi ($params) {
+  
+  $params['args'] = apply_filters('evc_vkapi_' . $params['method_str'], $params['args']); 
+  $query = http_build_query($params['args']);
+  $data = wp_remote_post(EVC_API_URL.$params['method'].'?'.$query, array('sslverify' => false));
+  
+  //evc_add_log('evc_vk_get_users: VK Error. ' . print_r($params,1)); 
+
+  if (is_wp_error($data)) {
+    evc_add_log($params['method_str'] . ': WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
+    return false;
+  }
+  
+  $resp = json_decode($data['body'],true);
+
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log($params['method_str'] .': VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log($params['method_str'] .': VK Error. ' . $resp['error']);           
+    return false; 
+  }   
+
+  //evc_bridge_add_log(print_r($resp['response'],1));
+  evc_add_log($params['method_str'] . ': VK API ');
+  return $resp['response'];
+}
+
+
+
+
+function evc_vkapi_groups_is_member ($params) {
+  $options = get_option('evc_vk_api_widgets'); 
+  
+  //http://vk.com/dev/groups.isMember  
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    //'group_id' => '', // id or screen_name
+    //'user_id' => '',
+    //'user_ids' => '',
+    //'extended' => '', // 0 
+    'v' => '5.23'
+  );
+  $params = wp_parse_args($params, $default);
+
+  $res = evc_vkapi(array(
+    'args'=>$params,
+    'method'=>'groups.isMember',
+    'method_str'=>'groups_is_member'
+  ));
+
+  return $res;
+}
+
+function evc_vkapi_resolve_screen_name ($params) {
+  $options = get_option('evc_vk_api_widgets'); 
+  
+  //http://vk.com/dev/groups.isMember  
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    //'screen_name' => ''
+    'v' => '5.21'
+  );
+  $params = wp_parse_args($params, $default);
+  
+  $res = evc_vkapi(array(
+    'args'=>$params,
+    'method'=>'utils.resolveScreenName',
+    'method_str'=>'resolve_screen_name'
+  ));
+  
+  return $res;
+}
+
+function evc_get_vk_id ($url) {
+  $id = false;
+  $screen_names = array();
+  
+  if (is_numeric($url))
+    $id = $url;
+  else {
+    $screen_names = get_option('evc_resolve_screen_names');
+    if ($screen_names && isset($screen_names[$url]))
+      $id = $screen_names[$url];
+    else {   
+      $urla = explode ('/', $url);
+      if (is_array($urla) && !empty($urla)) {
+        $screen_name = array_pop($urla);
+
+        preg_match('/^(id|public|club|event)([0-9]+)/', $screen_name, $matches);
+        if (isset($matches[1]) && !empty($matches[1]) && isset($matches[2]) && !empty($matches[2])) {
+          $id = ($matches[1] != 'id') ? (-1*$matches[2]) : $matches[2];    
+        }  
+        else{
+          $res = evc_vkapi_resolve_screen_name(array(
+            'screen_name' => $screen_name
+          ));
+
+          if ($res && !empty($res) && isset($res['object_id'])) {
+            $id = ($res['type'] != 'user') ? -1 * $res['object_id'] : $res['object_id'];
+          }
+        }
+      }    
+    }
+  }
+  
+  do_action('evc_get_vk_id', $url, $id);
+  
+  if ($id && !isset($screen_names[$url])) {
+    $screen_names[$url] = $id;
+    update_option('evc_resolve_screen_names', $screen_names);
+  }
+  
+  return $id;
+}

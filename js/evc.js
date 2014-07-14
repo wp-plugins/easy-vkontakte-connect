@@ -30,8 +30,7 @@ jQuery(document).ready(function($) {
       columnWidth : 256,
       isAnimated: true   
     });
-  });  
- 
+  });    
 
   //$(".vkposts>.a01").tsort('.date', {order: 'desc'});
   //$container.masonry('reload');      

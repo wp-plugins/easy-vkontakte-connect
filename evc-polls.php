@@ -239,7 +239,7 @@ function evc_poll_meta_option() {
       ?>
       </td>
     </tr>  
-    <?php } ?>        
+    <?php } ?>      
     <?php if (isset($args['response']['id'])) { ?>
     <tr>
       <th scope="row">Виджет</th>
@@ -599,7 +599,7 @@ function evc_poll_vk_widget ($poll_id, $args = array(), $element_id = null) {
     options: '.$o .',
     poll_id: "'.$poll_id .'"';
   $out .= '
-  });  
+  });    
 </script>';
 
     $out .= '<div class = "vk_widget_polls" id = "'.$element_id.'"></div>  
@@ -1047,6 +1047,16 @@ function evc_register_pointer( $p ) {
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
   );
+  $p['evc_lock'] = array(
+    'target' => '#toplevel_page_evc',
+    'options' => array(
+      'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+        __( 'Социальный замок' ,'evc'),
+        __( 'Новая возможность: закройте часть поста на замок. Чтобы увидеть закрытое, посетитель должен подписаться на группу ВКонтакте.','evc')
+      ),
+      'position' => array( 'edge' => 'left', 'align' => 'right' )
+    )
+  );  
   return $p;
 }
 

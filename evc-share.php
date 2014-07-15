@@ -1976,7 +1976,7 @@ add_action( 'admin_menu', 'evc_log_admin_menu', 60 );
 // Display the plugin settings options page
 function evc_log_settings_page() {
   global $evc_log;
-print__r(get_option('evc_resolve_screen_names')); //
+
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Лог действий плагина</h2>';

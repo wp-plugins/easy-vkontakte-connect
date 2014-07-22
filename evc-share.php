@@ -1849,19 +1849,14 @@ if (!defined('EVC_AUTHORIZATION_URL'))
   define('EVC_AUTHORIZATION_URL', 'https://oauth.vk.com/authorize');
 function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   //$options = get_option('evc_options');
-  $options = evc_get_all_options(array(
-    'evc_vk_api_widgets'
-  ));  
+	$options = evc_get_all_options(array(
+		'evc_vk_api_widgets'
+	));	
 
-  if (!$redirect_url) {
+	if (!$redirect_url) {
     $redirect_url = remove_query_arg( array('code', 'redirect_uri', 'settings-updated', 'loggedout', 'error', 'access_denied', 'error_reason', 'error_description', 'reauth'), $_SERVER['REQUEST_URI'] );
     //$redirect_url = get_bloginfo('wpurl') . $redirect_url;
-    //$redirect_url = site_url($redirect_url);
-       
-    $url = site_url();
-    $url2 = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-    $redirect_url = 'http://' . basename($url2) . $redirect_url;     
-    
+    $redirect_url = site_url($redirect_url);
   }
 
   $params = array(
@@ -1886,41 +1881,29 @@ function evc_share_vk_autorization () {
   
   if ( false !== ( $token = evc_share_get_token() ) ) {
     $options = get_option('evc_vk_api_widgets');
-    
+		
     if (isset($token['access_token']) && !empty($token['access_token'])) {
       $options['site_access_token'] = $token['access_token'];
       update_option('evc_vk_api_widgets', $options);
     }
     $redirect = remove_query_arg( array('code'), $_SERVER['REQUEST_URI'] );  
     //print__r($redirect);
-    
-    $url = site_url();
-    $url2 = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-    $redirect_url = 'http://' . basename($url2) . $redirect; 
-    wp_redirect($redirect_url);    
-    
-    //wp_redirect(site_url($redirect));
+    wp_redirect(site_url($redirect));
     exit;
   }
    
 }  
   
 function evc_share_get_token () {
-  $options = get_option('evc_vk_api_widgets');    
-  
+  $options = get_option('evc_vk_api_widgets');	  
+	
   if (isset($_GET['code']) && !empty($_GET['code'])) {
    
     $_SERVER['REQUEST_URI'] = remove_query_arg( array('code'), $_SERVER['REQUEST_URI'] );   
       
-      
-    $url = site_url();
-    $url2 = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-    $redirect_url = 'http://' . basename($url2) . $_SERVER['REQUEST_URI'];  
-      
     $params = array(
       'client_id' => trim($options['site_app_id']),
-      //'redirect_uri' =>  site_url($_SERVER['REQUEST_URI']),
-      'redirect_uri' =>  $redirect_url,
+      'redirect_uri' =>  site_url($_SERVER['REQUEST_URI']),
       'client_secret' => $options['site_app_secret'],
       'code' => $_GET['code']
     );

@@ -63,7 +63,7 @@ if (!function_exists('evc_get_log')):
 function evc_get_log ($lines = 50) {
   if (false === ( $logs = get_transient('evc_log')) )
     return 'No logs yet.';
-
+  
   if (is_array($logs)) {
     krsort($logs);    
     $logs = array_slice($logs, 0, $lines);
@@ -567,13 +567,22 @@ function evc_vkapi_users_get_subscription ($params) {
 function evc_vkapi ($params) {
   
   $params['args'] = apply_filters('evc_vkapi_' . $params['method_str'], $params['args']); 
-  $query = http_build_query($params['args']);
-  $data = wp_remote_post(EVC_API_URL.$params['method'].'?'.$query, array('sslverify' => false));
+  
+  $args = array(   
+    'body' => $params['args'],
+    'sslverify' => false
+  );
+  $data = wp_remote_post(EVC_API_URL.$params['method'], $args);
   
   //evc_add_log('evc_vk_get_users: VK Error. ' . print_r($params,1)); 
 
   if (is_wp_error($data)) {
     evc_add_log($params['method_str'] . ': WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
+    return false;
+  }
+
+  if (isset($data['response']) && isset($data['response']['code']) && $data['response']['code'] != 200 ){
+    evc_add_log($params['method_str'] .': RESPONSE ERROR. ' . $data['response']['code'] . ' '. $data['response']['message']);
     return false;
   }
   
@@ -633,6 +642,43 @@ function evc_vkapi_resolve_screen_name ($params) {
     'args'=>$params,
     'method'=>'utils.resolveScreenName',
     'method_str'=>'resolve_screen_name'
+  ));
+  
+  return $res;
+}
+
+function evc_vkapi_users_search ($params) {
+  $options = get_option('evc_vk_api_widgets'); 
+  
+  //http://vk.com/dev/users.search
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    'v' => '5.21'
+  );
+  $params = wp_parse_args($params, $default);
+  
+  $res = evc_vkapi(array(
+    'args'=>$params,
+    'method'=>'users.search',
+    'method_str'=>'users_search'
+  ));
+  
+  return $res;
+}
+
+function evc_vkapi_execute ($params) {
+  $options = get_option('evc_vk_api_widgets');  
+  //http://vk.com/dev/execute
+  $default = array(
+    'access_token' => $options['site_access_token'],
+    'v' => '5.21'
+  );
+  $params = wp_parse_args($params, $default);
+  
+  $res = evc_vkapi(array(
+    'args'=>$params,
+    'method'=>'execute',
+    'method_str'=>'execute'
   ));
   
   return $res;

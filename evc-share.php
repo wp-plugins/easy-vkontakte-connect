@@ -5,38 +5,38 @@ function evc_update_share () {
   
   $version = get_option('evc_version');
   $options = get_option('evc_options');
-	$evc_autopost = get_option('evc_autopost');
-	$evc_vk_api_autopost = get_option('evc_vk_api_autopost');
+  $evc_autopost = get_option('evc_autopost');
+  $evc_vk_api_autopost = get_option('evc_vk_api_autopost');
   
-	if (isset($options) && $options && !empty($options) && (!$version || empty($version)) ) {
+  if (isset($options) && $options && !empty($options) && (!$version || empty($version)) ) {
   //if (!isset($version) || empty($version) || !$version) {
     
-		if (isset($options['access_token']) && !empty($options['access_token']))
-      $evc_vk_api_autopost['access_token'] = $options['access_token']; 		
-		if (isset($options['app_id']) && !empty($options['app_id']))
-      $evc_vk_api_autopost['app_id'] = $options['app_id']; 		
-		if (isset($options['access_token_url']) && !empty($options['access_token_url']))
-      $evc_vk_api_autopost['access_token_url'] = $options['access_token_url']; 		
-			
-		update_option('evc_vk_api_autopost', $evc_vk_api_autopost);     
-		unset($options['access_token'], $options['access_token_url'], $options['app_id']);		
-		
+    if (isset($options['access_token']) && !empty($options['access_token']))
+      $evc_vk_api_autopost['access_token'] = $options['access_token'];     
+    if (isset($options['app_id']) && !empty($options['app_id']))
+      $evc_vk_api_autopost['app_id'] = $options['app_id'];     
+    if (isset($options['access_token_url']) && !empty($options['access_token_url']))
+      $evc_vk_api_autopost['access_token_url'] = $options['access_token_url'];     
+      
+    update_option('evc_vk_api_autopost', $evc_vk_api_autopost);     
+    unset($options['access_token'], $options['access_token_url'], $options['app_id']);    
     
-		if (isset($options['from_group']) && !empty($options['from_group'])) 
+    
+    if (isset($options['from_group']) && !empty($options['from_group'])) 
       $evc_autopost['format']['from_group'] = 'from_group';   
     if (isset($options['signed']) && !empty($options['signed']))
       $evc_autopost['format']['signed'] = 'signed';      
     if (isset($options['add_link']) && !empty($options['add_link']))
-      $evc_autopost['format']['add_link'] = 'add_link'; 			
+      $evc_autopost['format']['add_link'] = 'add_link';       
     
-		unset($options['from_group'], $options['signed'], $options['add_link']);		
-		
-		$evc_autopost = wp_parse_args($evc_autopost, $options);
+    unset($options['from_group'], $options['signed'], $options['add_link']);    
+    
+    $evc_autopost = wp_parse_args($evc_autopost, $options);
     update_option('evc_autopost', $evc_autopost);     
 
-		
-		//delete_option('evc_options');
-		update_option('evc_version', evc_version());  
+    
+    //delete_option('evc_options');
+    update_option('evc_version', evc_version());  
   }
   
 }
@@ -45,33 +45,33 @@ add_action('wp_head', 'evc_share_meta', 99 );
 function evc_share_meta () {
   global $post;
   //$options = get_option('evc_options');
-	$options = evc_get_all_options(array('evc_vk_api_widgets','evc_sidebar_overlay','evc_sidebar_slide'));
-	$s = $options;
-	//print__r($s);
+  $options = evc_get_all_options(array('evc_vk_api_widgets','evc_sidebar_overlay','evc_sidebar_slide'));
+  $s = $options;
+  //print__r($s);
   if (isset($options['site_app_id']) && !empty($options['site_app_id']))
-	  echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />'; // https://vk.com/dev/widget_like
-	
-	echo '<style type="text/css">';
-	
-	echo '
-		#overlay-sidebar {
-			width: '.$s['o_sidebar_width'].'px;
-			margin: 0 0 0 -'.($s['o_sidebar_width'] / 2).'px; 
-		}
-		#slide-sidebar {
-			width: '. $s['s_sidebar_width'].'px;
-			right:-'.($s['s_sidebar_width'] + 43).'px; // width + 43px
-			bottom: '.((strpos($s['s_sidebar_bottom'], '%') !== false) ? $s['s_sidebar_bottom'] : ($s['s_sidebar_bottom'] . 'px')) . ';
-		}
-	';
-	
-	echo evc_post_sidebar_css();
-		
-	echo '</style>';
+    echo '<meta property="vk:app_id" content="'.trim($options['site_app_id']).'" />'; // https://vk.com/dev/widget_like
+  
+  echo '<style type="text/css">';
+  
+  echo '
+    #overlay-sidebar {
+      width: '.$s['o_sidebar_width'].'px;
+      margin: 0 0 0 -'.($s['o_sidebar_width'] / 2).'px; 
+    }
+    #slide-sidebar {
+      width: '. $s['s_sidebar_width'].'px;
+      right:-'.($s['s_sidebar_width'] + 43).'px; // width + 43px
+      bottom: '.((strpos($s['s_sidebar_bottom'], '%') !== false) ? $s['s_sidebar_bottom'] : ($s['s_sidebar_bottom'] . 'px')) . ';
+    }
+  ';
+  
+  echo evc_post_sidebar_css();
+    
+  echo '</style>';
   
 
   
-	echo '<script type="text/javascript">
+  echo '<script type="text/javascript">
     var VKWidgetsGroup = [];
     var VKWidgetsComments = [];
     var VKWidgetsPolls = [];
@@ -81,11 +81,11 @@ function evc_share_meta () {
     var vkUnLock = [];
     var subscribeCookieExpires = 1;
     
-		if (typeof ajaxurl == "undefined")
-			ajaxurl = "' . 'http://'.$_SERVER['HTTP_HOST']. '/wp-admin/admin-ajax.php' .'";
-	';
+    if (typeof ajaxurl == "undefined")
+      ajaxurl = "' . 'http://'.$_SERVER['HTTP_HOST']. '/wp-admin/admin-ajax.php' .'";
+  ';
   //echo 'var post_id = ' . $post->ID .';';
-		/*  
+    /*  
     o_sidebar_action
     o_sidebar_bottom
     o_sidebar_width
@@ -94,67 +94,67 @@ function evc_share_meta () {
     o_sidebar_cookie_days
     o_sidebar_times
     */
-		
-	echo '
-		oTimeout = '.($s['o_sidebar_timeout'] * 1000).';
-		oScreens = '.$s['o_sidebar_scroll'].';
-		oCookieExpires = '.$s['o_sidebar_cookie_days'].';
-		oAction = "'.$s['o_sidebar_action'].'"; 
-		oTop = "'.((strpos($s['o_sidebar_top'], '%') !== false) ? $s['o_sidebar_top'] : ($s['o_sidebar_top'] . 'px')).'"; 
+    
+  echo '
+    oTimeout = '.($s['o_sidebar_timeout'] * 1000).';
+    oScreens = '.$s['o_sidebar_scroll'].';
+    oCookieExpires = '.$s['o_sidebar_cookie_days'].';
+    oAction = "'.$s['o_sidebar_action'].'"; 
+    oTop = "'.((strpos($s['o_sidebar_top'], '%') !== false) ? $s['o_sidebar_top'] : ($s['o_sidebar_top'] . 'px')).'"; 
   
-		sTimeout = '.($s['s_sidebar_timeout']*1000).';
-		sScreens = '.$s['s_sidebar_scroll'].';
-		sCookieExpires = '.$s['s_sidebar_cookie_days'].';
-		sAction = "'.$s['s_sidebar_action'].'"; 
-		sSpeed = 800;
-				
-  </script>';	
+    sTimeout = '.($s['s_sidebar_timeout']*1000).';
+    sScreens = '.$s['s_sidebar_scroll'].';
+    sCookieExpires = '.$s['s_sidebar_cookie_days'].';
+    sAction = "'.$s['s_sidebar_action'].'"; 
+    sSpeed = 800;
+        
+  </script>';  
 }
 
 function evc_post_sidebar_css($sidebar = 'bp') {
-	//$options = get_option('evc_options');
+  //$options = get_option('evc_options');
 
-	$options = evc_get_all_options(array(
-		'evc_sidebar_before_post_content',
-		'evc_sidebar_after_post_content'
-	));	
+  $options = evc_get_all_options(array(
+    'evc_sidebar_before_post_content',
+    'evc_sidebar_after_post_content'
+  ));  
 
-	$out = '';
-	if (isset($options[$sidebar . '_sidebar_cols']) && !empty($options[$sidebar . '_sidebar_cols']) && is_numeric($options[$sidebar . '_sidebar_cols'])) {
-		
-		$out[] = '
-			#'.($sidebar == 'bp' ? 'before' : 'after').'-post-content-sidebar aside {
-				float: left;
-		}';
-		
-		$px = '%';			
-		if (isset($options[$sidebar . '_sidebar_cols_width']) && !empty($options[$sidebar . '_sidebar_cols_width'])) {
-			$str = $options[$sidebar . '_sidebar_cols_width'];
-			if (strpos($str , '%') !== false) {
-				$str = str_replace('%', '', $str);				
-			}
-			else
-				$px = 'px';
-			
-			$width = explode(' ', $str);
-		}
-		else {
-			$col_width = 100 / $options[$sidebar . '_sidebar_cols'];
-			for ($i = 0; $i < $options[$sidebar . '_sidebar_cols']; $i++)
-				$width[] = $col_width;
-		}
-		
-		$i = 1;
-		foreach($width as $w) {
-			$out[] = '
-			#'.($sidebar == 'bp' ? 'before' : 'after').'-post-content-sidebar aside:nth-child('.$i.') {
-				width: '.$w . $px . ';
-			}';
-			$i++;
-		}
-		$out = implode("\n", $out);		
-	}
-	return $out;
+  $out = '';
+  if (isset($options[$sidebar . '_sidebar_cols']) && !empty($options[$sidebar . '_sidebar_cols']) && is_numeric($options[$sidebar . '_sidebar_cols'])) {
+    
+    $out[] = '
+      #'.($sidebar == 'bp' ? 'before' : 'after').'-post-content-sidebar aside {
+        float: left;
+    }';
+    
+    $px = '%';      
+    if (isset($options[$sidebar . '_sidebar_cols_width']) && !empty($options[$sidebar . '_sidebar_cols_width'])) {
+      $str = $options[$sidebar . '_sidebar_cols_width'];
+      if (strpos($str , '%') !== false) {
+        $str = str_replace('%', '', $str);        
+      }
+      else
+        $px = 'px';
+      
+      $width = explode(' ', $str);
+    }
+    else {
+      $col_width = 100 / $options[$sidebar . '_sidebar_cols'];
+      for ($i = 0; $i < $options[$sidebar . '_sidebar_cols']; $i++)
+        $width[] = $col_width;
+    }
+    
+    $i = 1;
+    foreach($width as $w) {
+      $out[] = '
+      #'.($sidebar == 'bp' ? 'before' : 'after').'-post-content-sidebar aside:nth-child('.$i.') {
+        width: '.$w . $px . ';
+      }';
+      $i++;
+    }
+    $out = implode("\n", $out);    
+  }
+  return $out;
 }
 
 add_action('admin_head', 'evc_vk_init'); 
@@ -271,34 +271,34 @@ add_action('wp_ajax_evc_add_vk_widget_stats', 'evc_add_vk_widget_stats');
 add_action('wp_ajax_nopriv_evc_add_vk_widget_stats', 'evc_add_vk_widget_stats');
 function evc_add_vk_widget_stats() {
   if(!empty($_POST))
-		extract($_POST);  
-	
-	$gmt = current_time('timestamp', 1);
+    extract($_POST);  
+  
+  $gmt = current_time('timestamp', 1);
   // local time
   $date = gmdate('Y-m-d', current_time('timestamp'));
-	if (false === ($vk_widgets_stats = get_transient('vk_widgets_stats')))
+  if (false === ($vk_widgets_stats = get_transient('vk_widgets_stats')))
     $vk_widgets_stats = array();
 
   if (isset($vk_widgets_stats[$gid][$widget][$date][$waction]))
-		$vk_widgets_stats[$gid][$widget][$date][$waction]++;
-	else
-		$vk_widgets_stats[$gid][$widget][$date][$waction] = 1;
+    $vk_widgets_stats[$gid][$widget][$date][$waction]++;
+  else
+    $vk_widgets_stats[$gid][$widget][$date][$waction] = 1;
   
   set_transient('vk_widgets_stats', $vk_widgets_stats, YEAR_IN_SECONDS); 
-	
-	return true;
+  
+  return true;
 }
 
 function evc_get_vk_widget_stats () {
-	if (false === ($vk_widgets_stats = get_transient('vk_widgets_stats')))
-    return 'Статистика отсутствует.';	
-	else
-		return '<pre>' . print_r($vk_widgets_stats, 1) . '</pre>';
+  if (false === ($vk_widgets_stats = get_transient('vk_widgets_stats')))
+    return 'Статистика отсутствует.';  
+  else
+    return '<pre>' . print_r($vk_widgets_stats, 1) . '</pre>';
 }
 
 add_action('init', 'evc_widget_load_scripts'); 
 function evc_widget_load_scripts () {
-  wp_enqueue_script('jquery.cookie', plugins_url('js/jquery.cookie.js' , __FILE__), array('jquery'), null, false); 	
+  wp_enqueue_script('jquery.cookie', plugins_url('js/jquery.cookie.js' , __FILE__), array('jquery'), null, false);   
   wp_enqueue_script('evc-share', plugins_url('js/evc-share.js' , __FILE__), array('jquery', 'jquery.cookie'), null, true); 
 }
 
@@ -316,7 +316,7 @@ function evc_vk_widget_group ($data, $echo = 1) {
         });         
       </script>
 
-		  <div class = "vk_widget_group" id = "vk-widget-'.$data['element_id'].'"></div>	
+      <div class = "vk_widget_group" id = "vk-widget-'.$data['element_id'].'"></div>  
     ';
   }
   else
@@ -342,15 +342,15 @@ function evc_vk_widget_data_encode($data = null) {
  */
 class VK_Widget_Group extends WP_Widget {
 
-	function __construct() {
-		$widget_ops = array('classname' => 'vk_group', 'description' => __( 'Виджет для сообществ') );
-		parent::__construct('vk_group', __('VK Сообщества'), $widget_ops);
-	}
+  function __construct() {
+    $widget_ops = array('classname' => 'vk_group', 'description' => __( 'Виджет для сообществ') );
+    parent::__construct('vk_group', __('VK Сообщества'), $widget_ops);
+  }
 
-	function widget( $args, $instance ) {
-		extract( $args );
+  function widget( $args, $instance ) {
+    extract( $args );
 
-		$title = !empty($instance['title']) ? $instance['title'] : false;
+    $title = !empty($instance['title']) ? $instance['title'] : false;
     
     $data = '';
     
@@ -366,18 +366,18 @@ class VK_Widget_Group extends WP_Widget {
       
     $data['element_id'] = $this->id;
     
-		//print__r($data);
-		echo $before_widget;
-		if ( $title)
-			echo $before_title . $title . $after_title;
+    //print__r($data);
+    echo $before_widget;
+    if ( $title)
+      echo $before_title . $title . $after_title;
     evc_vk_widget_group($data);
-		echo $after_widget;
-	}
+    echo $after_widget;
+  }
 
-	function update( $new_instance, $old_instance ) {
-		//$instance = $old_instance;
-		$instance['title'] = strip_tags($new_instance['title']);
-		
+  function update( $new_instance, $old_instance ) {
+    //$instance = $old_instance;
+    $instance['title'] = strip_tags($new_instance['title']);
+    
     if ($new_instance['width'] < 120 && $new_instance['width'] > 0)
       $instance['width'] = 120;
     else
@@ -387,18 +387,18 @@ class VK_Widget_Group extends WP_Widget {
       $instance['height'] = 200;      
     elseif ($new_instance['height'] > 1200)
       $instance['height'] = 1200;  
-		else
+    else
       $instance['height'] = $new_instance['height'];  
       
     $instance['group_id'] = evc_stats_get_group_id($new_instance['group_url']);      
     
     $instance = wp_parse_args($instance, $new_instance);
-		return $instance;
-	}
+    return $instance;
+  }
 
-	function form( $instance ) {
-		//Defaults
-		$instance = wp_parse_args( (array) $instance, array( 
+  function form( $instance ) {
+    //Defaults
+    $instance = wp_parse_args( (array) $instance, array( 
       'title' => '', 
       'group_url' => '', 
       'mode' => 0,
@@ -409,18 +409,18 @@ class VK_Widget_Group extends WP_Widget {
       'color2' =>'2B587A',
       'color3' =>'5B7FA6'
     ) );
-		$title = esc_attr( $instance['title'] );
-		
-	?>
-		<p>
+    $title = esc_attr( $instance['title'] );
+    
+  ?>
+    <p>
       <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Заголовок виджета:'); ?></label> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
     </p>
-		
-		<p>
+    
+    <p>
       <label for="<?php echo $this->get_field_id('group_url'); ?>"><?php _e('Ссылка на страницу группы:'); ?></label> <input class="widefat" id="<?php echo $this->get_field_id('group_url'); ?>" name="<?php echo $this->get_field_name('group_url'); ?>" type="text" value="<?php echo $instance['group_url']; ?>" />
       <small>Например, http://vk.com/pasportvzubi</small>
-    </p>		
-		
+    </p>    
+    
     <p>
       <label for="<?php echo $this->get_field_id('mode'); ?>"><?php _e( 'Вид:' ); ?></label>
       <select name="<?php echo $this->get_field_name('mode'); ?>" id="<?php echo $this->get_field_id('mode'); ?>" class="widefat">
@@ -445,8 +445,8 @@ class VK_Widget_Group extends WP_Widget {
       
 
       <input id="<?php echo $this->get_field_id('height'); ?>" name="<?php echo $this->get_field_name('height'); ?>" type="text" size="5" value="<?php echo $instance['height']; ?>" /> px
-			<br/><small>Ширина от 120. Если "0" - подстраивается под ширину блока (responsive).</small>
-			<br/><small>Высота от 200 до 1200.</small>
+      <br/><small>Ширина от 120. Если "0" - подстраивается под ширину блока (responsive).</small>
+      <br/><small>Высота от 200 до 1200.</small>
     </p>    
     
     <p>
@@ -461,13 +461,13 @@ class VK_Widget_Group extends WP_Widget {
     <div style = "border-width:1px 1px 1px 4px; border-color:#DDDDDD #DDDDDD #DDDDDD #2EA2CC; border-style: solid; background-color: #F7FCFE; padding: 1px 12px; margin-bottom:13px;" ><p style = "margin: 0.5em 0 !important; padding: 2px !important; "><a href = "http://ukraya.ru/192/easy-vk-connect-1-3" target = "_blank">Руководство</a> и <a href = "http://ukraya.ru/196/easy-vkontakte-connect-1-3-support" target = "_blank">помощь</a> по настройке виджета.</p></div>
 
 <?php
-	}
+  }
 
 }
 
 function evc_widgets_init() {
 
-	register_widget('VK_Widget_Group');
+  register_widget('VK_Widget_Group');
 
   
   register_sidebar( array(
@@ -479,7 +479,7 @@ function evc_widgets_init() {
     'before_title'  => '<h1 class="widget-title">',
     'after_title'   => '</h1>',
   ) );  
-	
+  
   register_sidebar( array(
     'name'          => __( 'Выезжающий', 'evc' ),
     'id'            => 'slide-sidebar',
@@ -498,8 +498,8 @@ function evc_widgets_init() {
     'after_widget'  => '</aside>',
     'before_title'  => '<h1 class="widget-title">',
     'after_title'   => '</h1>',
-  ) );  	
-	
+  ) );    
+  
   register_sidebar( array(
     'name'          => __( 'После контента', 'evc' ),
     'id'            => 'after-post-content-sidebar',
@@ -508,99 +508,99 @@ function evc_widgets_init() {
     'after_widget'  => '</aside>',
     'before_title'  => '<h1 class="widget-title">',
     'after_title'   => '</h1>',
-  ) );  	
+  ) );    
   
 }
 add_action('widgets_init', 'evc_widgets_init');
 
 
 function evc_sidebar_is ($sidebar = 'o' ) {
-	$options = evc_get_all_options(array(
-		'evc_sidebar_overlay', 
-		'evc_sidebar_slide',
-		'evc_sidebar_before_post_content',
-		'evc_sidebar_after_post_content'
-	));	
-	
-	
-	if (!isset($options[$sidebar . '_sidebar_is']) || isset($options[$sidebar . '_sidebar_is']['all']))
-		return true;
-	
-	foreach($options[$sidebar . '_sidebar_is'] as $page) {
-		if (call_user_func('is_' . $page) )
-			return true;
-	}
-	
-	return false;
+  $options = evc_get_all_options(array(
+    'evc_sidebar_overlay', 
+    'evc_sidebar_slide',
+    'evc_sidebar_before_post_content',
+    'evc_sidebar_after_post_content'
+  ));  
+  
+  
+  if (!isset($options[$sidebar . '_sidebar_is']) || isset($options[$sidebar . '_sidebar_is']['all']))
+    return true;
+  
+  foreach($options[$sidebar . '_sidebar_is'] as $page) {
+    if (call_user_func('is_' . $page) )
+      return true;
+  }
+  
+  return false;
 }
 
 add_action('wp_footer', 'evc_overlay_sidebar');
 function evc_overlay_sidebar () {
-	//$options = get_option('evc_options'); 
-	$options = evc_get_all_options(array(
-		'evc_sidebar_overlay', 
-		'evc_sidebar_slide'
-	));	
-	
-	
-	$o_sidebar = true;
-	if ((isset($_COOKIE['oSidebar']) && $options['o_sidebar_times'] && $_COOKIE['oSidebar'] > $options['o_sidebar_times']) || !evc_sidebar_is() ) 
-		$o_sidebar = false;
+  //$options = get_option('evc_options'); 
+  $options = evc_get_all_options(array(
+    'evc_sidebar_overlay', 
+    'evc_sidebar_slide'
+  ));  
   
-	if ( is_active_sidebar( 'overlay-sidebar' ) && $o_sidebar ) {
-		echo '<div id="overlay-sidebar-wrap" class = "">';
-			echo '<div id="overlay-sidebar-bg" class = "hide"></div>';
-			echo '<div id="overlay-sidebar" class="overlay_sidebar_class  widget-area" role="complementary">';
-				echo '<div title="Close" tabindex="0" class="overlay-sidebar-close"></div>';
-				dynamic_sidebar( 'overlay-sidebar' ); 
-			echo '</div><!-- #overlay-sidebar -->';
-		echo '</div><!-- #overlay-sidebar-wrap -->';
+  
+  $o_sidebar = true;
+  if ((isset($_COOKIE['oSidebar']) && $options['o_sidebar_times'] && $_COOKIE['oSidebar'] > $options['o_sidebar_times']) || !evc_sidebar_is() ) 
+    $o_sidebar = false;
+  
+  if ( is_active_sidebar( 'overlay-sidebar' ) && $o_sidebar ) {
+    echo '<div id="overlay-sidebar-wrap" class = "">';
+      echo '<div id="overlay-sidebar-bg" class = "hide"></div>';
+      echo '<div id="overlay-sidebar" class="overlay_sidebar_class  widget-area" role="complementary">';
+        echo '<div title="Close" tabindex="0" class="overlay-sidebar-close"></div>';
+        dynamic_sidebar( 'overlay-sidebar' ); 
+      echo '</div><!-- #overlay-sidebar -->';
+    echo '</div><!-- #overlay-sidebar-wrap -->';
   }
-	
-	$s_sidebar = true;
-	if ((isset($_COOKIE['sSidebar']) && $options['s_sidebar_times'] && $_COOKIE['sSidebar'] > $options['s_sidebar_times'] ) || !evc_sidebar_is('s') )
-		$s_sidebar = false;
-		
+  
+  $s_sidebar = true;
+  if ((isset($_COOKIE['sSidebar']) && $options['s_sidebar_times'] && $_COOKIE['sSidebar'] > $options['s_sidebar_times'] ) || !evc_sidebar_is('s') )
+    $s_sidebar = false;
+    
   if ( is_active_sidebar( 'slide-sidebar' ) && $s_sidebar  ) {
-		echo '<div id="slide-sidebar-wrap" class = "">';
-			echo '<div id="slide-sidebar" class="slide_sidebar_class widget-area" role="complementary">';
-				echo '<div title="Close" tabindex="0" class="slide-sidebar-close"></div>';
-				dynamic_sidebar( 'slide-sidebar' ); 
-			echo '</div><!-- #slide-sidebar -->';
-		echo '</div><!-- #slide-sidebar-wrap -->';
+    echo '<div id="slide-sidebar-wrap" class = "">';
+      echo '<div id="slide-sidebar" class="slide_sidebar_class widget-area" role="complementary">';
+        echo '<div title="Close" tabindex="0" class="slide-sidebar-close"></div>';
+        dynamic_sidebar( 'slide-sidebar' ); 
+      echo '</div><!-- #slide-sidebar -->';
+    echo '</div><!-- #slide-sidebar-wrap -->';
   }
 }
 
 add_action('the_content', 'evc_content_sidebar');
 function evc_content_sidebar ($content) {
   if (!is_single())
-		return $content;
-	
+    return $content;
+  
   $out = '';
-  	
-	if ( is_active_sidebar( 'before-post-content-sidebar' ) ) {
-		ob_start();
-		echo '<div id="before-post-content-sidebar-wrap" class = "">';
-			echo '<div id="before-post-content-sidebar" class="widget-area before-post-content-sidebar" role="complementary">';
-				dynamic_sidebar( 'before-post-content-sidebar' ); 
-			echo '</div><!-- #before-post-content-sidebar -->';
-		echo '</div><!-- #before-post-content-sidebar-wrap -->';
-		$out .= ob_get_clean();
+    
+  if ( is_active_sidebar( 'before-post-content-sidebar' ) ) {
+    ob_start();
+    echo '<div id="before-post-content-sidebar-wrap" class = "">';
+      echo '<div id="before-post-content-sidebar" class="widget-area before-post-content-sidebar" role="complementary">';
+        dynamic_sidebar( 'before-post-content-sidebar' ); 
+      echo '</div><!-- #before-post-content-sidebar -->';
+    echo '</div><!-- #before-post-content-sidebar-wrap -->';
+    $out .= ob_get_clean();
   }
-	
-	$out .= $content;
-	
+  
+  $out .= $content;
+  
   if ( is_active_sidebar( 'after-post-content-sidebar' ) ) {
-		ob_start();
-		echo '<div id="after-post-content-sidebar-wrap" class = "">';
-			echo '<div id="after-post-content-sidebar" class="widget-area after-post-content-sidebar" role="complementary">';
-				dynamic_sidebar( 'after-post-content-sidebar' ); 
-			echo '</div><!-- #after-post-content-sidebar -->';
-		echo '</div><!-- #after-post-content-sidebar-wrap -->';
-		$out .= ob_get_clean();
+    ob_start();
+    echo '<div id="after-post-content-sidebar-wrap" class = "">';
+      echo '<div id="after-post-content-sidebar" class="widget-area after-post-content-sidebar" role="complementary">';
+        dynamic_sidebar( 'after-post-content-sidebar' ); 
+      echo '</div><!-- #after-post-content-sidebar -->';
+    echo '</div><!-- #after-post-content-sidebar-wrap -->';
+    $out .= ob_get_clean();
   }
-	
-	return $out;
+  
+  return $out;
 }
 
 add_action( 'wp_enqueue_scripts', 'evc_share_styles' );
@@ -616,58 +616,58 @@ function evc_share_styles () {
 /* Admin Page */
 
 if (!class_exists('WP_Settings_API_Class'))
-	include_once('inc/wp-settings-api-class.php'); 
-	
+  include_once('inc/wp-settings-api-class.php'); 
+  
 
 /*
-	$options = evc_get_all_options(array(
-		'evc_vk_api_autopost',
-		'evc_vk_api_widgets',
-		'evc_sidebar_overlay',
-		'evc_sidebar_slide',
-		'evc_sidebar_before_post_content',
-		'evc_sidebar_after_post_content',
-		'evc_autopost'
-	));	 
+  $options = evc_get_all_options(array(
+    'evc_vk_api_autopost',
+    'evc_vk_api_widgets',
+    'evc_sidebar_overlay',
+    'evc_sidebar_slide',
+    'evc_sidebar_before_post_content',
+    'evc_sidebar_after_post_content',
+    'evc_autopost'
+  ));   
 
-*/	
-	
+*/  
+  
 function evc_get_all_options ($options) {
-	$options = apply_filters('evc_get_all_options', $options);
-	if (empty($options))
-		return array();
-	$out = array();
-	foreach($options as $option) {
-		$values = get_option($option);
-		if ($values && !empty($values)) {
+  $options = apply_filters('evc_get_all_options', $options);
+  if (empty($options))
+    return array();
+  $out = array();
+  foreach($options as $option) {
+    $values = get_option($option);
+    if ($values && !empty($values)) {
       if (!is_array($values))
         $out[$option] = $values;
       else
-			  $out += $values;
+        $out += $values;
     }
-	}
-	return $out;
+  }
+  return $out;
 }
-	
+  
 function evc_delete_all_options ($options) {
-	$options = apply_filters('evc_get_all_options', $options);
-	if (empty($options))
-		return false;
-	foreach($options as $option) {
-		delete_option($option);
-	}
-	return true;
-}	
-	
+  $options = apply_filters('evc_get_all_options', $options);
+  if (empty($options))
+    return false;
+  foreach($options as $option) {
+    delete_option($option);
+  }
+  return true;
+}  
+  
 function evc_vk_api_settings_admin_init() {
   global $evc_vk_api_settings;
   
-	$evc_vk_api_settings = new WP_Settings_API_Class;
-		
-	$options = evc_get_all_options(array(
-		'evc_vk_api_autopost', 
-		'evc_vk_api_widgets'
-	)); 
+  $evc_vk_api_settings = new WP_Settings_API_Class;
+    
+  $options = evc_get_all_options(array(
+    'evc_vk_api_autopost', 
+    'evc_vk_api_widgets'
+  )); 
   
   $tabs = array(
     'evc_vk_api_autopost' => array(
@@ -804,7 +804,7 @@ function evc_vk_api_settings_admin_init() {
       ),       
     ),   
      
-	);
+  );
  
   if (isset($options['site_app_id']) && !empty($options['site_app_id']) && isset($options['site_app_secret']) && !empty($options['site_app_secret'])) {
     
@@ -853,21 +853,21 @@ function evc_vk_api_settings_page_js () {
 <script type="text/javascript" >
   jQuery(document).ready(function($) {
 
-	  $("#evc_vk_api_autopost\\[app_id\\]").change( function() {
+    $("#evc_vk_api_autopost\\[app_id\\]").change( function() {
       if ($(this).val().trim().length) {
-				$(this).val($(this).val().trim());
-				$('#getaccesstokenurl').attr({'href': 'http://oauth.vk.com/authorize?client_id='+ $(this).val().trim() +'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token', 'target': '_blank'});
-				
-			}
-			else {
-				$('#getaccesstokenurl').attr({'href': 'javscript:void(0);'});
-			}
-			
+        $(this).val($(this).val().trim());
+        $('#getaccesstokenurl').attr({'href': 'http://oauth.vk.com/authorize?client_id='+ $(this).val().trim() +'&scope=wall,photos,offline&redirect_uri=http://api.vk.com/blank.html&display=page&response_type=token', 'target': '_blank'});
+        
+      }
+      else {
+        $('#getaccesstokenurl').attr({'href': 'javscript:void(0);'});
+      }
+      
     });  
-	
+  
   }); // jQuery End
 </script>
-<?php	
+<?php  
 }
 
 
@@ -881,16 +881,16 @@ function evc_vk_api_settings_page() {
     
     echo '<div id = "col-container">';  
       echo '<div id = "col-right" class = "evc">';
-				echo '<div class = "evc-box">';
-				evc_ad();
-				echo '</div>';
-			echo '</div>';
+        echo '<div class = "evc-box">';
+        evc_ad();
+        echo '</div>';
+      echo '</div>';
       echo '<div id = "col-left" class = "evc">';
         settings_errors();
         $evc_vk_api_settings->show_navigation();
         $evc_vk_api_settings->show_forms();
       echo '</div>';
-    echo '</div>';		
+    echo '</div>';    
 
   echo '</div>';
 }
@@ -900,14 +900,14 @@ function evc_vk_api_settings_page() {
 function evc_sidebar_settings_admin_init() {
   global $evc_sidebar_settings;
 
-	$evc_sidebar_settings = new WP_Settings_API_Class;
+  $evc_sidebar_settings = new WP_Settings_API_Class;
   //$options = get_option('evc_options'); 
-	$options = evc_get_all_options(array(
-		'evc_sidebar_overlay', 
-		'evc_sidebar_slide',
-		'evc_sidebar_before_post_content',
-		'evc_sidebar_after_post_content'
-	));	
+  $options = evc_get_all_options(array(
+    'evc_sidebar_overlay', 
+    'evc_sidebar_slide',
+    'evc_sidebar_before_post_content',
+    'evc_sidebar_after_post_content'
+  ));  
 
   
   $tabs = array(
@@ -938,7 +938,7 @@ function evc_sidebar_settings_admin_init() {
         )        
       )
     ),
-		
+    
     'evc_sidebar_slide' => array(
       'id' => 'evc_sidebar_slide',
       'name' => 'evc_sidebar_slide',
@@ -995,7 +995,7 @@ function evc_sidebar_settings_admin_init() {
         )
       )
     ),       
-			
+      
   );
       
   
@@ -1007,7 +1007,7 @@ function evc_sidebar_settings_admin_init() {
         'desc' => __( 'Ширина сайдбара в пикселях (px).
         <br/>Например: <code>380</code>.', 'evc' ),
         'type' => 'text',
-				'default' => '380'
+        'default' => '380'
       ), 
       array(
         'name' => 'o_sidebar_top',
@@ -1015,7 +1015,7 @@ function evc_sidebar_settings_admin_init() {
         'desc' => __( 'CSS свойство top. В процентах или пикселях (px).
         <br/>Например: <code>40</code> или <code>10%</code>.', 'evc' ),
         'type' => 'text',
-				'default' => '40'
+        'default' => '40'
       ),  
      array(
         'name' => 'o_sidebar_action',
@@ -1034,16 +1034,16 @@ function evc_sidebar_settings_admin_init() {
         'desc' => __( 'Через сколько секунд после загрузки страницы показать сайдбар.
         <br/>Например: <code>5</code>.', 'evc' ),
         'type' => 'text',
-				'default' => '5'
-      ),  			
+        'default' => '5'
+      ),        
       array(
         'name' => 'o_sidebar_scroll',
         'label' => __( 'Скроллинг', 'evc' ),
         'desc' => __( 'Какую часть видимого экрана должен пролистать пользователь до появления сайдбара.
         <br/>Например: <code>0.75</code>. Рекомендуемое значение: от <code>0.1</code> до <code>1</code>.', 'evc' ),
         'type' => 'text',
-				'default' => '0.75'
-      ),  	          
+        'default' => '0.75'
+      ),              
       array(
         'name' => 'o_sidebar_is',
         'label' => __( 'Страницы', 'evc' ),
@@ -1057,7 +1057,7 @@ function evc_sidebar_settings_admin_init() {
           'tax' => 'На страницах таксономии, <small>is_tax()</small>.'
         ),
         'default' => 'all'
-			),  			
+      ),        
     ),   
     'evc_sidebar_overlay_cookies_section' => array(
        array(
@@ -1157,7 +1157,7 @@ function evc_sidebar_settings_admin_init() {
       )   
     ),              
 
-		'evc_sidebar_before_post_content_section' => array(
+    'evc_sidebar_before_post_content_section' => array(
       array(
         'name' => 'bp_sidebar_cols',
         'label' => __( 'Колонок', 'evc' ),
@@ -1169,9 +1169,9 @@ function evc_sidebar_settings_admin_init() {
         'label' => __( 'Ширина колонок', 'evc' ),
         'desc' => __( 'Например, <code>20% 80%</code> или <code>360 140</code>.', 'evc' ),
         'type' => 'text'
-      ), 			
-		),
-		'evc_sidebar_after_post_content_section' => array(
+      ),       
+    ),
+    'evc_sidebar_after_post_content_section' => array(
       array(
         'name' => 'ap_sidebar_cols',
         'label' => __( 'Колонок', 'evc' ),
@@ -1183,10 +1183,10 @@ function evc_sidebar_settings_admin_init() {
         'label' => __( 'Ширина колонок', 'evc' ),
         'desc' => __( 'Например, <code>20% 80%</code> или <code>360 140</code>.', 'evc' ),
         'type' => 'text'
-      ), 			
-		),
-		
-	);
+      ),       
+    ),
+    
+  );
  
 
  //set sections and fields
@@ -1203,7 +1203,7 @@ add_action( 'admin_init', 'evc_sidebar_settings_admin_init' );
 function evc_sidebar_admin_menu() {
   global $evc_sidebar_settings_page; 
    
-	$evc_sidebar_settings_page = add_submenu_page( 'evc', 'Настройки сайдбаров', 'Сайдбары', 'activate_plugins', 'evc-sidebar', 'evc_sidebar_settings_page' );
+  $evc_sidebar_settings_page = add_submenu_page( 'evc', 'Настройки сайдбаров', 'Сайдбары', 'activate_plugins', 'evc-sidebar', 'evc_sidebar_settings_page' );
  
 }
 add_action( 'admin_menu', 'evc_sidebar_admin_menu', 50 );
@@ -1228,30 +1228,30 @@ function evc_sidebar_settings_page() {
   
     echo '<div id = "col-container">';  
       echo '<div id = "col-right" class = "evc">';
-				echo '<div class = "evc-box">';
-				evc_ad();
-				echo '</div>';
-			echo '</div>';
+        echo '<div class = "evc-box">';
+        evc_ad();
+        echo '</div>';
+      echo '</div>';
       echo '<div id = "col-left" class = "evc">';
         settings_errors();
         $evc_sidebar_settings->show_navigation();
         $evc_sidebar_settings->show_forms();
       echo '</div>';
     echo '</div>';
-		
-	echo '</div>';
+    
+  echo '</div>';
 }
 
 add_filter ('pre_update_option_evc_vk_api_autopost', 'evc_update_option_filter',10,2);
 function evc_update_option_filter($newvalue, $oldvalue) {
-	
-	if (isset($newvalue['access_token_url']) && !empty($newvalue['access_token_url'])) {
-		$url = explode('#', $newvalue['access_token_url']);
-		$params = wp_parse_args($url[1]);
-		$newvalue['access_token'] = $params['access_token'];	
-	}
+  
+  if (isset($newvalue['access_token_url']) && !empty($newvalue['access_token_url'])) {
+    $url = explode('#', $newvalue['access_token_url']);
+    $params = wp_parse_args($url[1]);
+    $newvalue['access_token'] = $params['access_token'];  
+  }
 
-	return $newvalue;
+  return $newvalue;
 }
 
 add_action('admin_init', 'evc_autopost_settings_defaults');
@@ -1273,6 +1273,12 @@ function evc_autopost_settings_admin_init() {
   global $evc_autopost_settings;
   
   $evc_activation_date = evc_activation_date();
+ 
+  $append = '';
+  if (!evc_is_pro()) {
+    $append = '<br/><b>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro"><u>PRO версии</u></a></b>. 
+    <br/><small>Внимание! Текущие данные на графике не имеют отношения к вашей группе.</small>';
+  } 
   
   $evc_autopost_settings = new WP_Settings_API_Class;
   
@@ -1295,6 +1301,24 @@ function evc_autopost_settings_admin_init() {
           'title' => __( 'Настройки автопостинга', 'evc' ),
           'desc' => __( 'Настройки автопостинга записей из WordPress на стену группы ВКонтакте.', 'evc' )
         ),
+        'evc_autopost_online_stats_section' => array(
+          'id' => 'evc_autopost_online_stats_section',
+          'name' => 'evc_autopost_online_stats_section',
+          'title' => __( 'Статистика подписчиков группы онлайн', 'evc' ),
+          'desc' => __( 'Больше всего внимания привлекают записи, опубликованные в группе в момент, когда большинство подписчиков находятся онлайн.
+          <br/>Вы можете запустить <b>Cбор статистики</b> и плагин втоматически:
+          <ol><li>построит график, по которому видно, сколько подписчиков вашей группы находятся онлайн каждый час;</li>
+          <li>рассчитает наиболее удачное время для публикации записей в группе и подставит данные в опцию <b>Время</b>, для публикации записей с сайта в группе по графику.</li></ol>
+          <div id = "online-users-chart"></div>
+          <br/><a href = "http://ukraya.ru/458/vk-online-subscribers-missing-stats" target = "_blank">О преимуществах публикации записей в прайм-тайм ВКонтакте</a>.
+          ' . $append, 'evc' )
+        ),        
+        'evc_autopost_time_section' => array(
+          'id' => 'evc_autopost_time_section',
+          'name' => 'evc_autopost_time_section',
+          'title' => __( 'Автопубликация по графику', 'evc' ),
+          'desc' => __( 'Время публикации записей для <em>Автопостинга с задержкой</em> и <em>Автопостинга старых записей</em>.', 'evc' )
+        ),        
         'evc_autopost_delay_section' => array(
           'id' => 'evc_autopost_delay_section',
           'name' => 'evc_autopost_delay_section',
@@ -1306,12 +1330,6 @@ function evc_autopost_settings_admin_init() {
           'name' => 'evc_autopost_old_section',
           'title' => __( 'Автопостинг старых записей', 'evc' ),
           'desc' => __( 'Автопостинг записей, которые были опубликованы на сайте до установки плагина EVC (до <code>'.$evc_activation_date.'</code>). Если плагин был установлен раньше указанной даты, и ВКонтакте уже были опубликованы записи с сайта, то они <b><u>не будут</u></b> опубликованы повторно.', 'evc' )
-        ),
-        'evc_autopost_time_section' => array(
-          'id' => 'evc_autopost_time_section',
-          'name' => 'evc_autopost_time_section',
-          'title' => __( 'Автопубликация по графику', 'evc' ),
-          'desc' => __( 'Время публикации записей для <em>Автопостинга с задержкой</em> и <em>Автопостинга старых записей</em>.', 'evc' )
         ),
         'evc_autopost_format_section' => array(
           'id' => 'evc_autopost_format_section',
@@ -1364,6 +1382,45 @@ function evc_autopost_settings_admin_init() {
         )
       )
    ),  
+
+   'evc_autopost_online_stats_section' => array(      
+      array(
+        'name' => 'autopost_stats',
+        'label' => __( 'Сбор статистики', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Управление сбором данных для статистики пользователей онлайн.', 'evc' ),
+        'type' => 'radio',
+        'default' => '0',
+        'options' => array(
+          '1' => 'Запущен',
+          '0' => 'Остановлен'
+        )
+      ),
+      array(
+        'name' => 'autopost_stats_time_points',
+        'label' => __( 'Рассчитать время', 'evc' ),
+        'type' => 'text',
+        'default' => '3',
+        'desc' => '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Сколько раз в день вы планируете публиковать записи с сайта в группе (столько наилучших временных меток найдет плагин). 
+        <br/><br/>' . get_submit_button('Рассчитать наилучшее время', 'secondary', 'evc_autopost_stats_get_time_points', false) . 
+        '<br/><small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/><br/>Как только вы нажмете кнопку, плагин по специальному алгоритму, найдет те временные метки, когда больше всего подписчиков вашей группы находятся онлайн, и подставит их в опцию <b>Время</b> (находится чуть ниже).',
+      )        
+   ),
+    
+   'evc_autopost_time_section' => array(              
+      array(
+        'name' => 'autopost_time_cron',
+        'label' => __( 'Время', 'evc' ),
+        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Записи будут опубликованы ВКонтакте примерно в указанное время. 
+        <br/>Время нужно указывать в формате: <code>ЧЧ:ММ</code> разделяя пробелом.
+        <br/>Крон запускается один раз в 15 минут, поэтому для минут следует устанавливать только значения кратные 15 (00, 15, 30, 45).', 'evc' ),
+        'type' => 'textarea',
+        'default' => '09:00 11:00 12:00 13:00 14:00 15:00 16:00 17:00 18:00 19:00 20:00 22:00 00:00'
+      )       
+   ),
    
    'evc_autopost_delay_section' => array(   
       array(
@@ -1404,42 +1461,7 @@ function evc_autopost_settings_admin_init() {
         )
       )
    ),
-   
-   'evc_autopost_time_section' => array(      
-       array(
-        'name' => 'autopost_time_cron',
-        'label' => __( 'Время', 'evc' ),
-        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
-        <br/>Записи будут опубликованы ВКонтакте примерно в указанное время. 
-        <br/>Время нужно указывать в формате: <code>ЧЧ:ММ</code> разделяя пробелом.
-        <br/>Крон запускается один раз в 15 минут, поэтому для минут следует устанавливать только значения кратные 15 (00, 15, 30, 45).', 'evc' ),
-        'type' => 'textarea',
-        'default' => '09:00 11:00 12:00 13:00 14:00 15:00 16:00 17:00 18:00 19:00 20:00 22:00 00:00'
-      ),       
-      /*
-      array(
-        'name' => 'autopost_time_interval',
-        'label' => __( 'Интервал', 'evc' ),
-        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
-        <br/>Записи будут опубликованы ВКонтакте в случайное время из указанного интервала.
-        <br/>Нужно указать начало интервала и его конец в формате: <code>ЧЧ:ММ ЧЧ:ММ</code> разделяя пробелом.
-        <br/>Крон запускается один раз в 15 минут, поэтому для минут следует устанавливать только значения кратные 15 (00, 15, 30, 45).', 'evc' ),
-        'type' => 'text',
-        'default' => '',
-        'readonly' => true 
-      ),      
-      
-      array(
-        'name' => 'autopost_per_day',
-        'label' => __( 'Записей в день', 'evc' ),
-        'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
-        <br/>Сколько записей публиковать ВКонтакте в течении дня.', 'evc' ),
-        'type' => 'text',
-        'default' => '',
-        'readonly' => true 
-      )
-      */
-   ),
+ 
    'evc_autopost_format_section' => array(               
       array(
         'name' => 'format',
@@ -1461,8 +1483,8 @@ function evc_autopost_settings_admin_init() {
         'name' => 'exclude_cats',
         'label' => __( 'Исключить категории', 'evc' ),
         'desc' => __( 'Статьи из отмеченных категорий не будут автоматически опубликованы на стене ВКонтакте.', 'evc' ),
-				'type' => 'select_category_checklist'
-				
+        'type' => 'select_category_checklist'
+        
       ),           
       array(
         'name' => 'upload_photo_count',
@@ -1565,6 +1587,19 @@ function evc_autopost_settings_page_js() {
       });                   
     });
     
+    
+    $(document).on('click', '#evc_autopost_stats_get_time_points', function(e){
+      e.preventDefault();
+      
+      var tp_count = $('#evc_autopost\\[autopost_stats_time_points\\]').val() ? $('#evc_autopost\\[autopost_stats_time_points\\]').val() : 5;
+      var tp = timePoints
+        .slice(0, tp_count)
+        .sort()
+        .join(' ');
+      $('#evc_autopost\\[autopost_time_cron\\]').val(tp);     
+  
+    });     
+    
     <?php do_action('evc_autopost_settings_page_js'); ?>
     
   }); // jQuery End
@@ -1611,11 +1646,11 @@ function evc_share_get_group_id() {
 // Display the plugin settings options page
 function evc_autopost_settings_page() {
   global $evc_autopost_settings;
-	$options = evc_get_all_options(array(
-		'evc_autopost',
-		'evc_vk_api_autopost'
-	));	
-	 
+  $options = evc_get_all_options(array(
+    'evc_autopost',
+    'evc_vk_api_autopost'
+  ));  
+  
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Настройки автопостинга</h2>';
@@ -1624,21 +1659,22 @@ function evc_autopost_settings_page() {
       echo '<div class="error"><p>Необходимо настроить API ВКонтакте. Откройте вкладку "<a href="'.admin_url('admin.php?page=evc').'">Для автопостинга</a>".</p></div>';
     }
  
-		echo '<div id = "col-container">';  
+    echo '<div id = "col-container">';  
       echo '<div id = "col-right" class = "evc">';
-				echo '<div class = "evc-box">';
-				evc_ad();
-				echo '</div>';
-			echo '</div>';
+        echo '<div class = "evc-box">';
+        evc_ad();
+        echo '</div>';
+      echo '</div>';
       echo '<div id = "col-left" class = "evc">';
         settings_errors();
         $evc_autopost_settings->show_navigation();
         $evc_autopost_settings->show_forms();
       echo '</div>';
-    echo '</div>';	
-		
-    
+    echo '</div>';  
+        
   echo '</div>';
+  
+  echo evc_autopost_online_stats_chart_js();
 }
 
 
@@ -1651,12 +1687,26 @@ function evc_widget_settings_admin_init() {
   // Compatible  
   
   $tabs = array(
+    'evc_widget_auth' => array(
+      'id' => 'evc_widget_auth',
+      'name' => 'evc_widget_auth',
+      'title' => __( 'Авторизация', 'evc' ),
+      'desc' => __( '', 'evc' ),
+      'sections' => array(
+        'evc_widget_auth_section' => array(
+          'id' => 'evc_widget_auth_section',
+          'name' => 'evc_widget_auth_section',
+          'title' => __( 'Авторизация через ВКонтакте', 'evc' ),
+          'desc' => __( 'Управление параметрами авторизации пользователей на сайте через ВКонтакте.', 'evc' ),          
+        )
+      )
+    ),     
     'evc_widget_groups' => array(
       'id' => 'evc_widget_groups',
       'name' => 'evc_widget_groups',
       'title' => __( 'Сообщества', 'evc' ),
       'desc' => __( '', 'evc' ),
-			'submit_button' => false,
+      'submit_button' => false,
       'sections' => array(
         'evc_widget_groups_section' => array(
           'id' => 'evc_widget_groups_section',
@@ -1671,7 +1721,7 @@ function evc_widget_settings_admin_init() {
       'name' => 'evc_widget_stats',
       'title' => __( 'Статистика', 'evc' ),
       'desc' => __( '', 'evc' ),
-			'submit_button' => false,
+      'submit_button' => false,
       'sections' => array(
         'evc_widget_stats_section' => array(
           'id' => 'evc_widget_stats_section',
@@ -1680,11 +1730,23 @@ function evc_widget_settings_admin_init() {
           'desc' => evc_get_vk_widget_stats(),          
         )
       )
-    ),		
+    ),    
   );  
   
   $fields = array(
-  
+    'evc_widget_auth_section' => array(   
+      array(
+        'name' => 'tvc_auth_button',
+        'label' => __( 'Кнопка авторизации VK', 'evc' ),
+        'desc' => __( 'Показывать или нет кнопку авторизации через ВКонтакте на странице <a href = "'.site_url('wp-login.php').'">входа</a> на сайт/', 'evc' ),
+        'type' => 'radio',
+        'default' => '0',
+        'options' => array(
+          '1' => 'Показывать',
+          '0' => 'Не показывать'
+        )
+      ),
+    )  
   );
 
  //set sections and fields
@@ -1712,12 +1774,12 @@ add_action( 'admin_menu', 'evc_widget_admin_menu', 30 );
 // Display the plugin settings options page
 function evc_widget_settings_page() {
   global $evc_widget_settings;
-	$options = evc_get_all_options(array(
-		'evc_vk_api_widgets'
-	));	
-	
-	
-	
+  $options = evc_get_all_options(array(
+    'evc_vk_api_widgets'
+  ));  
+  
+  
+  
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Кнопки и виджеты ВКонтакте</h2>';
@@ -1728,10 +1790,10 @@ function evc_widget_settings_page() {
     
     echo '<div id = "col-container">';  
       echo '<div id = "col-right" class = "evc">';
-				echo '<div class = "evc-box">';
-				evc_ad();
-				echo '</div>';
-			echo '</div>';
+        echo '<div class = "evc-box">';
+        evc_ad();
+        echo '</div>';
+      echo '</div>';
       echo '<div id = "col-left" class = "evc">';
         settings_errors();
         $evc_widget_settings->show_navigation();
@@ -1742,11 +1804,11 @@ function evc_widget_settings_page() {
 }
 
 function evc_ad () {
-	echo '
-		<div class = "evc-boxx">
-			<p><a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">Помощь</a> и <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">решение</a> проблем.
+  echo '
+    <div class = "evc-boxx">
+      <p><a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">Помощь</a> и <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">решение</a> проблем.
       <br/>Возможна <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">доработка</a> под ваши задачи.</p>
-		</div>';
+    </div>';
     
   echo '
     <h3>EVC PRO: грандиозные возможности!</h3>
@@ -1759,7 +1821,7 @@ function evc_ad () {
     <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
     <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
-		';
+    ';
     
   echo '
     <h3>Онлайн кинотеатр из видеоальбомов ВКонтакте! Просто. Бесплатно</h3>
@@ -1767,7 +1829,7 @@ function evc_ad () {
     <p>Каждое видео становится отдельным постом WordPress, адаптивный (responsive) плеер ВКонтакте встраивается автоматически.</p>
     <p>'.get_submit_button('Установить бесплатно', 'primary', 'get_vk_wp_video', false).'</p>       
     ';    
-				
+        
 }
 
 add_action( 'admin_footer', 'evc_ad_js', 30 );
@@ -1807,6 +1869,7 @@ function evc_ad_js () {
         '_blank'
       );
     });   
+
   
   }); // jQuery End
 </script>
@@ -1824,22 +1887,67 @@ function evc_admin_head () {
       width: 65%;
     }    
     .evc-box{
-			padding:0 20px 0 40px;
-		}
-		.evc-boxx {
-			background: none repeat scroll 0 0 #FFFFFF;
-			border-left: 4px solid #2EA2CC;
-			box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
-			margin: 5px 0 15px;
-			padding: 1px 12px;
-		}
-		.evc-boxx h3 {
-			line-height: 1.5;
-		}
-		.evc-boxx p {
-			margin: 0.5em 0;
-			padding: 2px;
-		}
+      padding:0 20px 0 40px;
+    }
+    .evc-boxx {
+      background: none repeat scroll 0 0 #FFFFFF;
+      border-left: 4px solid #2EA2CC;
+      box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+      margin: 5px 0 15px;
+      padding: 1px 12px;
+    }
+    .evc-boxx h3 {
+      line-height: 1.5;
+    }
+    .evc-boxx p {
+      margin: 0.5em 0;
+      padding: 2px;
+    }
+
+    /* 
+    * 
+    *   EVC AUTOPOST ONLINE STATS
+    * 
+    */
+    
+    svg {
+      font: 10px sans-serif;
+    }
+
+    .area {
+      fill: steelblue;
+      clip-path: url(#clip);
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .brush .extent {
+      stroke: #fff;
+      fill-opacity: .125;
+      shape-rendering: crispEdges;
+    }  
+
+    .overlay {
+      fill: none;
+      pointer-events: all;
+    }
+
+    .focus_value circle {
+      fill: none;
+      stroke: black;
+    }
+
+    svg .date-label {
+      fill: #444;
+    }
+    
+    // EVC AUTOPOST ONLINE STATS END
+    
   </style>'; 
 }
 
@@ -1849,11 +1957,11 @@ if (!defined('EVC_AUTHORIZATION_URL'))
   define('EVC_AUTHORIZATION_URL', 'https://oauth.vk.com/authorize');
 function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   //$options = get_option('evc_options');
-	$options = evc_get_all_options(array(
-		'evc_vk_api_widgets'
-	));	
+  $options = evc_get_all_options(array(
+    'evc_vk_api_widgets'
+  ));  
 
-	if (!$redirect_url) {
+  if (!$redirect_url) {
     $redirect_url = remove_query_arg( array('code', 'redirect_uri', 'settings-updated', 'loggedout', 'error', 'access_denied', 'error_reason', 'error_description', 'reauth'), $_SERVER['REQUEST_URI'] );
     //$redirect_url = get_bloginfo('wpurl') . $redirect_url;
     $redirect_url = site_url($redirect_url);
@@ -1862,9 +1970,9 @@ function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
   $params = array(
     'client_id' => trim($options['site_app_id']),
     'redirect_uri' => $redirect_url,
-    'display' => 'page',
+    'display' => 'popup',
     'response_type' => 'code',
-    'scope' => apply_filters('evc_share_vk_login_url_scope', 'video,friends,offline') //
+    'scope' => apply_filters('evc_share_vk_login_url_scope', 'video,friends,offline')
   );
   $query = http_build_query($params);  
   
@@ -1878,10 +1986,10 @@ function evc_share_vk_login_url ($redirect_url = false, $echo = false) {
 
 add_action('admin_init', 'evc_share_vk_autorization');  
 function evc_share_vk_autorization () {
-  
+
   if ( false !== ( $token = evc_share_get_token() ) ) {
     $options = get_option('evc_vk_api_widgets');
-		
+    
     if (isset($token['access_token']) && !empty($token['access_token'])) {
       $options['site_access_token'] = $token['access_token'];
       update_option('evc_vk_api_widgets', $options);
@@ -1895,10 +2003,10 @@ function evc_share_vk_autorization () {
 }  
   
 function evc_share_get_token () {
-  $options = get_option('evc_vk_api_widgets');	  
-	
+  $options = get_option('evc_vk_api_widgets');    
+
   if (isset($_GET['code']) && !empty($_GET['code'])) {
-   
+  
     $_SERVER['REQUEST_URI'] = remove_query_arg( array('code'), $_SERVER['REQUEST_URI'] );   
       
     $params = array(
@@ -1976,7 +2084,8 @@ add_action( 'admin_menu', 'evc_log_admin_menu', 60 );
 // Display the plugin settings options page
 function evc_log_settings_page() {
   global $evc_log;
-
+ 
+  echo '<div id = "chart" style=""></div>';
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Лог действий плагина</h2>';
@@ -1988,13 +2097,14 @@ function evc_log_settings_page() {
         echo '</div>';
       echo '</div>';
       echo '<div id = "col-left" class = "evc">';
+      
         settings_errors();
         $evc_log->show_navigation();
         $evc_log->show_forms();
       echo '</div>';
     echo '</div>';    
 
-  echo '</div>';
+  echo '</div>';     
 }
 
 function evc_is_pro() {
@@ -2003,4 +2113,266 @@ function evc_is_pro() {
     return evc_pro_version();
   else
     return false;
+}
+
+/* 
+* 
+*   EVC AUTOPOST ONLINE STATS
+* 
+*/
+
+add_action('admin_init', 'evc_autopost_load_scripts'); 
+function evc_autopost_load_scripts () {
+  wp_enqueue_script('d3', plugins_url('js/d3.min.js' , __FILE__), null, null, false); 
+}
+
+
+function evc_autopost_online_stats_chart_js () { 
+  $options = get_option('evc_autopost'); 
+  
+  if (isset($options['page_id']) && !empty($options['page_id']))
+    $gid = $options['page_id'];
+  else
+    return '';
+  
+  if (false === ($online = get_transient('evc_pro_online')) || !evc_is_pro() ) {
+    $json = $options['autopost_stats_data'];
+    $time_points = $options['autopost_stats_data_time_points'];  
+  }
+  else {
+    $array = evc_pro_autopost_online_stats_transform();
+    $json = $array[$gid]['Онлайн'];  
+  
+    $time_points_arr = evc_pro_autopost_online_stats_time_points($gid);
+    foreach($time_points_arr as $arr)
+      $time_points[] = $arr['time']; 
+    
+    $time_points = json_encode($time_points);
+  }
+
+  ob_start();
+?>  
+<script>
+
+  var timePoints = <?php echo $time_points ?>;
+  var data = <?php echo $json; ?>;
+ 
+  var margin = {top: 15, right: 40, bottom: 100, left: 40},
+    margin2 = {top: 230, right: 40, bottom: 20, left: 40},    
+    width = parseInt(d3.select("#online-users-chart").style("width")) - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom,
+    height2 = 300 - margin2.top - margin2.bottom;
+
+  var x = d3.time.scale().range([0, width]),
+      x2 = d3.time.scale().range([0, width]),
+      y = d3.scale.linear().range([height, 0]),
+      y2 = d3.scale.linear().range([height2, 0]);
+
+  var customTimeFormat = d3.time.format.multi([
+    [".%L", function(d) { return d.getMilliseconds(); }],
+    [":%S", function(d) { return d.getSeconds(); }],
+    ["%H:%M", function(d) { return d.getMinutes(); }],
+    ["%H:00", function(d) { return d.getHours(); }],
+    ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+    ["%b %d", function(d) { return d.getDate() != 1; }],
+    ["%B", function(d) { return d.getMonth(); }],
+    ["%Y", function() { return true; }]
+  ]);    
+      
+  var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(customTimeFormat),
+      xAxis2 = d3.svg.axis().scale(x2).orient("bottom").tickFormat(customTimeFormat),
+      yAxis = d3.svg.axis().scale(y).orient("left");
+
+  var brush = d3.svg.brush()
+      .x(x2)
+      .on("brush", brushed);
+
+  var area = d3.svg.area()
+      .interpolate("linear")
+      .x(function(d) { return x(d.date); })
+      .y0(height)
+      .y1(function(d) { return y(d.value); });
+
+  var area2 = d3.svg.area()
+      .interpolate("linear")
+      .x(function(d) { return x2(d.date); })
+      .y0(height2)
+      .y1(function(d) { return y2(d.value); });
+
+  var svg = d3.select("#online-users-chart").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("id", "svg");
+
+  svg.append("defs").append("clipPath")
+      .attr("id", "clip")
+    .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
+  var focus = svg.append("g")
+      .attr("class", "focus")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var context = svg.append("g")
+      .attr("class", "context")
+      .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+  x.domain(d3.extent(data.map(function(d) { return d.date; })));
+  y.domain([0, d3.max(data.map(function(d) { return d.value; }))]);
+  x2.domain(x.domain());
+  y2.domain(y.domain());
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area);
+
+  focus.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  focus.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  context.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area2);
+
+  context.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "x brush")
+      .call(brush)
+    .selectAll("rect")
+      .attr("y", -6)
+      .attr("height", height2 + 7);
+
+  var bisectDate = d3.bisector(function(d) { return d.date; }).left,
+      formatValue = d3.format(",.2f"),
+      formatCurrency = function(d) { return "$" + formatValue(d); };
+
+  var focus_value = svg.append("g")
+        .attr("class", "focus_value")
+        .style("display", "none")     ;
+
+  focus_value.append("circle")
+      .attr("r", 4.5);
+
+  focus_value.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+  svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width )
+      .attr("height", height)
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .on("mouseover", function() { 
+        focus_value.style("display", null); 
+        label_group.style("display", null);
+      })
+      .on("mouseout", function() { 
+        focus_value.style("display", "none"); 
+        label_group.style("display", "none");
+      })
+      .on("mousemove", mousemove);
+
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    focus_value.attr("transform", "translate(" + (x(d.date) + margin.left) + "," + (y(d.value) + margin.top) + ")");
+    focus_value.select("text").text(d.value );
+    label_group.select("text").text( d.value + ' чел в ' +  format( new Date(d.date)));
+  }
+  
+  var format = d3.time.format("%H:%M %a %e %b %Y");
+
+  var label_group = svg.append("g")
+    .attr("class", "date-label-group")
+    .style("display", "none") ;
+  
+  label_group.append("text")
+    .attr("class", "date-label")
+    .attr("text-anchor", "end") 
+    .attr("font-size", "10") 
+    .attr("y", -5)
+    .attr("x", width )
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;  
+  
+  
+  function brushed() {
+    x.domain(brush.empty() ? x2.domain() : brush.extent());
+    focus.select(".area").attr("d", area);
+    focus.select(".x.axis").call(xAxis);
+  }
+
+</script>  
+<?php
+  
+  $out = ob_get_contents();
+  ob_end_clean();
+  
+  return $out;
+}
+
+function evc_autopost_online_stats_dashboard_widgets() {
+  global $wp_meta_boxes;
+
+  add_meta_box( 
+    'autopost_online_stats_dashboard_widget', 
+    'Статистика подписчиков группы онлайн',   
+    'evc_autopost_online_stats_dashboard_widget',
+    'dashboard',
+    'side',
+    'high'
+  );  
+}
+add_action( 'wp_dashboard_setup', 'evc_autopost_online_stats_dashboard_widgets' );
+
+function evc_autopost_online_stats_dashboard_widget() {
+  $append = '';
+  if (!evc_is_pro()) {
+    $append = '<br/><b>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro"><u>PRO версии</u></a></b>. <a href = "javascript:void(0);" class = "get-evc-pro">Нажмите</a>, чтобы узнать больше.
+    <br/><small>Внимание! Текущие данные на графике не имеют отношения к вашей группе.</small>';
+  }
+    
+  echo 'Больше всего внимания привлекают записи, опубликованные в группе в момент, когда большинство подписчиков находятся онлайн. Плагин позволяет собрать такую <a href = "'.admin_url('admin.php?page=evc-autopost').'"><u>статистику</u></a> и рассчитать наиучшее время для публикаций. 
+  <div id = "online-users-chart"></div>
+  '.$append.'
+  <br/><a href = "http://ukraya.ru/458/vk-online-subscribers-missing-stats" target = "_blank">О преимуществах публикации записей в прайм-тайм ВКонтакте</a>.
+  <ol><li>Чтобы увидеть значение, наведите курсор мышки на первый (большой) график.</li>
+  <li>Чтобы увеличить отдельную область графика, наведите курсор мышки на второй (малый) график и, удерживая левую кнопку, выделите необходимую область.</li></ol>
+  <br/>Открыть <b><a href = "'.admin_url('admin.php?page=evc-autopost').'"><u>настройки статистики</u></a></b>.
+  ';
+  echo evc_autopost_online_stats_chart_js();          
+} 
+
+add_action('admin_init', 'evc_autopost_online_stats_settings_defaults');
+function evc_autopost_online_stats_settings_defaults() {
+  $options = get_option('evc_autopost');
+  
+  if ($options) {
+    
+    $options['autopost_stats'] = (!isset($options['autopost_stats']) || empty($options['autopost_stats'])) ? 0 : $options['autopost_stats'];
+            
+    $autopost_stats_time_points = '["22:00","21:45","21:30","21:15","21:00","20:45","20:30","20:15","22:15","20:00","19:45","19:30","22:30","19:15","19:00","18:45","18:30","22:45","18:15","17:00","17:15","17:30","17:45","18:00","16:45","16:30","16:15","23:00","16:00","15:45"]';
+    
+    $autopost_stats_data = '[{date:1406624400000, value:1447},{date:1406628000000, value:1473},{date:1406649600000, value:1802},{date:1406653200000, value:1755},{date:1406656800000, value:1716},{date:1406660400000, value:1974},{date:1406664000000, value:1502},{date:1406696400000, value:862},{date:1406700000000, value:958},{date:1406703600000, value:1376},{date:1406707200000, value:1376},{date:1406718000000, value:1619},{date:1406721600000, value:1619},{date:1406739600000, value:1737},{date:1406743200000, value:1994},{date:1406746800000, value:1669},{date:1406750400000, value:1477},{date:1406754000000, value:1151},{date:1406757600000, value:740},{date:1406790000000, value:1158},{date:1406793600000, value:1235},{date:1406804400000, value:1597},{date:1406808000000, value:1728},{date:1406811600000, value:1421},{date:1406818800000, value:1579},{date:1406822400000, value:1606},{date:1406826000000, value:1919},{date:1406829600000, value:1636},{date:1406833200000, value:1990},{date:1406836800000, value:1780},{date:1406840400000, value:1416},{date:1406872800000, value:1036},{date:1406876400000, value:1196},{date:1406880000000, value:1408},{date:1406883600000, value:1538},{date:1406887200000, value:1648},{date:1406890800000, value:1667},{date:1406894400000, value:1637},{date:1406898000000, value:1687},{date:1406901600000, value:1725},{date:1406905200000, value:1754},{date:1406908800000, value:1821},{date:1406912400000, value:1838},{date:1406916000000, value:1928},{date:1406919600000, value:1966},{date:1406923200000, value:1718},{date:1406926800000, value:1312},{date:1406930400000, value:859},{date:1406934000000, value:443},{date:1406937600000, value:346},{date:1406959200000, value:871},{date:1406962800000, value:1189},{date:1406966400000, value:1370},{date:1406970000000, value:1487},{date:1406973600000, value:1525},{date:1406977200000, value:1627},{date:1406980800000, value:1586},{date:1406984400000, value:1680},{date:1406988000000, value:1677},{date:1406991600000, value:1639},{date:1406995200000, value:1742},{date:1406998800000, value:1789},{date:1407002400000, value:1815},{date:1407006000000, value:1851},{date:1407009600000, value:1725},{date:1407013200000, value:1408},{date:1407016800000, value:919},{date:1407020400000, value:565},{date:1407024000000, value:370},{date:1407027600000, value:292},{date:1407031200000, value:263},{date:1407034800000, value:316},{date:1407038400000, value:434},{date:1407042000000, value:651},{date:1407045600000, value:896},{date:1407049200000, value:1231},{date:1407052800000, value:1362},{date:1407056400000, value:1525},{date:1407060000000, value:1637},{date:1407063600000, value:1594},{date:1407067200000, value:1616},{date:1407070800000, value:1697},{date:1407074400000, value:1691},{date:1407078000000, value:1727},{date:1407081600000, value:1613},{date:1407085200000, value:1924},{date:1407088800000, value:1969},{date:1407092400000, value:1925},{date:1407096000000, value:1765},{date:1407099600000, value:1391},{date:1407103200000, value:874},{date:1407106800000, value:552},{date:1407110400000, value:385},{date:1407114000000, value:307},{date:1407117600000, value:297},{date:1407121200000, value:394},{date:1407124800000, value:595},{date:1407128400000, value:744},{date:1407132000000, value:977},{date:1407135600000, value:1265},{date:1407139200000, value:1519},{date:1407142800000, value:1680},{date:1407146400000, value:1747},{date:1407150000000, value:1693},{date:1407153600000, value:1701},{date:1407157200000, value:1781},{date:1407160800000, value:1746},{date:1407164400000, value:1804},{date:1407168000000, value:1905},{date:1407171600000, value:1868},{date:1407175200000, value:2045}]';
+    
+    $options['autopost_stats_data'] = (!isset($options['autopost_stats_data']) || empty($options['autopost_stats_data'])) ? $autopost_stats_data : $options['autopost_stats_data'];
+    
+    $options['autopost_stats_data_time_points'] = (!isset($options['autopost_stats_data_time_points']) || empty($options['autopost_stats_data_time_points'])) ? $autopost_stats_time_points : $options['autopost_stats_data_time_points'];    
+    
+    update_option('evc_autopost', $options);
+  }
 }

@@ -1057,6 +1057,18 @@ function evc_register_pointer( $p ) {
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
   );  
+  
+  $p['evc_autopost_online_stats'] = array(
+    'target' => '#toplevel_page_evc',
+    'options' => array(
+      'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+        __( 'Уникальная статистика' ,'evc'),
+        __( 'Больше всего внимания привлекают записи, опубликованные в группе в момент, когда большинство подписчиков находятся онлайн. Плагин позволяет собрать такую <a href = "'.admin_url('admin.php?page=evc-autopost').'">статистику</a> и рассчитать наиучшее время для публикаций.
+        <br/><a href = "'.admin_url('admin.php?page=evc-autopost').'">Перейти</a>  к статистике.','evc')
+      ),
+      'position' => array( 'edge' => 'left', 'align' => 'right' )
+    )
+  );  
   return $p;
 }
 

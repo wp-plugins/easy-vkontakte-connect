@@ -55,10 +55,14 @@ function evc_auth_user_authorize($user_vk_id) {
 
 add_action('login_form', 'evc_auth_register_form' );
 function evc_auth_register_form() {
-  ?>
-  <p>&nbsp;<input type="button" name="evc_vk_login" id="evc_vk_login" class="button button-primary button-large" value="Войти через ВКонтакте" onclick="location.href='<?php echo evc_auth_login_url(); ?>'" /></p>
-  <br class="clear" />
- <?php
+  $options = get_option('evc_widget_auth');
+  
+  if (isset($options['tvc_auth_button']) && $options['tvc_auth_button'] ) {
+    ?>
+    <p>&nbsp;<input type="button" name="evc_vk_login" id="evc_vk_login" class="button button-primary button-large" value="Войти через ВКонтакте" onclick="location.href='<?php echo evc_auth_login_url(); ?>'" /></p>
+    <br class="clear" />
+   <?php
+  }
 }
 
 add_action('login_form_register', 'evc_auth_login_init' );

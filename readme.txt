@@ -3,7 +3,7 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 3.9
-Stable tag: 1.7
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,12 @@ Requires WordPress 3.2 and PHP 5.
 6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.7.1 / 2014-08-05 =
+* **!!!** Added compatibility with Amazing Group Members Online Stats in PRO version.
+* Added missing option Show VK login button.
+* Changed autopost method, maybe increased posted text size.
+* Added additional error handler.
 
 = 1.7 / 2014-07-14 =
 * Added VK Athorization.

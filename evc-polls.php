@@ -688,7 +688,7 @@ class VK_Widget_Polls extends WP_Widget {
         if (isset($polls) && !empty($polls))
           $out = implode("\n", $polls);
         
-        set_transient('evc_poll_widget_all-' . $this->id, $out, HOUR_IN_SECONDS);
+        set_transient('evc_poll_widget_all-' . $this->id, $out, 24 * HOUR_IN_SECONDS);
       }
     } 
    
@@ -1069,6 +1069,19 @@ function evc_register_pointer( $p ) {
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
   );  
+  
+  $p['evc_widget_buttons'] = array(
+    'target' => '#toplevel_page_evc',
+    'options' => array(
+      'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+        __( 'Кнопки "Поделиться"' ,'evc'),
+        __( 'Шок: 7 сетей, интерактивный настройщик, 4 темы для кнопок и множество вариантов отображения.
+        <br/>Открыть <a href = "'.admin_url('admin.php?page=evc-widgets#evc_widget_buttons').'">настройки для кнопок</a>.','evc')
+      ),
+      'position' => array( 'edge' => 'left', 'align' => 'right' )
+    )
+  );    
+  
   return $p;
 }
 

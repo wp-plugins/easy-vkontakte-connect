@@ -1,4 +1,5 @@
 <?php
+// 2014_08_29
 
 add_action ('admin_init', 'evc_update_share');
 function evc_update_share () {
@@ -302,11 +303,50 @@ function evc_widget_load_scripts () {
   wp_enqueue_script('evc-share', plugins_url('js/evc-share.js' , __FILE__), array('jquery', 'jquery.cookie'), null, true); 
 }
 
+add_shortcode('vk_group', 'evc_vk_widget_group_shortcode');
+function evc_vk_widget_group_shortcode ($atts = array(), $content = '') {
+  if (!empty($atts))
+    extract ($atts);
+    
+  $out = '';
+  if (isset($url) && !empty($url)) {
+    $id = evc_get_vk_id($url);  
+    if (!$id || empty($id))
+      return $out;
+  }
+  
+  $str = substr(md5(microtime()),rand(0,26),3);
+  $args = array(
+    'group_id' => $id,
+    'element_id' => 'vk-widget-'.$str,
+    'options' => array(
+      'width' => 'auto',
+      'mode' => 2
+    )
+  );
+  
+  if (isset($width) && !empty($width))
+    $args['options']['width'] = $width;
+
+  if (isset($height) && !empty($height))
+    $args['options']['height'] = $height;
+    
+  if (isset($element_id) && !empty($element_id))
+    $args['element_id'] = 'vk-widget-'.$element_id;
+
+  if (isset($mode) && !empty($mode))
+    $args['options']['mode'] = $mode;    
+    
+  $out = evc_vk_widget_group($args, 0);
+    
+  return $out;
+}
+
 function evc_vk_widget_group ($data, $echo = 1) {
   if ($data['options']['width'] === 0)
     $data['options']['width'] = 'auto';
   
-  if (isset($data['group_id']) && !empty($data['group_id'])) {
+  if (isset($data['group_id']) && !empty($data['group_id']) && is_numeric($data['group_id']) ) {
     $out = '
       <script type="text/javascript">
         VKWidgetsGroup.push ({
@@ -1306,7 +1346,7 @@ function evc_autopost_settings_admin_init() {
           'name' => 'evc_autopost_online_stats_section',
           'title' => __( 'Статистика подписчиков группы онлайн', 'evc' ),
           'desc' => __( 'Больше всего внимания привлекают записи, опубликованные в группе в момент, когда большинство подписчиков находятся онлайн.
-          <br/>Вы можете запустить <b>Cбор статистики</b> и плагин втоматически:
+          <br/>Вы можете запустить <b>Cбор статистики</b> и плагин автоматически:
           <ol><li>построит график, по которому видно, сколько подписчиков вашей группы находятся онлайн каждый час;</li>
           <li>рассчитает наиболее удачное время для публикации записей в группе и подставит данные в опцию <b>Время</b>, для публикации записей с сайта в группе по графику.</li></ol>
           <div id = "online-users-chart"></div>
@@ -1490,7 +1530,9 @@ function evc_autopost_settings_admin_init() {
         'name' => 'upload_photo_count',
         'label' => __( 'Изображения', 'evc' ),
         'desc' => __( 'Сколько изображений из статьи прикрепить к сообщению ВКонтакте.
-        <br/><br/><strong>Внимание!</strong> ВКонтакте будут опубликованы только те изображения, которые прикреплены к статье через опцию "Добавить медиа" при редактировании или создании записи.', 'evc' ),
+        <br/>API ВКонтакте не позволяет прикреплять больше 5 фото.
+        <br/><br/><strong>Внимание!</strong> ВКонтакте будут опубликованы только те изображения, которые прикреплены к статье через опцию "Добавить медиа" при редактировании или создании записи.
+        <br/><br/><a href = "javascript:void(0);" class = "get-evc-pro">PRO версиия</a> плагина позволяет отправлять в группу так же изображение, которое выбрано в качестве обложки (featured image) для записи.', 'evc' ),
         'type' => 'select',
         'default' => '4',
         'options' => array(
@@ -1505,14 +1547,15 @@ function evc_autopost_settings_admin_init() {
      array(
         'name' => 'excerpt_length',
         'label' => __( 'Анонс', 'evc' ),
-        'desc' => __( 'Сколько слов из статьи опубликовать в качестве анонса ВКонтакте.', 'evc' ),
+        'desc' => __( 'Сколько слов из статьи опубликовать в качестве анонса ВКонтакте.
+        <br/>Установите <code>0</code>, чтобы снять это ограничение.', 'evc' ),
         'type' => 'text',
         'default' => 25
       ),  
     array(
         'name' => 'excerpt_length_strings',
         'desc' => __( 'Сколько <strong>знаков</strong> из статьи опубликовать в качестве анонса ВКонтакте. 
-  <br/><strong>Не рекомендуется</strong> больше 2688.', 'evc' ),
+        <br/>Установите <code>0</code>, чтобы снять это ограничение.', 'evc' ),
         'type' => 'text',            
         'default' => 2688
       ),                
@@ -1732,6 +1775,7 @@ function evc_widget_settings_admin_init() {
       )
     ),    
   );  
+  $tabs = apply_filters('evc_widget_tabs', $tabs);
   
   $fields = array(
     'evc_widget_auth_section' => array(   
@@ -1748,7 +1792,8 @@ function evc_widget_settings_admin_init() {
       ),
     )  
   );
-
+  $fields = apply_filters('evc_widget_fields', $fields);
+  
  //set sections and fields
  $evc_widget_settings->set_option_name( 'evc_options' );
  $evc_widget_settings->set_sections( $tabs );
@@ -1766,6 +1811,7 @@ function evc_widget_admin_menu() {
    
   $evc_widget_settings_page = add_submenu_page( 'evc', 'Кнопки и виджеты ВКонтакте', 'Кнопки и виджеты', 'activate_plugins', 'evc-widgets', 'evc_widget_settings_page' );
 
+  add_action( 'admin_footer-'. $evc_widget_settings_page, 'evc_widget_settings_page_js' );
 }
 add_action( 'admin_menu', 'evc_widget_admin_menu', 30 );
 

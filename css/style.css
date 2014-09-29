@@ -181,6 +181,11 @@
   right:15px;  
 }
 
+.bootstrap-wpadmin .show-grid {
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
 
 /**** Isotope Filtering ****/
 
@@ -192,6 +197,7 @@
   pointer-events: none;
   z-index: 1;
 }
+
 
 /**** Isotope CSS3 transitions ****/
 
@@ -256,3 +262,6 @@
        -o-transition-property: left, right, top;
           transition-property: left, right, top;
 }
+
+
+.evc-poll-code { margin-top:10px; }

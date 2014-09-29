@@ -1,5 +1,7 @@
 <?php
 
+// 2014_09_25
+
 define('EVC_API_URL','https://api.vk.com/method/');
 
 
@@ -22,6 +24,7 @@ function evc_plugin_loader() {
   include_once('evc-polls.php');
   include_once('evc-authorization.php');
   include_once('evc-lock.php');
+  include_once('evc-buttons.php');
 }
 
 // add the theme page
@@ -175,7 +178,7 @@ function evc_wall_post ($id, $post) {
   
   $attach = array();
   $images = evc_upload_photo($id, $post);  
-  if ($images['i'])
+  if ($images['i'] && is_array($images['i']) )
     $attach[] = implode(',',$images['i']);
   if (!empty($permalink))
     $attach[] = $permalink;
@@ -306,14 +309,18 @@ function evc_upload_photo($id, $post) {
     'order' => 'ASC', 
     'numberposts' => $options['upload_photo_count'] 
   ));  
+  
+  $post_images = apply_filters('evc_autopost_upload_photo', $post_images, $post);
+  
   // if no attached photo
-  if (!$post_images)
+  if (!$post_images || empty($post_images))
     return false;
   
   if ( $post_images ) {
     $i = 1;
     foreach($post_images as $image) {
-      $images['file'.$i] = '@' . get_attached_file($image->ID );
+      $att_id = is_object($image) ? $image->ID : $image;
+      $images['file'.$i] = '@' . get_attached_file($att_id );
       $i++;
     }
   }  
@@ -407,7 +414,15 @@ function evc_make_excerpt($post) {
   
   //$max = min(500, apply_filters('evc_excerpt_length', 500));
   
-  $max = !empty($options['excerpt_length']) ? $options['excerpt_length'] : 20;
+  if(!isset($options['excerpt_length']) || empty($options['excerpt_length']) || $options['excerpt_length'] == 0 ) {
+    if (isset($options['excerpt_length_strings']) && !empty($options['excerpt_length_strings']) && $options['excerpt_length_strings'] )
+      return evc_excerpt_strlen($text);
+    else
+      return $text;
+  }
+  
+  //$max = !empty($options['excerpt_length']) ? $options['excerpt_length'] : 20;
+  $max = $options['excerpt_length'];
   
   if ($max < 1) return ''; // nothing to send
   $words = explode(' ', $text);
@@ -424,7 +439,7 @@ function evc_make_excerpt($post) {
 }
 
 
-function evc_excerpt_strlen ($text, $max_strlen = 2688) {
+function evc_excerpt_strlen ($text, $max_strlen = 2000688) {
   $options = get_option('evc_autopost');  
   
   if (isset($options['excerpt_length_strings']) && !empty($options['excerpt_length_strings'])) {

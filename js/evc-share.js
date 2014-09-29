@@ -71,6 +71,15 @@ jQuery(document).ready(function($) {
     
       var sOpen = false;
       var sWrap = $('#slide-sidebar-wrap');
+      
+      if($(window).width() < $( "#slide-sidebar" ).outerWidth()) {      
+             
+        $( "#slide-sidebar" ).css({
+          width: $(window).width(),
+          right: '-' + $(window).outerWidth()
+        });      
+      }    
+           
       var sWidth = $( "#slide-sidebar" ).css('right');
       sWrap.find('.slide-sidebar-close').on( 'click', function() {
         $( "#slide-sidebar" ).animate({ "right": sWidth}, sSpeed );

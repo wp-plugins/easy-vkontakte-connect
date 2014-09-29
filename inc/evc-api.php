@@ -343,7 +343,7 @@ function evc_save_remote_attachment ($a, $post_parent= null, $title = '', $obj =
   if (isset($a['duration']))
     $meta['vk_duration'] = $a['duration'];    
   
-  if ( $obj != 'user') 
+  if ( $obj != 'user' && isset($a['vk_item_id']) ) 
     $meta['vk_item_id'] = $a['vk_item_id'];
   
   if (isset($meta) && !empty($meta))    
@@ -630,7 +630,7 @@ function evc_vkapi_groups_is_member ($params) {
 function evc_vkapi_resolve_screen_name ($params) {
   $options = get_option('evc_vk_api_widgets'); 
   
-  //http://vk.com/dev/groups.isMember  
+  //http://vk.com/dev/utils.resolveScreenName  
   $default = array(
     'access_token' => $options['site_access_token'],
     //'screen_name' => ''

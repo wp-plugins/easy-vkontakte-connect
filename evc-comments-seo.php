@@ -85,12 +85,12 @@ function evc_comments_refresh_comments () {
   //$out = print_r($_POST, 1);
   //print json_encode($out);
   //exit();    
-  $options['evc_comments_pro_count'] = !isset($options['evc_comments_pro_count']) ? 10 : $options['evc_comments_pro_count'];
+  $options['comments_pro_count'] = !isset($options['comments_pro_count']) ? 10 : $options['comments_pro_count'];
   $args = array(
     'widget_api_id' => $widget_api_id, 
     'url' => $url, 
     //'offset' => 0,
-    'count' => $options['evc_comments_pro_count'], 
+    'count' => $options['comments_pro_count'], 
   );  
   if (isset($page_id)) {
     $args['page_id'] = $page_id;
@@ -154,12 +154,17 @@ function evc_comments_get_comments($args = array()) {
   $data = wp_remote_get(EVC_API_URL.'widgets.getComments?'.$query, array(
     'sslverify' => false
   ));  
-  //print__r($data); //
-  
+  //evc_add_log('evc_comments_get_comments:' . print_r($data, 1));
+   
   if (is_wp_error($data)) {
     evc_add_log('evc_comments_get_comments: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
     return false;
   }
+
+  if (isset($data['response']) && isset($data['response']['code']) && $data['response']['code'] != 200 ){
+    evc_add_log('evc_wall_post: RESPONSE ERROR. ' . $data['response']['code'] . ' '. $data['response']['message']);
+    return false;
+  } 
   
   $resp = json_decode($data['body'],true);
   

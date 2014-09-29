@@ -2,8 +2,8 @@
 Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
-Tested up to: 4.0
-Stable tag: 1.7.1
+Tested up to: 3.9
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,8 +14,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Весь API ВКонтакте. 
 
 * Автопубликация записей с фото на стену группы ВКонтакте.
+* **!!!** Кнопки Поделиться: 7 социальных сетей, интерактивный настройщик, 4 темы и множество вариантов отображения. Сети: ВКонтакте, Одноклассники, Мой Мир, Facebook, Google+, Twitter, Pinterest.
 * **!!!** Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
-* **!!!** Авторизация через ВКонтакте.
+* Авторизация через ВКонтакте.
 * Опросы ВКонтакте: создать, добавить на сайт, поделиться.
 * Виджет комментариев ВКонтакте.
 * Индексация & импорт комментариев, оставленных через виджет комментариев ВКонтакте.
@@ -29,9 +30,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 This plugin allows you to publish posts on the VKontakte wall in automatic or manual mode, along with the images attached to post and provide VKontakte Wall Analytics.
 
 * Uses the API VKontakte
+* **!!!** Social share buttons with interactive builder. jQuery part based on the Social Likes library by Artem Sapegin, [git](https://github.com/sapegin/social-likes "Social Likes library by Artem Sapegin").
 * VK Community Widget
 * Sidebars: overlay, slide, before and after posts; triggered by timeout or scrolling actions.
-* **NEW in 1.0** Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time
+* Provide VKontakte Wall Analytics: Sort group wall posts by: likes, reposts, comments, publish time
 * Automatically publish new posts on the VKontakte wall
 * Manually publish posts on the VKontakte wall
 * Publish images attached to the posts on the VKontakte wall 
@@ -55,6 +57,12 @@ Requires WordPress 3.2 and PHP 5.
 6. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.8 / 2014-09-29 =
+* Added social share buttons with interactive builder.
+* Added slide sidebar responsive width.
+* Added vk community shortcode.
+* Fixed minor bugs in comments widget.
 
 = 1.7.1 / 2014-08-05 =
 * **!!!** Added compatibility with Amazing Group Members Online Stats in PRO version.

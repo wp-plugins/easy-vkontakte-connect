@@ -202,6 +202,7 @@ class WP_Settings_API_Class {
                     'size' => isset( $option['size'] ) ? $option['size'] : null,
                     'options' => isset( $option['options'] ) ? $option['options'] : '',
                     'default' => isset( $option['default'] ) ? $option['default'] : '',
+                    'sortable' => isset( $option['sortable'] ) ? $option['sortable'] : false,
                     'sanitize_callback' => isset( $option['sanitize_callback'] ) ? $option['sanitize_callback'] : '',
                 );
                 //print__r($this->option_name . '[' . $option['name'] . ']' .'<br/>'. $option['label'].'<br/>'. array( $this, 'callback_' . $type ).'<br/>'. 'evc_bridge'.'<br/>'. $section);
@@ -241,6 +242,7 @@ class WP_Settings_API_Class {
     function callback_hidden( $args ) {
 
         $value = esc_attr( $this->get_option( $args['name'], $args['tab'], $args['default'] ) );
+        $size = isset( $args['size'] ) && !is_null( $args['size'] ) ? $args['size'] : 'regular';
         $html = sprintf( '<input type="hidden" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"  />', $size, $args['tab'], $args['name'], $value );
 
         echo $html;
@@ -274,16 +276,25 @@ class WP_Settings_API_Class {
           
         $value =  $this->get_option( $args['name'], $args['tab'], $args['default'] ) ;
         //print__r($value);
-        
+        //print__r($args);
         $temp = array();
         foreach ( $args['options'] as $key => $label ) {
           $html = '';  
           $checked = isset( $value[$key] ) ? $value[$key] : '0';
           $html .= sprintf( '<input type="checkbox" class="checkbox" id="%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s"%4$s />', $args['tab'], $args['name'], $key, checked( $checked, $key, false ) );
           $html .= sprintf( '<label for="%1$s[%2$s][%4$s]"> %3$s</label>', $args['tab'], $args['id'], $label, $key );
-          $temp[] = $html;
+          
+          if (isset($args['sortable']) && $args['sortable']) {
+            $temp[] = '<div class = "item" '.sprintf( 'id="item_%1$s[%2$s][%3$s]"', $args['tab'], $args['name'], $key, checked( $checked, $key, false ) ).'>' . $html . '</div>';
+          }
+          else
+            $temp[] = $html;
         }
-        $out = implode('<br/>', $temp);
+        if (isset($args['sortable']) && $args['sortable']) {
+          $out = '<div class = "sortable">'.implode("\n", $temp).'</div>';
+        }
+        else
+          $out = implode('<br/>', $temp);
         $out .= sprintf( '<p class="description"> %s</p>', $args['desc'] );
 
         echo $out;

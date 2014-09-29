@@ -45,19 +45,21 @@ function evc_comments_footer_scripts(){
         if (isset($options['comment_widget_hide_wp_comments']) && $options['comment_widget_hide_wp_comments']) {
       ?>
       cClose = false;
-      $( "<?php echo $options['comment_widget_comments_list'];?>" ).wrap('<div class = "evc-comments-wrap"></div>');
-		
-      docViewHeight = $(window).height();
-      $(document).scroll(function () {
-        var docViewTop = $(window).scrollTop();
-        var elemTop = $('.evc-comments-wrap').offset().top;
-        //var elemBottom = elemTop + $('.evc-comments-wrap').height();         
-        if ( elemTop * 3 / 4 <= docViewTop && !cClose ) {
-          cClose = true;  
-          $( ".evc-comments-wrap" ).animate({ "height": 0}, 800 );
-          //console.log(elemTop + ' >= ' + docViewHeight+ '+'+ docViewTop);
-        }
-      });
+      if ($( "<?php echo $options['comment_widget_comments_list'];?>" ).length) {
+        $( "<?php echo $options['comment_widget_comments_list'];?>" ).wrap('<div class = "evc-comments-wrap"></div>');
+		  
+        docViewHeight = $(window).height();
+        $(document).scroll(function () {
+          var docViewTop = $(window).scrollTop();
+          var elemTop = $('.evc-comments-wrap').offset().top;
+          //var elemBottom = elemTop + $('.evc-comments-wrap').height();         
+          if ( elemTop * 3 / 4 <= docViewTop && !cClose ) {
+            cClose = true;  
+            $( ".evc-comments-wrap" ).animate({ "height": 0}, 800 );
+            //console.log(elemTop + ' >= ' + docViewHeight+ '+'+ docViewTop);
+          }
+        });
+      }
       <?php
         }
       ?>
@@ -117,19 +119,6 @@ function evc_vk_widget_comments ($element_id = null, $args = array(), $page_id =
   $out = '
 <script type="text/javascript">
   VKWidgetsComments.push ({
-    element_id: "'.$element_id.'",
-    options: '.$o;
-  
-  if (isset($page_id))
-    $out .= ',page_id: '.$page_id;
-  elseif (isset($options['comment_widget_page_id']) && $options['comment_widget_page_id'])
-    $out .= ',page_id: '.$post->ID;
-  
-  $out .= '
-  });  
-  
-  VKWidgets.push ({
-    type: "comments",
     element_id: "'.$element_id.'",
     options: '.$o;
   

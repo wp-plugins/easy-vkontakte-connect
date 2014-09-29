@@ -150,6 +150,7 @@
   overflow: hidden;
 }
 
-.widget .vk_poll .vk_widget_polls {
+.widget .vk_poll .vk_widget_polls,
+.vk_widget_polls {
   margin-bottom:20px;
 }

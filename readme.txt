@@ -49,12 +49,13 @@ Requires WordPress 3.2 and PHP 5.
 
 == Screenshots ==
 
-1. VK API Settings.
-2. Sidebars Settings.
-3. Autopost Settings.
-4. VK Community Widget.
-5. Edit Post Page.
-6. VKontakte Wall Analytics page.
+1. Social Likes Buttons Themes and Variation.
+2. VK API Settings.
+3. Sidebars Settings.
+4. Autopost Settings.
+5. VK Community Widget.
+6. Edit Post Page.
+7. VKontakte Wall Analytics page.
 
 == Changelog ==
 

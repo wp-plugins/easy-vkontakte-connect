@@ -1,6 +1,6 @@
 <?php
 
-// 2014_09_29
+// 2014_09_30
 
 add_action('admin_init', 'evc_buttons_load_scripts'); 
 add_action('init', 'evc_buttons_load_scripts'); 
@@ -353,7 +353,7 @@ function evc_buttons_js() {
 <?php
 }
 
-add_action('the_content', 'evc_buttons_insert');
+add_filter('the_content', 'evc_buttons_insert');
 function evc_buttons_insert ($content) {
   global $post;
   $options = get_option('evc_widget_buttons');

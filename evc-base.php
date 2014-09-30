@@ -1,6 +1,6 @@
 <?php
 
-// 2014_09_25
+// 2014_09_30
 
 define('EVC_API_URL','https://api.vk.com/method/');
 
@@ -395,7 +395,9 @@ function evc_make_excerpt($post) {
   // filter the excerpt or content, but without texturizing
   if ( empty($post->post_excerpt) ) {
     remove_filter( 'the_content', 'wptexturize' );
+    remove_filter( 'the_content', 'evc_buttons_insert' );
     $text = apply_filters('the_content', $text);
+    add_filter( 'the_content', 'evc_buttons_insert' );
     add_filter( 'the_content', 'wptexturize' );
   } else {
     remove_filter( 'the_excerpt', 'wptexturize' );

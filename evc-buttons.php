@@ -1,6 +1,6 @@
 <?php
 
-// 2014_09_30
+// 2014_10_27
 
 add_action('admin_init', 'evc_buttons_load_scripts'); 
 add_action('init', 'evc_buttons_load_scripts'); 
@@ -381,7 +381,7 @@ function evc_buttons_code () {
     return '';
   
   $data_media = '';
-  $att_id = get_post_thumbnail_id( $post_id );
+  $att_id = get_post_thumbnail_id( $post->ID );
   if(!$att_id || empty($att_id)) {
     $att = get_children( array( 
       'post_parent' => $post->ID, 

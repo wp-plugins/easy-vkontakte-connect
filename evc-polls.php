@@ -1081,6 +1081,18 @@ function evc_register_pointer( $p ) {
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
   );    
+
+  $p['evc_sidebar_getaway'] = array(
+    'target' => '#toplevel_page_evc',
+    'options' => array(
+      'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+        __( 'Сайдбары останавливают уходящих посетителей!' ,'evc'),
+        __( 'Сайдбары могут появляться, когда посетитель пытается покинуть ваш сайт. Это позволяет задержать их на странице и повысить конверсию на 17-23%.
+        <br/>В <a href = "'.admin_url('admin.php?page=evc-sidebar#evc_sidebar_overlay').'">настройках</a> для всплывающего или выезжающего сайдбаров установите в опции <em>Появляется: Уход</em>.','evc')
+      ),
+      'position' => array( 'edge' => 'left', 'align' => 'right' )
+    )
+  );  
   
   return $p;
 }

@@ -1,5 +1,5 @@
 <?php
-// 2014_08_29
+// 2014_10_27
 
 add_action ('admin_init', 'evc_update_share');
 function evc_update_share () {
@@ -101,12 +101,14 @@ function evc_share_meta () {
     oScreens = '.$s['o_sidebar_scroll'].';
     oCookieExpires = '.$s['o_sidebar_cookie_days'].';
     oAction = "'.$s['o_sidebar_action'].'"; 
+    oSensitivity = '.(isset($s['o_sidebar_getaway_sensitivity']) && !empty($s['o_sidebar_getaway_sensitivity']) ? $s['o_sidebar_getaway_sensitivity'] : 20).'; 
     oTop = "'.((strpos($s['o_sidebar_top'], '%') !== false) ? $s['o_sidebar_top'] : ($s['o_sidebar_top'] . 'px')).'"; 
-  
+
     sTimeout = '.($s['s_sidebar_timeout']*1000).';
     sScreens = '.$s['s_sidebar_scroll'].';
     sCookieExpires = '.$s['s_sidebar_cookie_days'].';
     sAction = "'.$s['s_sidebar_action'].'"; 
+    sSensitivity = '.(isset($s['s_sidebar_getaway_sensitivity']) && !empty($s['s_sidebar_getaway_sensitivity']) ? $s['s_sidebar_getaway_sensitivity'] : 20).'; 
     sSpeed = 800;
         
   </script>';  
@@ -299,7 +301,7 @@ function evc_get_vk_widget_stats () {
 
 add_action('init', 'evc_widget_load_scripts'); 
 function evc_widget_load_scripts () {
-  wp_enqueue_script('jquery.cookie', plugins_url('js/jquery.cookie.js' , __FILE__), array('jquery'), null, false);   
+  wp_enqueue_script('jquery.cookie', plugins_url('js/jquery.cookie.js' , __FILE__), array('jquery'), null, false);    
   wp_enqueue_script('evc-share', plugins_url('js/evc-share.js' , __FILE__), array('jquery', 'jquery.cookie'), null, true); 
 }
 
@@ -1034,7 +1036,7 @@ function evc_sidebar_settings_admin_init() {
           'desc' => __( 'Показывается после контента поста.', 'evc' ),          
         )
       )
-    ),       
+    ),          
       
   );
       
@@ -1065,7 +1067,8 @@ function evc_sidebar_settings_admin_init() {
         'default' => 'timeout',
         'options' => array(
           'timeout' => 'Интервал / <i>через заданное время после загрузки страницы.</i>',
-          'scroll' => 'Скроллинг / <i>после пролистывания экрана.</i>'
+          'scroll' => 'Скроллинг / <i>после пролистывания экрана.</i>',
+          'getaway' => 'Уход / <i>попытка покинуть страницу сайта.</i>'          
         )
       ), 
       array(
@@ -1083,7 +1086,15 @@ function evc_sidebar_settings_admin_init() {
         <br/>Например: <code>0.75</code>. Рекомендуемое значение: от <code>0.1</code> до <code>1</code>.', 'evc' ),
         'type' => 'text',
         'default' => '0.75'
-      ),              
+      ),  
+      array(
+        'name' => 'o_sidebar_getaway_sensitivity',
+        'label' => __( 'Уход', 'evc' ),
+        'desc' => __( 'На каком минимальном расстоянии (в px) от верхней границы экрана должен оказаться курсор мышки, чтобы появился сайдбар.
+        <br/>Например: <code>20</code>.', 'evc' ),
+        'type' => 'text',
+        'default' => '20'
+      ),                   
       array(
         'name' => 'o_sidebar_is',
         'label' => __( 'Страницы', 'evc' ),
@@ -1143,7 +1154,8 @@ function evc_sidebar_settings_admin_init() {
         'default' => 'scroll',
         'options' => array(
           'timeout' => 'Интервал / <i>через заданное время после загрузки страницы.</i>',
-          'scroll' => 'Скроллинг / <i>после пролистывания экрана.</i>'
+          'scroll' => 'Скроллинг / <i>после пролистывания экрана.</i>',
+          'getaway' => 'Уход / <i>попытка покинуть страницу сайта.</i>'          
         )
       ), 
       array(
@@ -1162,6 +1174,14 @@ function evc_sidebar_settings_admin_init() {
         'type' => 'text',
         'default' => '0.75'
       ),    
+      array(
+        'name' => 's_sidebar_getaway_sensitivity',
+        'label' => __( 'Уход', 'evc' ),
+        'desc' => __( 'На каком минимальном расстоянии (в px) от верхней границы экрана должен оказаться курсор мышки, чтобы появился сайдбар.
+        <br/>Например: <code>20</code>.', 'evc' ),
+        'type' => 'text',
+        'default' => '20'
+      ),      
       array(
         'name' => 's_sidebar_is',
         'label' => __( 'Страницы', 'evc' ),
@@ -1857,8 +1877,8 @@ function evc_ad () {
     </div>';
     
   echo '
-    <h3>EVC PRO: грандиозные возможности!</h3>
-    <p>Плагин <a href = "http://ukraya.ru/421/evc-pro" target = "_blank">EVC PRO</a> даст вам возможности, которых нет у других пользователей. Вы сможете, не прилагая усилий, получить больше подписчиков в свои группы ВКонтакте, больше лайков, репостов, комментариев к материалам...</p>
+    <h3>EVC PRO: автопубликация по графику и в прайм-тайм!</h3>
+    <p>С плагином <a href = "http://ukraya.ru/421/evc-pro" target = "_blank">EVC PRO</a> вы сможете публиковать ВКонтакте старые и текущие записи в <em>прайм-тайм</em> вашей группы ВК (когда большинство ваших подписчиков находятся онлайн). Это даст еще больше лайков, репостов, комментариев к материалам и подписчиков. Полностью автоматизировано.</p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_evc_pro', false).'</p>  
     ';    
   
@@ -2170,6 +2190,7 @@ function evc_is_pro() {
 add_action('admin_init', 'evc_autopost_load_scripts'); 
 function evc_autopost_load_scripts () {
   wp_enqueue_script('d3', plugins_url('js/d3.min.js' , __FILE__), null, null, false); 
+  wp_enqueue_script('sticky-kit', plugins_url('js/jquery.sticky-kit.min.js' , __FILE__), array('jquery'), null, false); 
 }
 
 

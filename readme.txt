@@ -3,7 +3,7 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 4.0
-Stable tag: 1.8
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,10 @@ Requires WordPress 3.2 and PHP 5.
 7. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.8.1 / 2014-10-27 =
+* New sidebar action: when leave the page. Increase your conversion!
+* Fix minor bugs.
 
 = 1.8 / 2014-09-29 =
 * Added social share buttons with interactive builder.

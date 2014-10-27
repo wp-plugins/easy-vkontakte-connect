@@ -64,6 +64,13 @@ jQuery(document).ready(function($) {
     return false;
   });  
   
+  if ($(".evc-box").length) {
+    $("#col-right").stick_in_parent({
+      parent: '#col-container',
+      offset_top: $('#wpadminbar').height() + 10,
+    });
+  }
+ 
   
   // Isotope DEPRECATED because:
   // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/
@@ -127,5 +134,6 @@ jQuery(document).ready(function($) {
   });      
       
   */       
+  
   
 }); // End

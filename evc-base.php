@@ -47,7 +47,7 @@ function evc_admin_init(){
   // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/ 
   //wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
   
-  wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry'), '1.0', true);  
+  wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry', 'sticky-kit'), '1.0', true);  
   wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
   wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
   
@@ -391,7 +391,8 @@ function evc_make_excerpt($post) {
     $text = $post->post_content;
   
   $text = strip_shortcodes( $text );
-
+  // Need to try variants!!!
+  /*
   // filter the excerpt or content, but without texturizing
   if ( empty($post->post_excerpt) ) {
     remove_filter( 'the_content', 'wptexturize' );
@@ -404,7 +405,7 @@ function evc_make_excerpt($post) {
     $text = apply_filters('the_excerpt', $text);
     add_filter( 'the_excerpt', 'wptexturize' );
   }
-
+  */
   $text = str_replace(']]>', ']]&gt;', $text);
   $text = wp_strip_all_tags($text);
   $text = str_replace(array("\r\n","\r","\n"),"\n\n",$text);

@@ -65,7 +65,33 @@ function evc_comments_footer_scripts(){
       ?>
     }
  		
+  // Rresponsive VK Comments Widget Width
+  <?php
+    if ($options['comment_widget_width'] == 0 ) {
+  ?>      
+    if ($('.vk_widget_comments').length) {
+      
+      responsiveVkWidget();
+      $(window).on('resize', function() {
+        responsiveVkWidget();
+      });
+    }
+  <?php    
+    }
+  ?>
+    
+    function responsiveVkWidget () {
+      var vkParentWidth = parseInt( $('.vk_widget_comments').parent().width() );
+      
+      $('.vk_widget_comments, .vk_widget_comments iframe').css({
+        width: vkParentWidth
+      });
+      $('.vk_widget_comments, .vk_widget_comments iframe').attr('width', vkParentWidth);
+    }
   
+  // END Rresponsive VK Comments Widget Width 
+    
+    
 	}); // End jQuery 
    
   /* ]]> */
@@ -207,10 +233,11 @@ function evc_comments_admin_init() {
       array(
         'name' => 'comment_widget_width',
         'label' => __( 'Ширина блока', 'evc' ),
-        'desc' => __( 'Ширина блока комментариев, в px (больше 300). 
+        'desc' => __( 'Ширина блока комментариев, в px.
+        <br/>Поставьте <code>0</code>, чтобы ширина выставлялась автоматически (респонсивно; под ширину родительского контейнера). 
 				<br/>Например: <code>300</code>.', 'evc' ),
 				'type' => 'text',
-				'default' => 300
+				'default' => 0
       ),                 
       array(
         'name' => 'comment_widget_height',
@@ -426,4 +453,96 @@ function evc_comments_page() {
 		
     
   echo '</div>';
+}
+
+
+function evc_add_meta_box() {
+  $screens = array( 'post', 'page' );
+  
+  foreach ( $screens as $screen ) {
+    add_meta_box(
+      'evc_meta_box',
+      __( 'Easy VK Connect', 'evc' ),
+      'evc_meta_box_callback',
+      $screen
+    );
+  }
+}
+add_action( 'add_meta_boxes', 'evc_add_meta_box' );
+
+function evc_meta_box_callback( $post ) {
+  global $post; 
+  
+  $is_pro = evc_is_pro();
+  $custom = get_post_custom($post->ID);
+
+  wp_nonce_field( 'evc_meta_box', 'evc_meta_box_nonce' );
+  
+  do_action('evc_meta_box_action', $custom);
+}
+
+add_action('evc_meta_box_action', 'evc_meta_box_comments_widget');
+function evc_meta_box_comments_widget($custom) {
+  
+  $options = evc_get_all_options(array(
+    'evc_comments'
+  )); 
+  
+  if (isset($custom['comment_widget_insert']))
+    $evc_comments = $custom['comment_widget_insert'][0];
+  else
+    $evc_comments = $options['comment_widget_insert'];
+      
+  echo '<p>';
+  echo '<b>Виджет комментариев ВКонтакте</b>';  
+  echo '<br/><input type="radio" value="auto" id="evc-comments-auto" name="comment_widget_insert"'. checked( $evc_comments, 'auto', false ) .' >
+  <label class="selectit" for="evc-comments-auto">Включить</label>';
+  
+  echo '<br/><input type="radio" value="manual" id="evc-comments-manual" name="comment_widget_insert"'. checked( $evc_comments, 'manual', false ) .' >
+  <label class="selectit" for="evc-comments-manual">Отключить</label>';  
+  echo '<br/>Вы можете включить или отключить виджет комментариев ВКонтакте для данной страницы.';  
+  echo '</p>';  
+}
+
+function evc_save_meta_box_data( $post_id ) {
+
+  // Check if our nonce is set.
+  if ( ! isset( $_POST['evc_meta_box_nonce'] ) )
+    return;
+
+  // Verify that the nonce is valid.
+  if ( ! wp_verify_nonce( $_POST['evc_meta_box_nonce'], 'evc_meta_box' ) )
+    return;
+
+  // If this is an autosave, our form has not been submitted, so we don't want to do anything.
+  if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+    return;
+
+  // Check the user's permissions.
+  if ( isset( $_POST['post_type'] ) && 'page' == $_POST['post_type'] ) {
+    if ( ! current_user_can( 'edit_page', $post_id ) )
+      return;
+  } 
+  else {
+    if ( ! current_user_can( 'edit_post', $post_id ) )
+      return;
+  }
+ 
+  do_action('evc_save_meta_box_action', $post_id);
+  
+
+}
+add_action( 'save_post', 'evc_save_meta_box_data' );
+
+add_action( 'evc_save_meta_box_action', 'evc_save_meta_box_comments_widget' );
+function evc_save_meta_box_comments_widget($post_id) {
+  
+  // Make sure that it is set.
+  if ( ! isset( $_POST['comment_widget_insert'] ) ) 
+    return;
+
+  // Update the meta field in the database.
+  if (!update_post_meta($post_id, 'comment_widget_insert', $_POST['comment_widget_insert'] ))
+    add_post_meta($post_id, 'comment_widget_insert', $_POST['comment_widget_insert'], true);   
+  
 }

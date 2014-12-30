@@ -3,7 +3,7 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 * **!!!** Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
 * Авторизация через ВКонтакте.
 * Опросы ВКонтакте: создать, добавить на сайт, поделиться.
-* Виджет комментариев ВКонтакте.
+* Виджет комментариев ВКонтакте; **!!!** респонсивный.
 * Индексация & импорт комментариев, оставленных через виджет комментариев ВКонтакте.
 * Виджет сообществ ВКонтакте.
 * Невероятная четверка сайдбаров: всплывающий, выезжающий, до и после контента.
@@ -58,6 +58,15 @@ Requires WordPress 3.2 and PHP 5.
 7. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.8.2 / 2014-12-30 =
+* Added features setting VK Comments widget and Share Buttons for each pages and posts separetly.
+* Added Responsivity for VK Comments Widget.
+* Added ability to place shortcode in widgets.
+* Fixed problem with ad column.
+* Fixed wrong shortcode for polls in All Poll page.
+* Added evc-polls vk error 17 handler.
+* Added social-likes 2014-12-11 v3.0.10
 
 = 1.8.1 / 2014-10-27 =
 * New sidebar action: when leave the page. Increase your conversion!

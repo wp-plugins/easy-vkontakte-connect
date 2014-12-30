@@ -72,6 +72,32 @@ function evc_get_log ($lines = 50) {
   return print_r($logs,1);
 }
 endif;
+if (!function_exists('evc_the_log')):
+function evc_the_log ($lines = 50, $separator = '<br/>') {
+  if (false === ( $logs = get_transient('evc_log')) )
+    return 'No logs yet.';
+  
+  if (is_array($logs)) {
+    krsort($logs);    
+    $logs = array_slice($logs, 0, $lines);
+  }
+  
+  $out = array();
+  $i = 0;
+  foreach($logs as $log) {
+    if ($i%10 == 0)
+      $out[] = '';
+      
+    $out[] = $log;
+    $i++;
+  }
+   
+  if (!empty($out))
+    $out = implode($separator, $out);
+  
+  return $out;
+}
+endif;
 /* 
 *		USERS 
 */
@@ -159,7 +185,8 @@ function evc_get_user_photo($avatar, $id_or_email, $size, $default, $alt) {
   if (!isset($user) || !is_object($user))
     $user = get_user_by('id', $user_id);
   
-  $att_id = get_usermeta($user_id, 'photo_medium');
+  //$att_id = get_usermeta($user_id, 'photo_medium');
+  $att_id = get_user_meta($user_id, 'photo_medium', true);
   //print__r($att_id);
   if (!$att_id)
     return $avatar; 

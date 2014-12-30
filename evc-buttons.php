@@ -150,20 +150,31 @@ function evc_buttons_fields ($fields) {
       array(
         'name' => 'evc_buttons_insert',
         'label' => __( 'Поместить кнопки', 'evc' ),
-        'desc' => __( 'Куда поместить кнопки.
-          <br/>Разместить кнопки <strong>вручную</strong> можно используя шортокод:
-          <br/><code>[evc_social_likes]</code> 
-          <br/>или функцию: 
-          <br/><code>evc_buttons_code();</code>.', 'evc' ),
+        'desc' => __( 'Куда поместить кнопки.', 'evc' ),
         'type' => 'radio',
         'default' => 'after',
         'options' => array(
           'before' => 'До контента',
           'after' => 'После контента',
-          'before_aftert' => 'И до, и после контента',
+          'before_aftert' => 'И до, и после контента'
+          //'manual' => 'Вручную'
+        )
+      ),     
+      array(
+        'name' => 'evc_buttons_insert_mode',
+        'label' => __( 'Разместить кнопки', 'evc' ),
+        'desc' => __( 'Размещать кнопки автоматичсеки или вручную.
+          <br/>Разместить кнопки <strong>вручную</strong> можно используя шортокод:
+          <br/><code>[evc_social_likes]</code> 
+          <br/>или функцию: 
+          <br/><code>echo evc_buttons_code();</code>.', 'evc' ),
+        'type' => 'radio',
+        'default' => 'after',
+        'options' => array(
+          'auto' => 'Автоматически',
           'manual' => 'Вручную'
         )
-      ),       
+      ),    
       array(
         'name' => 'evc_buttons_order',
         'type' => 'hidden'
@@ -357,8 +368,15 @@ add_filter('the_content', 'evc_buttons_insert');
 function evc_buttons_insert ($content) {
   global $post;
   $options = get_option('evc_widget_buttons');
+
+  if (!isset($options['evc_buttons_insert_mode']) || empty($options['evc_buttons_insert_mode']) )
+    $options['evc_buttons_insert_mode'] = 'auto';
   
-  if($options['evc_buttons_insert'] == 'manual' || !isset($options['evc_buttons_code']) || empty($options['evc_buttons_code']) )
+  $mode = get_post_meta ($post->ID, 'evc_buttons_insert_mode', true);
+  if ($mode)
+    $options['evc_buttons_insert_mode'] = $mode;
+  
+  if($options['evc_buttons_insert_mode'] == 'manual' || $options['evc_buttons_insert'] == 'manual' || !isset($options['evc_buttons_code']) || empty($options['evc_buttons_code']) )
     return $content;
 
   $code = evc_buttons_code();  
@@ -418,4 +436,39 @@ function evc_buttons_shortcode ($atts = array(), $content = '') {
   $out = evc_buttons_code();
      
   return $out;
+}
+
+add_action('evc_meta_box_action', 'evc_meta_box_buttons');
+function evc_meta_box_buttons($custom) {
+  
+  $options = evc_get_all_options(array(
+    'evc_widget_buttons'
+  )); 
+  
+  if (isset($custom['evc_buttons_insert_mode']))
+    $mode = $custom['evc_buttons_insert_mode'][0];
+  else
+    $mode = $options['evc_buttons_insert_mode'];
+      
+  echo '<p>';
+  echo '<b>Кнопки "Поделиться"</b>';  
+  echo '<br/><input type="radio" value="auto" id="evc-buttons-auto" name="evc_buttons_insert_mode"'. checked( $mode, 'auto', false ) .' >
+  <label class="selectit" for="evc-buttons-auto">Включить</label>';
+  
+  echo '<br/><input type="radio" value="manual" id="evc-buttons-manual" name="evc_buttons_insert_mode"'. checked( $mode, 'manual', false ) .' >
+  <label class="selectit" for="evc-buttons-manual">Отключить</label>';  
+  echo '<br/>Вы можете включить или отключить кнопки "Поделиться" для данной страницы.';  
+  echo '</p>';  
+}
+
+add_action( 'evc_save_meta_box_action', 'evc_save_meta_box_buttons' );
+function evc_save_meta_box_buttons($post_id) {
+  
+  // Make sure that it is set.
+  if ( ! isset( $_POST['evc_buttons_insert_mode'] ) ) 
+    return;
+
+  // Update the meta field in the database.
+  if (!update_post_meta($post_id, 'evc_buttons_insert_mode', $_POST['evc_buttons_insert_mode'] ))
+    add_post_meta($post_id, 'evc_buttons_insert_mode', $_POST['evc_buttons_insert_mode'], true);   
 }

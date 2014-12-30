@@ -359,7 +359,10 @@ function evc_poll_vk_polls_create($params = array()) {
   
   if (isset($resp['error'])) {   
     if (isset($resp['error']['error_code'])) {
-      evc_add_log('evc_poll_vk_polls_create: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']);           
+      if ($resp['error']['error_code'] == 17 && isset($resp['error']['redirect_uri']) )
+        evc_add_log('evc_poll_vk_polls_create: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg'] . ' Redirect uri: <a href= "'. $resp['error']['redirect_uri'].'" target = "_blank">'. $resp['error']['redirect_uri'].'</a>');           
+      else      
+        evc_add_log('evc_poll_vk_polls_create: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']);           
     }
     else
       evc_add_log('evc_poll_vk_polls_create: VK Error. ' . $resp['error']);           
@@ -946,7 +949,8 @@ class EVC_Polls_List_Table extends WP_List_Table {
           break;  
           
           case 'code':               
-            echo '<td '.$attributes.'>[evc_poll id="'.$g['id'].'"]</td>';
+            //echo '<td '.$attributes.'>[evc_poll id="'.$g['id'].'"]</td>';
+            echo '<td '.$attributes.'>[vk_poll id="'.$g['id'].'"]</td>';
           break;                      
           
           case 'date':          
@@ -1093,6 +1097,19 @@ function evc_register_pointer( $p ) {
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
   );  
+
+  if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
+    $p['evc_new_year'] = array(
+      'target' => '#toplevel_page_evc',
+      'options' => array(
+        'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+          __( '-30%: Новогодние скидки на все плагины!' ,'evc'),
+          __( 'Только 5 дней вы можете сделать <a href = "http://ukraya.ru/162/vk-wp-bridge">сайт из группы ВКонтакте</a> в один клик, автоматически <a href = "http://ukraya.ru/421/evc-pro">размещать все записи с сайта в группе ВК</a> в прайм-тайм и создать <a href = "http://ukraya.ru/316/vk-wp-video-pro">киносайт из видеоальбомов ВКонтакте</a> на <b>30%</b> дешевле, чем обычно.','evc')
+        ),
+        'position' => array( 'edge' => 'left', 'align' => 'right' )
+      )
+    );    
+  }
   
   return $p;
 }

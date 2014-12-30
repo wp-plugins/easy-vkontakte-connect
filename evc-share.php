@@ -1870,6 +1870,16 @@ function evc_widget_settings_page() {
 }
 
 function evc_ad () {
+  
+  $sale = '';
+  if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
+    echo '
+      <div class = "evc-boxx">
+        <p>-30%: <a href = "http://ukraya.ru/723/new-year">Новогодние скидки</a> на все плагины!</p>
+      </div>'; 
+    $sale = '-30% С Новым Годом!<br/>';     
+  }
+
   echo '
     <div class = "evc-boxx">
       <p><a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">Помощь</a> и <a href = "http://ukraya.ru/428/easy-vkontakte-connect-evc" target = "_blank">решение</a> проблем.
@@ -1877,13 +1887,13 @@ function evc_ad () {
     </div>';
     
   echo '
-    <h3>EVC PRO: автопубликация по графику и в прайм-тайм!</h3>
+    <h3>'.$sale.'EVC PRO: автопубликация по графику и в прайм-тайм!</h3>
     <p>С плагином <a href = "http://ukraya.ru/421/evc-pro" target = "_blank">EVC PRO</a> вы сможете публиковать ВКонтакте старые и текущие записи в <em>прайм-тайм</em> вашей группы ВК (когда большинство ваших подписчиков находятся онлайн). Это даст еще больше лайков, репостов, комментариев к материалам и подписчиков. Полностью автоматизировано.</p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_evc_pro', false).'</p>  
     ';    
   
   echo '
-    <h3>Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
+    <h3>'.$sale.'Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
     <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
     <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
@@ -1895,7 +1905,14 @@ function evc_ad () {
     <p>Каждое видео становится отдельным постом WordPress, адаптивный (responsive) плеер ВКонтакте встраивается автоматически.</p>
     <p>'.get_submit_button('Установить бесплатно', 'primary', 'get_vk_wp_video', false).'</p>       
     ';    
-        
+
+  if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
+    echo '
+      <div class = "evc-boxx">
+        <p>-30%: <a href = "http://ukraya.ru/723/new-year">Новогодние скидки</a> на все плагины!</p>
+      </div>';     
+  }
+       
 }
 
 add_action( 'admin_footer', 'evc_ad_js', 30 );
@@ -1950,7 +1967,7 @@ function evc_admin_head () {
       width: 35%;
     }
     #col-left.evc {
-      width: 65%;
+      width: 64%;
     }    
     .evc-box{
       padding:0 20px 0 40px;
@@ -2120,7 +2137,7 @@ function evc_log_admin_init() {
           'id' => 'evc_log_section',
           'name' => 'evc_log_section',
           'title' => __( 'Лог действий плагина', 'evc' ),
-          'desc' => __( '<pre>' . evc_get_log(100) . '</pre>', 'evc' ),          
+          'desc' => __( '<div>' . evc_the_log(100) . '</div>', 'evc' ),           
         )
       )
     )
@@ -2443,3 +2460,4 @@ function evc_autopost_online_stats_settings_defaults() {
     update_option('evc_autopost', $options);
   }
 }
+

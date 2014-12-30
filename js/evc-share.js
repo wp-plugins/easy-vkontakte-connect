@@ -144,6 +144,15 @@ jQuery(document).ready(function($) {
       }      
     }
   
+
+  if ($(".evc-box").length) {
+    
+    $("#col-right").stick_in_parent({
+      parent: '#col-container',
+      offset_top: $('#wpadminbar').height() + 10,
+    });
+  }
+  
   
   }); // End jQuery 
   

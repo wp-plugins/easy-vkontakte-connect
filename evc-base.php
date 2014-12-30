@@ -47,11 +47,21 @@ function evc_admin_init(){
   // https://make.wordpress.org/plugins/2012/12/20/gpl-and-the-repository/ 
   //wp_enqueue_script('jquery.isotope', plugins_url('js/jquery.isotope.min.js' , __FILE__), array('jquery', 'jquery-masonry'));   
   
+  //wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry', 'sticky-kit'), '1.0', true);  
+  //wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
+  //wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
+  
+}
+
+function evc_admin_enqueue_scripts($hook) {
+  if ( 'evc_page_evc-stats' != $hook )
+    return;
+  
   wp_enqueue_script('evc', plugins_url('js/evc.js' , __FILE__), array('jquery', 'jquery-masonry', 'sticky-kit'), '1.0', true);  
   wp_enqueue_script('bootstrap', plugins_url('js/bootstrap.min.js' , __FILE__), array('jquery'), '2.2.2', true);  
   wp_enqueue_script('tinysort', plugins_url('js/jquery.tinysort.js' , __FILE__), array('jquery'), true); 
-  
 }
+add_action( 'admin_enqueue_scripts', 'evc_admin_enqueue_scripts' );
 
 
 class EVC_Walker_Checklist extends Walker {
@@ -311,7 +321,7 @@ function evc_upload_photo($id, $post) {
   ));  
   
   $post_images = apply_filters('evc_autopost_upload_photo', $post_images, $post);
-  
+
   // if no attached photo
   if (!$post_images || empty($post_images))
     return false;
@@ -321,23 +331,38 @@ function evc_upload_photo($id, $post) {
     foreach($post_images as $image) {
       $att_id = is_object($image) ? $image->ID : $image;
       $images['file'.$i] = '@' . get_attached_file($att_id );
+      //$images['photo'.$i] = '@' . get_attached_file($att_id );      
+      //$images['photo'] = '@' . get_attached_file($att_id );
       $i++;
     }
   }  
  
   $params = array(
     'access_token' => $options['access_token'],
-    'gid' => $options['page_id'] // Removed minus sign
+    'gid' => $options['page_id'], // Removed minus sign
+    //'group_id' => $options['page_id'], // Removed minus sign
+    //'v' => '5.26'
   );
   
   // Get Wall Upload Server
   $query = http_build_query($params);
   $data = wp_remote_get(EVC_API_URL.'photos.getWallUploadServer?'.$query, array('sslverify' => false));
-    
-  if (is_wp_error($data))
+  
+  if (is_wp_error($data)) {
+    evc_add_log('photos.getWallUploadServer: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
     return $data->get_error_message();
+  }
 
   $resp = json_decode($data['body'],true);
+  //evc_add_log('photos.getWallUploadServer: $resp. ' . print_r($resp, 1)); //
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log('photos.getWallUploadServer: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log('photos.getWallUploadServer: VK Error. ' . $resp['error']);           
+    return false; 
+  }  
+  
   if (!$resp['response']['upload_url'])
     return false;
     
@@ -345,32 +370,59 @@ function evc_upload_photo($id, $post) {
   $curl = new Wp_Http_Curl();
   $data = $curl->request( $resp['response']['upload_url'], array(
     'body' => $images, 
+    //'body' => $photos, 
     'method' => 'POST'
   ));    
-  
-  if (is_wp_error($data))
+
+  if (is_wp_error($data)) {
+    evc_add_log('Upload Photos: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
     return $data->get_error_message();
+  }    
   
   $resp = json_decode($data['body'],true);
+  //evc_add_log('Upload Photos: $resp. ' . print_r($resp, 1)); //
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log('Upload Photos: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log('Upload Photos: VK Error. ' . $resp['error']);           
+    return false; 
+  }   
+  
   if (!$resp['photo'])
     return false;
+    
+    
   
   // Save Wall Photo
   $params = array();
   $params = array(
     'access_token' => $options['access_token'],
     'gid' => $options['page_id'], // Removed minus sign
+    //'group_id' => $options['page_id'], // Removed minus sign
     'server' => $resp['server'],
-    'photo' => $resp['photo'],
-    'hash' => $resp['hash']
+    'photo' => $resp['photo'],    
+    //'photo' => json_encode($resp['photo']),
+    'hash' => $resp['hash'],
+    //'v' => '5.26'
   ); 
   $query = http_build_query($params);
   $data = wp_remote_get(EVC_API_URL.'photos.saveWallPhoto?'.$query, array('sslverify' => false));   
  
-  if (is_wp_error($data))
+  if (is_wp_error($data)) {
+    evc_add_log('photos.saveWallPhoto: WP ERROR. ' . $data->get_error_code() . ' '. $data->get_error_message());
     return $data->get_error_message();
+  }  
   
   $resp = json_decode($data['body'],true);
+  if (isset($resp['error'])) {   
+    if (isset($resp['error']['error_code']))
+      evc_add_log('photos.saveWallPhoto: VK Error. ' . $resp['error']['error_code'] . ' '. $resp['error']['error_msg']); 
+    else
+      evc_add_log('photos.saveWallPhoto: VK Error. ' . $resp['error']);           
+    return false; 
+  }    
+  
   if (!$resp['response'])
     return false; 
   //print__r($resp);
@@ -492,3 +544,5 @@ function evc_autopost_default_meta($post_id) {
     add_post_meta($post_id, '_evc_wall_post_id', 0, true);    
 }
 
+// Comment if you do not need place shortcode in widget blocks
+add_filter('widget_text', 'do_shortcode');

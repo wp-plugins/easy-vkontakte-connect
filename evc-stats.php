@@ -70,9 +70,9 @@ function evc_stats_page() {
     
     $vk_groupa = evc_stats_get_group($gid);
     $vk_gdata['url'] = 'vk.com/'.$vk_groupa['screen_name'];
- 
+    
     $vk_posts = evc_stats_vkposts($gid);
-
+    //print__r($vk_posts);
   }
   else
     return false;
@@ -184,16 +184,16 @@ function evc_stats_get_group_posts($owner_id, $captcha = array()) {
     $per_page = $screen->get_option( 'per_page', 'default' );
 
   $gid = $owner_id < 0 ? -1 * $owner_id : $owner_id;
-    
+  
   // Last Visit Date
   $evc_vk_groups_visits = get_transient('evc_vk_groups_visits');
   $evc_vk_groups_visits[$gid] = $time;  
   
-  $evc_wall_posts_cache = get_transient( 'evc-w_' . $gid );  
+  $evc_wall_posts_cache = get_transient( 'evc-w_' . $gid );   
   $refresh = (isset($_GET['refresh_w']) && $_GET['refresh_w']) ? true : false;
   
   if ( $evc_wall_posts_cache !== false && !$refresh) {
-    set_transient( 'evc_vk_groups_visits', $evc_vk_groups_visits, YEAR_IN_SECONDS );
+    set_transient( 'evc_vk_groups_visits', $evc_vk_groups_visits, YEAR_IN_SECONDS ); 
     return $evc_wall_posts_cache;
   }
     
@@ -217,6 +217,8 @@ function evc_stats_get_group_posts($owner_id, $captcha = array()) {
     return false;
   }
   
+  // Remove emoticons / html entities //&#128522;
+  $data['body'] = evc_removeEmoji($data['body']);
   $resp = json_decode($data['body'],true);
   
   if (isset($resp['error'])) {
@@ -248,7 +250,7 @@ function evc_stats_vkposts ($gid) {
   $group = evc_stats_get_group($gid);
   $screen_name = $group ? $group['screen_name'] : '';
   
-
+  //print__r($wall_posts);
   if (!$wall_posts) {
     return false; 
   }
@@ -532,4 +534,25 @@ if (!function_exists('print__r')) {
 function print__r ($data) {
   print '<pre>' . print_r($data, 1) . '</pre>';
 }
+}
+
+// https://drupal.org/node/2043439
+function evc_removeEmoji($text) {
+  $clean_text = "";
+  // Match Emoticons
+  $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+  $clean_text = preg_replace($regexEmoticons, '', $text);
+  // Match Miscellaneous Symbols and Pictographs
+  $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+  $clean_text = preg_replace($regexSymbols, '', $clean_text);
+  // Match Transport And Map Symbols
+  $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+  $clean_text = preg_replace($regexTransport, '', $clean_text);
+  // Match flags (iOS)
+  $regexTransport = '/[\x{1F1E0}-\x{1F1FF}]/u';
+  $clean_text = preg_replace($regexTransport, '', $clean_text);
+  
+  $clean_text = preg_replace('/([0-9|#][\x{20E3}])|[\x{00ae}][\x{FE00}-\x{FEFF}]?|[\x{00a9}][\x{FE00}-\x{FEFF}]?|[\x{203C}][\x{FE00}-\x{FEFF}]?|[\x{2047}][\x{FE00}-\x{FEFF}]?|[\x{2048}][\x{FE00}-\x{FEFF}]?|[\x{2049}][\x{FE00}-\x{FEFF}]?|[\x{3030}][\x{FE00}-\x{FEFF}]?|[\x{303D}][\x{FE00}-\x{FEFF}]?|[\x{2139}][\x{FE00}-\x{FEFF}]?|[\x{2122}][\x{FE00}-\x{FEFF}]?|[\x{3297}][\x{FE00}-\x{FEFF}]?|[\x{3299}][\x{FE00}-\x{FEFF}]?|[\x{2190}-\x{21FF}][\x{FE00}-\x{FEFF}]?|[\x{2300}-\x{23FF}][\x{FE00}-\x{FEFF}]?|[\x{2460}-\x{24FF}][\x{FE00}-\x{FEFF}]?|[\x{25A0}-\x{25FF}][\x{FE00}-\x{FEFF}]?|[\x{2600}-\x{27BF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u', '', $clean_text);  
+    
+  return $clean_text;
 }

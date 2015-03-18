@@ -141,7 +141,7 @@ function evc_publish_auto_check($new, $old, $post) {
 
   $filter = apply_filters('evc_autopost_filter', true, $new, $old, $post, $_POST);
   
-  if (($new == 'publish' && $old != 'publish' && $options['autopublish'] && $post->post_type == 'post' && $filter ) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish')) {  
+  if (($new == 'publish' && $old != 'publish' && $options['autopublish'] && ( isset($options['post_types']) && !empty($options['post_types']) && in_array($post->post_type, array_keys($options['post_types']) ) ) && $filter ) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish')) {  
     
     if (!isset($options['exclude_cats']) || empty($options['exclude_cats']) || !in_category($options['exclude_cats'], $post))
       evc_wall_post($post->ID, $post);

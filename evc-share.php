@@ -1340,6 +1340,14 @@ function evc_autopost_settings_admin_init() {
     <br/><small>Внимание! Текущие данные на графике не имеют отношения к вашей группе.</small>';
   } 
   
+  $post_types = get_post_types ( array(
+    '_builtin' => false
+  ) );
+  $post_types[] = 'post';
+  
+  foreach($post_types as $post_type) 
+    $pt_option[$post_type] = $post_type;
+  
   $evc_autopost_settings = new WP_Settings_API_Class;
   
   $tabs = array(
@@ -1539,12 +1547,23 @@ function evc_autopost_settings_admin_init() {
         )
         
       ),  
+      
+      array(
+        'name' => 'post_types',
+        'label' => __( 'Post types', 'evc' ),
+        'desc' => __( 'Статьи <b>только</b> отмеченных типов (post_type) будут автоматически опубликованы на стене ВКонтакте.', 'evc' ),
+        'type' => 'multicheck',
+        'options' => $pt_option,
+        'default' => array(
+          'post' => 'post'
+        )
+      ),        
+      
       array(
         'name' => 'exclude_cats',
         'label' => __( 'Исключить категории', 'evc' ),
         'desc' => __( 'Статьи из отмеченных категорий не будут автоматически опубликованы на стене ВКонтакте.', 'evc' ),
-        'type' => 'select_category_checklist'
-        
+        'type' => 'select_category_checklist'       
       ),           
       array(
         'name' => 'upload_photo_count',
@@ -1713,7 +1732,7 @@ function evc_autopost_settings_page() {
     'evc_autopost',
     'evc_vk_api_autopost'
   ));  
-  
+
   echo '<div class="wrap">';
     echo '<div id="icon-options-general" class="icon32"><br /></div>';
     echo '<h2>Настройки автопостинга</h2>';
@@ -1893,9 +1912,9 @@ function evc_ad () {
     ';    
   
   echo '
-    <h3>'.$sale.'Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
-    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
-    <p><i>Хватит работать на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте поработает на вас</a>!</i></p>
+    <h3>'.$sale.'<i>*Теперь с песнями!*</i> Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
+    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, <b>аудио</b>, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
+    <p><i>Хватит загружать музыку на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте споет для вас</a>!</i></p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
     ';
     
@@ -2455,7 +2474,9 @@ function evc_autopost_online_stats_settings_defaults() {
     
     $options['autopost_stats_data'] = (!isset($options['autopost_stats_data']) || empty($options['autopost_stats_data'])) ? $autopost_stats_data : $options['autopost_stats_data'];
     
-    $options['autopost_stats_data_time_points'] = (!isset($options['autopost_stats_data_time_points']) || empty($options['autopost_stats_data_time_points'])) ? $autopost_stats_time_points : $options['autopost_stats_data_time_points'];    
+    $options['autopost_stats_data_time_points'] = (!isset($options['autopost_stats_data_time_points']) || empty($options['autopost_stats_data_time_points'])) ? $autopost_stats_time_points : $options['autopost_stats_data_time_points'];  
+    
+    $options['post_types'] = !isset($options['post_types']) ? array('post' => 'post') : $options['post_types'];
     
     update_option('evc_autopost', $options);
   }

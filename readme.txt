@@ -3,7 +3,7 @@ Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Весь API ВКонтакте. 
 
-* Автопубликация записей с фото на стену группы ВКонтакте.
+* Автопубликация записей с фото на стену группы ВКонтакте. *!!!** Поддерживаются post_type. 
 * **!!!** Кнопки Поделиться: 7 социальных сетей, интерактивный настройщик, 4 темы и множество вариантов отображения. Сети: ВКонтакте, Одноклассники, Мой Мир, Facebook, Google+, Twitter, Pinterest.
 * **!!!** Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
 * Авторизация через ВКонтакте.
@@ -58,6 +58,13 @@ Requires WordPress 3.2 and PHP 5.
 7. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.8.3 / 2015-03-18 =
+* Added post_types filters for autoposting.
+* Fixed Emoji in Groups Analytics.
+* Fixed quotes in social buttons.
+* Added overlay-sidebar responsivity.
+* Added social-likes 2015-03-10 v3.0.14
 
 = 1.8.2 / 2014-12-30 =
 * Added features setting VK Comments widget and Share Buttons for each pages and posts separetly.

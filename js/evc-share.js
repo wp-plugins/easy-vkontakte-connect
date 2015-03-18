@@ -26,6 +26,29 @@ jQuery(document).ready(function($) {
       });  
       
       var oOpen = false;
+
+      if($(window).width() < $( "#overlay-sidebar" ).outerWidth()) {      
+             
+        $( "#overlay-sidebar" ).css({
+          "width": $(window).width(),
+          "margin": '0 0 0 -' + (parseInt($(window).width()) / 2) + 'px' 
+        });      
+      } 
+
+      if($(window).height() < (parseInt($( "#overlay-sidebar" ).outerHeight())) + parseInt(oTop) ) {      
+        
+        if($(window).height() < $( "#overlay-sidebar" ).outerHeight() ) { 
+          $( "#overlay-sidebar" ).css({
+            "overflow-y": "scroll"
+          });   
+        }
+        
+        $( "#overlay-sidebar" ).css({
+          "height": $(window).height()
+        });      
+        
+        oTop = 0;
+      }  
       
       if (oAction == 'timeout') {
         setTimeout( function() {

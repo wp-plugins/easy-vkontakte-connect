@@ -422,8 +422,13 @@ function evc_buttons_code () {
     if (!empty($url))
       $data_media = 'data-media = "' . $url . '"';
   }
-    
-  $code = '<div class = "evc-social-likes" data-url="'.get_permalink($post->ID).'" data-title="'.$post->post_title.'" '.$data_media.'>'.$options['evc_buttons_code'].'</div>';  
+  
+  $title = the_title_attribute(array(
+    'echo' => false, 
+    'post' => $post->ID
+  ));  
+  
+  $code = '<div class = "evc-social-likes" data-url="'.get_permalink($post->ID).'"'. 'data-title="'.$title.'" '.$data_media.'>'.$options['evc_buttons_code'].'</div>';  
 
   return $code;
 }

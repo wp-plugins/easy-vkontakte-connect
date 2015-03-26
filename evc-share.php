@@ -1917,6 +1917,12 @@ function evc_ad () {
     <p><i>Хватит загружать музыку на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте споет для вас</a>!</i></p>
     <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
     ';
+
+  echo '
+    <h3>Коллаж из фото как ВКонтакте! Просто. Бесплатно</h3>
+    <p>Плагин <a href = "http://ukraya.ru/collage-gallery" target = "_blank">Collage Gallery</a> автоматически создаст адаптивную галерею в форме коллажа (как ВКонтакте) из фото прикрепленных к посту.</p>   
+    <p><a class="thickbox button button-primary" href="'.site_url('wp-admin/plugin-install.php?tab=plugin-information&plugin=collage-gallery&TB_iframe=true&width=772&height=507').'">Установить бесплатно</a></p>       
+    ';      
     
   echo '
     <h3>Онлайн кинотеатр из видеоальбомов ВКонтакте! Просто. Бесплатно</h3>

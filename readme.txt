@@ -59,6 +59,9 @@ Requires WordPress 3.2 and PHP 5.
 
 == Changelog ==
 
+= 1.8.3.1 / 2015-03-26 =
+* Added superglobal options for buttons inserting.
+
 = 1.8.3 / 2015-03-18 =
 * Added post_types filters for autoposting.
 * Fixed Emoji in Groups Analytics.

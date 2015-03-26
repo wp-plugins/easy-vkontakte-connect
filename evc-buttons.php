@@ -174,7 +174,17 @@ function evc_buttons_fields ($fields) {
           'auto' => 'Автоматически',
           'manual' => 'Вручную'
         )
-      ),    
+      ),  
+      
+      array(
+        'name' => 'evc_buttons_insert_mode_global',
+        'desc' => __( 'Если опция включена, не будут учитываться настройки отображения кнопок для отдельных записей, которые заданы при создании записи в блоке Easy VK Connect - Кнопки "Поделиться": включить / отключить.', 'evc' ),
+        'type' => 'multicheck',      
+        'options' => array(
+          'on' => 'Игнорировать настройки кнопок, заданные для отдельных записей.'
+        )
+      ),      
+        
       array(
         'name' => 'evc_buttons_order',
         'type' => 'hidden'
@@ -372,10 +382,12 @@ function evc_buttons_insert ($content) {
   if (!isset($options['evc_buttons_insert_mode']) || empty($options['evc_buttons_insert_mode']) )
     $options['evc_buttons_insert_mode'] = 'auto';
   
+  if (!isset($options['evc_buttons_insert_mode_global']) || empty($options['evc_buttons_insert_mode_global']) ) {
   $mode = get_post_meta ($post->ID, 'evc_buttons_insert_mode', true);
   if ($mode)
     $options['evc_buttons_insert_mode'] = $mode;
-  
+  }
+   
   if($options['evc_buttons_insert_mode'] == 'manual' || $options['evc_buttons_insert'] == 'manual' || !isset($options['evc_buttons_code']) || empty($options['evc_buttons_code']) )
     return $content;
 

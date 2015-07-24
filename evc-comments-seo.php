@@ -18,11 +18,11 @@ function evc_comments_meta () {
 }
 
  
-function evc_comments_add_comment ($comment, $post_id, $widget_api_id, $comment_parent = null) {
+function evc_comments_add_comment ($comment, $post_id, $vk_item_id, $comment_parent = null) {
   if (isset($comment['cid']))
     $comment['id'] = $comment['cid'];
     
-  $vk_item_id = 'app' . $widget_api_id . '_' . $comment['id'];
+  //$vk_item_id = 'app' . $widget_api_id . '_' . $comment['id'];
 
   $comment_wp_id = evc_get_wpid_by_vkid($vk_item_id, 'comment');
   if ($comment_wp_id && isset($comment_wp_id[$vk_item_id]))
@@ -47,26 +47,68 @@ function evc_comments_add_comment ($comment, $post_id, $widget_api_id, $comment_
       'comment_content' => $comment['text'],
       'user_id' => $user_wp_id,
       'comment_date' => date('Y-m-d H:i:s', $comment['date'] + ( get_option( 'gmt_offset' ) * 3600 )),
-      'comment_approved' => 1,
+      'comment_date_gmt' => date('Y-m-d H:i:s', $comment['date']),
+      //'comment_approved' => 1,
       
       'comment_author_IP' => preg_replace( '/[^0-9a-fA-F:., ]/', '',$_SERVER['REMOTE_ADDR'] ),
-      'comment_agent' => substr($_SERVER['HTTP_USER_AGENT'], 0, 254)    
+      'comment_agent' => substr($_SERVER['HTTP_USER_AGENT'], 0, 254),
+      
+      'comment_author' => '',    
+      'comment_author_email' => '',
+      'comment_author_url' => '',
+      
+      'comment_type' => '',      
     );
     
     if (isset($comment_parent) && !empty($comment_parent))
       $args['comment_parent'] = $comment_parent;
     
+    // COMMENT AUTHOR
+    $user = get_user_by('id', $user_wp_id);
+    if ( $user && is_object($user) ) {
+      if ( empty( $user->display_name ) )
+        $user->display_name=$user->user_login;
+        
+      $args['comment_author'] = wp_slash( $user->display_name );
+      $args['comment_author_email'] = wp_slash( $user->user_email );
+      $args['comment_author_url'] = wp_slash( $user->user_url );    
+    }
+    // COMMENT AUTHOR END
+        
+    // COMMENT STATUS
+    $args['comment_parent'] = isset($args['comment_parent']) ? absint($args['comment_parent']) : 0;
+    $parent_status = ( 0 < $args['comment_parent'] ) ? wp_get_comment_status($args['comment_parent']) : '';
+    $args['comment_parent'] = ( 'approved' == $parent_status || 'unapproved' == $parent_status ) ? $args['comment_parent'] : 0;
+    
+    $args = wp_filter_comment($args);
+        
+    $args['comment_approved'] = wp_allow_comment($args);
+    // COMMENT STATUS END
+    
     $args = apply_filters('evc_comments_add_comment_args', $args, $comment);
     //print__r($args); //
+    //evc_add_log(print_r($args,1));
     
-    $comment_wp_id = wp_insert_comment($args);
+    $comment_wp_id = wp_insert_comment($args); 
     
-    if ($comment_wp_id)
+    if ($comment_wp_id) {
+      do_action('evc_comments_add_comment_update_comment_meta', $comment_wp_id, $comment);
       update_comment_meta($comment_wp_id, 'vk_item_id', $vk_item_id);
+    }
     
+    // COMMENT NOTIFICATION
+    if ( 'spam' !== $args['comment_approved'] ) { 
+      if ( '0' == $args['comment_approved'] ) {
+        wp_notify_moderator( $comment_wp_id );
+      }
+      if ( get_option( 'comments_notify' ) && $args['comment_approved'] ) {
+        wp_notify_postauthor( $comment_wp_id );
+      }
+    }    
+    // COMMENT NOTIFICATION END
+        
   return $comment_wp_id;
 }
-
 
 
 add_action('wp_ajax_evc_comments_refresh', 'evc_comments_refresh_comments');
@@ -102,7 +144,7 @@ function evc_comments_refresh_comments () {
   
   if (isset($evc_comments_refresh) && $evc_comments_refresh)  
     return false;
-    
+
   set_transient('evc_comments_refresh', sprintf( '%.22F', microtime( true ) ) );
   $comments = evc_comments_get_comments($args);
   delete_transient('evc_comments_refresh');
@@ -113,11 +155,15 @@ function evc_comments_refresh_comments () {
   // Add new Comments
   foreach ($comments['posts'] as $comment) {
     unset($comment_wp_id);
-    $comment_wp_id = evc_comments_add_comment($comment, $post_id, $widget_api_id);
+    $vk_item_id = 'app' . $widget_api_id . '_' . $comment['id'];
+    $comment_wp_id = evc_comments_add_comment($comment, $post_id, $vk_item_id);
+
     //print__r($comment_wp_id);
     if (isset($comment['comments'])) {
-      foreach($comment['comments']['replies'] as $reply) 
-        $reply_wp_id = evc_comments_add_comment($reply, $post_id, $widget_api_id, $comment_wp_id);
+      foreach($comment['comments']['replies'] as $reply) {
+        $reply_vk_item_id = 'app' . $widget_api_id . '_' . $reply['cid'];
+        evc_comments_add_comment( $reply, $post_id, $reply_vk_item_id, $comment_wp_id );
+      }
     }
   }  
   //return true;
@@ -253,8 +299,35 @@ function evc_comments_pro_admin_tabs($tabs) {
 
 add_filter('evc_comments_admin_fields', 'evc_comments_pro_admin_fields');
 function evc_comments_pro_admin_fields($fields) {
-  $fields['evc_comments_pro_section'] =  array( 
-    array(
+  $fields['evc_comments_pro_section'] =  array(
+      array(
+          'name'     => 'comments_pro_vk_on',
+          'label'    => __( 'Импорт комментариев из группы', 'evc' ),
+          'desc'     => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Импортировать ли на сайт комментарии, оставленные в группе ВКонтакте к записям, которые были отправлены туда с сайта.', 'evc' ),
+          'type'     => 'radio',
+          'default'  => '0',
+          'options'  => array(
+              '1' => 'Включить',
+              '0' => 'Отключить'
+          )
+      ),
+       array(
+          'name'    => 'comments_pro_vk_update_interval',
+          'desc'    => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Как часто проверять наличие новых комментариев к записям в группе ВК (в минутах).', 'evc' ),
+          'type'    => 'text',
+          'default' => 60
+      ),
+       array(
+          'name'    => 'comments_pro_vk_after_time',
+          'desc'    => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Не проверять наличие новых комментариев в группе ВК к записям, опубликованным на сайте раньше указанного значения (дней назад).', 'evc' ),
+          'type'    => 'text',
+          'default' => 10
+      ),
+
+      array(
       'name' => 'comments_pro_on',
       'label' => __( 'Импорт комментариев', 'evc' ),
       'desc' => __( 'Импортировать ли на сайт комментарии, оставленные через виджет комментариев ВКонтакте.', 'evc' ),
@@ -278,8 +351,53 @@ function evc_comments_pro_admin_fields($fields) {
       'desc' => __( 'Импортируя комментарии, плагин сохраняет на сайте аватары новых пользователей. Чтобы снизить нагрузку на сайт, аватары сохраняются пакетами. Эта опция контролирует сколько изображений загружать в одном пакете. Для слабых серверов оставьте <code>10</code>. Для хороших можно увеличить до любого значения начиная с <code>50</code> и более.', 'evc' ),
       'type' => 'text',
       'default' => 10,
-    )      
+    ),
+    array(
+      'name' => 'comments_pro_show_img',
+      'label' => __( 'Фото', 'evc' ),
+      'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Отображать ли изображения, прикрепленные к комментарию. <strong>Внимание!</strong> Изображения <strong>не сохраняются</strong> на сайте, а отображаются с сервера вконтакте</br>Пример:</br><code>'.esc_html('<img src ="http://cs623818.vk.me/v623818373/1n332donqM4.jpg" />') . '</code>', 'evc' ),
+      'type' => 'radio',
+      'default' => '0',
+      'options' => array(
+        '1' => 'Показывать',
+        '0' => 'Игнорировать'
+      ),
+      'readonly' => true       
+    ),
+    array(
+      'name' => 'comments_pro_img_max_size',
+      'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Ширина изображения.', 'evc' ),
+      'type' => 'text',
+      'default' => '604',
+      'readonly' => true 
+    ),       
+    array(
+      'name' => 'comments_pro_images_mask',
+      'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Маска для контейнера, в котором отображены все изображения. Доступные теги:<br/><code>%images%</code> - группа изображений.
+        <br/>По умолчанию:
+        <br/><code>'. esc_html('<div class = "vk-comment-gallery-img-wrap">%images%</div>') .'</code>', 'evc' ),
+      'type' => 'textarea',
+      'default' => '<div class = "vk-comment-gallery-img-wrap">%images%</div>',
+      'readonly' => true 
+    ),   
+    array(
+      'name' => 'comments_pro_img_mask',
+      'desc' => __( '<small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>
+        <br/>Макска для контейнера отдельного изображения. Доступные теги:
+        <br/><code>%src%</code> - урл изображения,
+        <br/><code>%width%</code> - ширина изображения,
+        <br/><code>%height%</code> - высота изображения.
+        <br/>По умолчанию:
+        <br/><code>'. esc_html('<div class = "vk-comment-gallery-img-wrap"><img src = "%src%" width = "%width%" height = "%height%"/></div>') .'</code>', 'evc' ),
+      'type' => 'textarea',
+      'default' => '<div class = "vk-comment-gallery-img-wrap"><img src = "%src%" width = "%width%" height = "%height%"/></div>',
+      'readonly' => true 
+    ),                
   ); 
   return $fields;
 }
+
 

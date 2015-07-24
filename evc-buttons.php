@@ -159,7 +159,18 @@ function evc_buttons_fields ($fields) {
           'before_aftert' => 'И до, и после контента'
           //'manual' => 'Вручную'
         )
-      ),     
+      ),    
+      array(
+        'name' => 'evc_buttons_insert_in',
+        'desc' => __( 'Вы можете отметить типы страниц на которых будут размещены кнопки.', 'evc' ),
+        'type' => 'multicheck',
+        'default' => 'single',
+        'options' => array(
+          'front_page' => __( 'Главная страница, <small>is_front_page()</small>.', 'evc' ),
+          'single' => __( 'Страницы записей, <small>is_single()</small>.', 'evc' ),
+          'tax' => __( 'Страницы таксономии, <small>is_tax()</small>.', 'evc' )
+        )
+      ),       
       array(
         'name' => 'evc_buttons_insert_mode',
         'label' => __( 'Разместить кнопки', 'evc' ),
@@ -388,9 +399,21 @@ function evc_buttons_insert ($content) {
     $options['evc_buttons_insert_mode'] = $mode;
   }
    
-  if($options['evc_buttons_insert_mode'] == 'manual' || $options['evc_buttons_insert'] == 'manual' || !isset($options['evc_buttons_code']) || empty($options['evc_buttons_code']) )
-    return $content;
-
+  $insert_in = false;
+  if (isset($options['evc_buttons_insert_in']) ) {
+    
+    foreach($options['evc_buttons_insert_in'] as $key => $value ) {
+      
+      if (call_user_func('is_'.$key)) {  
+        $insert_in = true;
+        break;
+      }
+    }
+  }   
+   
+  if($options['evc_buttons_insert_mode'] == 'manual' || $options['evc_buttons_insert'] == 'manual' || !isset($options['evc_buttons_code']) || empty($options['evc_buttons_code']) || !$insert_in )
+    return $content;    
+    
   $code = evc_buttons_code();  
   
   if($options['evc_buttons_insert'] == 'before')      

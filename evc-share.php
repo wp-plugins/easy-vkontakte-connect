@@ -164,15 +164,11 @@ add_action('admin_head', 'evc_vk_init');
 function evc_vk_init(){
   global $post_type;;
   
-  if ((isset($_GET['post_type']) && $_GET['post_type'] == 'evc_poll') || (isset($post_type) && $post_type == 'evc_poll') ) {
+  if ((isset($_GET['post_type']) && $_GET['post_type'] == 'evc_poll') || (isset($post_type) && $post_type == 'evc_poll') || (isset($_GET['page']) && $_GET['page'] == 'evc-comments' ) ) {
   //$options = get_option('evc_options');
   //$options = evc_get_all_options(array('evc_vk_api_widgets','evc_options'));
   ?>
   <script src="//vk.com/js/api/openapi.js" type="text/javascript"></script>
-  <script type="text/javascript">
-  /* <![CDATA[ */
-  /* ]]> */
-  </script>
   <?php
   }
 }    
@@ -183,6 +179,7 @@ function evc_vk_async_init(){
   //$options = get_option('evc_options');
   $options = evc_get_all_options(array('evc_vk_api_widgets','evc_options'));
   ?>
+  <div id="vk_api_transport"></div>
   <script type="text/javascript">
   /* <![CDATA[ */
   function async_load(u,id) {
@@ -262,7 +259,7 @@ function evc_vk_async_init(){
     <?php  
       do_action('evc_vk_async_init');
     ?>   
-    
+      
   };  
    
   /* ]]> */
@@ -1655,7 +1652,7 @@ function evc_autopost_settings_page_js() {
         type:"POST",
         dataType: 'json',  
         beforeSend: function() {
-          $("#evc_autopost\\[page_url\\]\\[spinner\\]").css({'display': 'inline-block'});
+          $("#evc_autopost\\[page_url\\]\\[spinner\\]").css({'display': 'inline-block', 'visibility' : 'visible'});
         },            
         success: function(data) {
           $("#evc_autopost\\[page_url\\]\\[spinner\\]").hide();
@@ -1889,14 +1886,14 @@ function evc_widget_settings_page() {
 }
 
 function evc_ad () {
-  
+
   $sale = '';
   if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
     echo '
       <div class = "evc-boxx">
         <p>-30%: <a href = "http://ukraya.ru/723/new-year">Новогодние скидки</a> на все плагины!</p>
-      </div>'; 
-    $sale = '-30% С Новым Годом!<br/>';     
+      </div>';
+    $sale = '-30% С Новым Годом!<br/>';
   }
 
   echo '
@@ -1906,37 +1903,18 @@ function evc_ad () {
     </div>';
     
   echo '
-    <h3>'.$sale.'EVC PRO: автопубликация по графику и в прайм-тайм!</h3>
-    <p>С плагином <a href = "http://ukraya.ru/421/evc-pro" target = "_blank">EVC PRO</a> вы сможете публиковать ВКонтакте старые и текущие записи в <em>прайм-тайм</em> вашей группы ВК (когда большинство ваших подписчиков находятся онлайн). Это даст еще больше лайков, репостов, комментариев к материалам и подписчиков. Полностью автоматизировано.</p>
-    <p>'.get_submit_button('Узнать больше', 'primary', 'get_evc_pro', false).'</p>  
-    ';    
-  
-  echo '
-    <h3>'.$sale.'<i>*Теперь с песнями!*</i> Сайт из группы ВКонтакте в один клик! Сам наполняется и обновляется!</h3>
-    <p>Плагин <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">VK-WP Bridge</a> позволяет создать полноценный сайт или раздел на уже действующем сайте, полностью (посты, фото, видео, <b>аудио</b>, комментарии, лайки и т.п.) синхронизированный с группами ВКонтакте и автообновляемый по графику.</p>
-    <p><i>Хватит загружать музыку на ВКонтакте!<br/>Пусть <a href = "http://ukraya.ru/162/vk-wp-bridge" target = "_blank">ВКонтакте споет для вас</a>!</i></p>
-    <p>'.get_submit_button('Узнать больше', 'primary', 'get_vk_wp_bridge', false).'</p>  
+    <h3>'.$sale.'Шок! Сенсация! Смотреть всем!</h3>
+    <p>Плагин <a href = "http://ukraya.ru/evc-pro" target = "_blank">EVC PRO</a> <em>импортирует</em>
+     комментарии из группы ВКонтакте на сайт. Опубликует записи <em>в
+    прайм-тайм</em> именно вашей группы. Наполнит группу всеми постами с вашего сайта. Сделает магические хэштеги... и кое  что еще.</p>
+    <p><a class="button button-primary" href="http://ukraya.ru/evc-pro" target ="_blank">Узнать подробнее</a></p>
     ';
 
   echo '
-    <h3>Коллаж из фото как ВКонтакте! Просто. Бесплатно</h3>
+    <h3>Коллаж из фото как ВКонтакте!</h3>
     <p>Плагин <a href = "http://ukraya.ru/collage-gallery" target = "_blank">Collage Gallery</a> автоматически создаст адаптивную галерею в форме коллажа (как ВКонтакте) из фото прикрепленных к посту.</p>   
     <p><a class="thickbox button button-primary" href="'.site_url('wp-admin/plugin-install.php?tab=plugin-information&plugin=collage-gallery&TB_iframe=true&width=772&height=507').'">Установить бесплатно</a></p>       
-    ';      
-    
-  echo '
-    <h3>Онлайн кинотеатр из видеоальбомов ВКонтакте! Просто. Бесплатно</h3>
-    <p>Плагин <a href = "http://ukraya.ru/314/vk-wp-video" target = "_blank">VKontakte Online Cinema</a> позволяет выгрузить все видеозаписи с описаниями из группы или со стены ВКонтакте, задать автора и рубрику.</p>
-    <p>Каждое видео становится отдельным постом WordPress, адаптивный (responsive) плеер ВКонтакте встраивается автоматически.</p>
-    <p>'.get_submit_button('Установить бесплатно', 'primary', 'get_vk_wp_video', false).'</p>       
-    ';    
-
-  if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
-    echo '
-      <div class = "evc-boxx">
-        <p>-30%: <a href = "http://ukraya.ru/723/new-year">Новогодние скидки</a> на все плагины!</p>
-      </div>';     
-  }
+    ';
        
 }
 
@@ -1973,7 +1951,7 @@ function evc_ad_js () {
     $(document).on( 'click', '#get_evc_pro, .get-evc-pro', function (e) {    
       e.preventDefault();
       window.open(
-        'http://ukraya.ru/421/evc-pro',
+        'http://ukraya.ru/evc-pro',
         '_blank'
       );
     });   

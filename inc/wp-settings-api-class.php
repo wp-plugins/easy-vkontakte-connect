@@ -668,7 +668,7 @@ class WP_Settings_API_Class {
                 else {
                     $('.nav-tab-wrapper a:first').addClass('nav-tab-active');
                 }
-                $('.nav-tab-wrapper a').click(function(evt) {
+                $('.nav-tab-wrapper a').click(function(evt) { 
                     $('.nav-tab-wrapper a').removeClass('nav-tab-active');
                     $(this).addClass('nav-tab-active').blur();
                     var clicked_group = $(this).attr('href');
@@ -678,6 +678,7 @@ class WP_Settings_API_Class {
                     $('.group').hide();
                     $(clicked_group).fadeIn();
                     evt.preventDefault();
+                    
                 });
             });
         </script>

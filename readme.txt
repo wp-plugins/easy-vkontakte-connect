@@ -1,9 +1,9 @@
 === Easy VKontakte Connect ===
 Contributors: alekseysolo
 Tags: vkontakte, vk, autopublish, post, social, share, wall, analytics, comments, polls, surveys
-Requires at least: 3.2
+Requires at least: 3.5
 Tested up to: 4.2
-Stable tag: 1.8.3
+Stable tag: 1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,12 +13,12 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Весь API ВКонтакте. 
 
-* Автопубликация записей с фото на стену группы ВКонтакте. *!!!** Поддерживаются post_type. 
+* **!!!** Автопубликация записей с фото на стену группы ВКонтакте. *!!!** Поддерживаются post_type.
 * **!!!** Кнопки Поделиться: 7 социальных сетей, интерактивный настройщик, 4 темы и множество вариантов отображения. Сети: ВКонтакте, Одноклассники, Мой Мир, Facebook, Google+, Twitter, Pinterest.
-* **!!!** Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
+* Социальный замок: чтобы увидеть закрытое содержимое на сайте, нужно подписаться на группу ВКонтакте.
 * Авторизация через ВКонтакте.
 * Опросы ВКонтакте: создать, добавить на сайт, поделиться.
-* Виджет комментариев ВКонтакте; **!!!** респонсивный.
+* Виджет комментариев ВКонтакте; респонсивный. **!!!** Оповещение на почту о комментариях из виджета.
 * Индексация & импорт комментариев, оставленных через виджет комментариев ВКонтакте.
 * Виджет сообществ ВКонтакте.
 * Невероятная четверка сайдбаров: всплывающий, выезжающий, до и после контента.
@@ -58,6 +58,13 @@ Requires WordPress 3.2 and PHP 5.
 7. VKontakte Wall Analytics page.
 
 == Changelog ==
+
+= 1.9 / 2015-07-24 =
+* Added VK Comments Browser Widget in admin side.
+* Fixed post author and moderator notification about new comments added via VK Comments Widget.
+* Added comments compability with another plugin. / 2015-04-08
+* Added capability disable / enable share buttons on page types. / 2015-04-08
+* Fixed post_ID for comments in some themes. / 2015-03-27
 
 = 1.8.3.1 / 2015-03-26 =
 * Added superglobal options for buttons inserting.

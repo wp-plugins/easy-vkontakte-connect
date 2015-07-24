@@ -567,7 +567,7 @@ function evc_poll_vk_polls_get_by_id($params = array()) {
 add_action('evc_vk_async_init', 'evc_poll_vk_async_init');
 function evc_poll_vk_async_init() {
   ?>
-  console.log(VKWidgetsPolls);
+  //console.log(VKWidgetsPolls);
   // Polls
     if (typeof VKWidgetsPolls !== 'undefined' ) {
       //console.log(VKWidgetsPolls);
@@ -1096,7 +1096,19 @@ function evc_register_pointer( $p ) {
       ),
       'position' => array( 'edge' => 'left', 'align' => 'right' )
     )
-  );  
+  );
+
+  $p['evc_widget_comments_notify'] = array(
+      'target' => '#toplevel_page_evc',
+      'options' => array(
+          'content' => sprintf( '<h3> %s </h3> <p> %s </p>',
+              __( 'Комментарии не пропадают!' ,'evc'),
+              __( 'Оповещения о комментариях, оставленных через виджет комментариев ВК, теперь приходят на почту.
+        <br/>А на вкладке "<a href = "'.admin_url('admin.php?page=evc-comments#evc_comments_mod').'">Обзор комментариев</a>" отображаются все комментарии из виджета.','evc')
+          ),
+          'position' => array( 'edge' => 'left', 'align' => 'right' )
+      )
+  );
 
   if (current_time('timestamp', 1) < strtotime( '2015-01-03 23:59:59' ) ) {
     $p['evc_new_year'] = array(

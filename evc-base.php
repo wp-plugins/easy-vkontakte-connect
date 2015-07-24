@@ -118,7 +118,7 @@ function evc_wall_post_check_box() {
     $options['wall_post_flag'] = false;  
 ?>
 <div class="misc-pub-section">
-<p><input type="checkbox" <?php checked($options['wall_post_flag'],true); ?> name="evc_wall_post" /> Опубликовать на стене ВКонтакте (EVC)</p>
+<p><input type="checkbox" <?php checked($options['wall_post_flag'],true); ?> name="evc_wall_post" /> Опубликовать на стене ВКонтакте / <small>EVC</small></p>
 
 <?php
   if (isset($captcha) && !empty($captcha)) {
@@ -129,6 +129,8 @@ function evc_wall_post_check_box() {
 <br/>Введите текст с картинки, чтобы опубликовать запись ВКонтакте.</p>
 <?php 
   }
+  
+  do_action('evc_wall_post_check_box', $post);
 ?>
 </div>
 <?php
@@ -140,8 +142,9 @@ function evc_publish_auto_check($new, $old, $post) {
   $options = get_option('evc_autopost'); 
 
   $filter = apply_filters('evc_autopost_filter', true, $new, $old, $post, $_POST);
+  $force = apply_filters('evc_autopost_filter_force', false, $new, $old, $post, $_POST);
   
-  if (($new == 'publish' && $old != 'publish' && $options['autopublish'] && ( isset($options['post_types']) && !empty($options['post_types']) && in_array($post->post_type, array_keys($options['post_types']) ) ) && $filter ) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish')) {  
+  if (($new == 'publish' && $old != 'publish' && $options['autopublish'] && ( isset($options['post_types']) && !empty($options['post_types']) && in_array($post->post_type, array_keys($options['post_types']) ) ) && $filter ) || (isset($_POST['evc_wall_post']) && $_POST['evc_wall_post'] && $new == 'publish') || $force ) {  
     
     if (!isset($options['exclude_cats']) || empty($options['exclude_cats']) || !in_category($options['exclude_cats'], $post))
       evc_wall_post($post->ID, $post);

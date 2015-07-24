@@ -134,9 +134,11 @@ function evc_add_user ($data) {
   //evc_add_log('Add User '.$user_id . ' ' . print_r($udata,1));  
   // Save attachment
   $vk_user_photos = array(
-    'photo_medium' => $data['photo_100'],
-    'photo_big' => $data['photo_max_orig'],
+    'photo_medium' => $data['photo_100']
   );
+  if (isset($data['photo_max_orig']))
+    $vk_user_photos['photo_big'] = $data['photo_max_orig'];
+
   foreach($vk_user_photos as $key => $value) {
     add_user_meta($user_id, 'vk_img', array(
       'img' => $value,
@@ -165,7 +167,10 @@ add_filter ('get_avatar', 'evc_get_user_photo', 10, 5);
 function evc_get_user_photo($avatar, $id_or_email, $size, $default, $alt) {
   //if (is_admin() && $_POST['action'] != 'evc_theme_get_post')
   //  return $avatar;
-    
+    global $pagenow;
+	if ($pagenow == 'options-discussion.php')
+        return $avatar;
+
   if(is_numeric($id_or_email))
     $user_id = $id_or_email;
   elseif(is_object($id_or_email)) {    
@@ -612,7 +617,8 @@ function evc_vkapi ($params) {
     evc_add_log($params['method_str'] .': RESPONSE ERROR. ' . $data['response']['code'] . ' '. $data['response']['message']);
     return false;
   }
-  
+
+  $data['body'] = evc_pro_remove_emoji($data['body']);
   $resp = json_decode($data['body'],true);
 
   if (isset($resp['error'])) {   
@@ -751,4 +757,29 @@ function evc_get_vk_id ($url) {
   }
   
   return $id;
+}
+
+// https://drupal.org/node/2043439
+function evc_pro_remove_emoji( $text ) {
+	$clean_text = "";
+
+	// Match Emoticons
+	$regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+	$clean_text     = preg_replace( $regexEmoticons, '', $text );
+
+	// Match Miscellaneous Symbols and Pictographs
+	$regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+	$clean_text   = preg_replace( $regexSymbols, '', $clean_text );
+
+	// Match Transport And Map Symbols
+	$regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+	$clean_text     = preg_replace( $regexTransport, '', $clean_text );
+
+	// Match flags (iOS)
+	$regexTransport = '/[\x{1F1E0}-\x{1F1FF}]/u';
+	$clean_text     = preg_replace( $regexTransport, '', $clean_text );
+
+	$clean_text = preg_replace( '/([0-9|#][\x{20E3}])|[\x{00ae}][\x{FE00}-\x{FEFF}]?|[\x{00a9}][\x{FE00}-\x{FEFF}]?|[\x{203C}][\x{FE00}-\x{FEFF}]?|[\x{2047}][\x{FE00}-\x{FEFF}]?|[\x{2048}][\x{FE00}-\x{FEFF}]?|[\x{2049}][\x{FE00}-\x{FEFF}]?|[\x{3030}][\x{FE00}-\x{FEFF}]?|[\x{303D}][\x{FE00}-\x{FEFF}]?|[\x{2139}][\x{FE00}-\x{FEFF}]?|[\x{2122}][\x{FE00}-\x{FEFF}]?|[\x{3297}][\x{FE00}-\x{FEFF}]?|[\x{3299}][\x{FE00}-\x{FEFF}]?|[\x{2190}-\x{21FF}][\x{FE00}-\x{FEFF}]?|[\x{2300}-\x{23FF}][\x{FE00}-\x{FEFF}]?|[\x{2460}-\x{24FF}][\x{FE00}-\x{FEFF}]?|[\x{25A0}-\x{25FF}][\x{FE00}-\x{FEFF}]?|[\x{2600}-\x{27BF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u', '', $clean_text );
+
+	return $clean_text;
 }

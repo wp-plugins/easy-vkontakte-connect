@@ -14,14 +14,14 @@ function evc_comments_footer_scripts(){
   /* <![CDATA[ */
 	jQuery(document).ready(function($) {
     
-    if ( typeof VKWidgetsComments !== 'undefined' && VKWidgetsComments.length ) {
-		  if ($('#vk-widget-<?php echo $post->ID; ?>').length) {
+    if ( typeof VKWidgetsComments !== 'undefined' && VKWidgetsComments.length && evc_post_id ) {
+		  if ($('#vk-widget-' + evc_post_id).length) {
         <?php 
         if ($options['comment_widget_layout'] == 'instead' && isset($options['comment_widget_respond']) && !empty($options['comment_widget_respond'])) { 
         ?>
         if ( $('<?php echo $options['comment_widget_respond'];?>').length ) {          
           $('<?php echo $options['comment_widget_respond'];?> form').hide();
-		      $('<?php echo $options['comment_widget_respond'];?>').append($('#vk-widget-<?php echo $post->ID; ?>' ));
+		      $('<?php echo $options['comment_widget_respond'];?>').append($('#vk-widget-' + evc_post_id ));
         }
         <?php 
         }
@@ -29,12 +29,12 @@ function evc_comments_footer_scripts(){
           if ($options['comment_widget_layout'] == 'before') {
             
           ?>
-            $('<?php echo $options['comment_widget_comments'];?>').prepend($('#vk-widget-<?php echo $post->ID; ?>' ));          
+            $('<?php echo $options['comment_widget_comments'];?>').prepend($('#vk-widget-' + evc_post_id ));          
           <?php            
           }
           if ($options['comment_widget_layout'] == 'after') {
           ?>
-            $('<?php echo $options['comment_widget_comments'];?>').append($('#vk-widget-<?php echo $post->ID; ?>' ));                    
+            $('<?php echo $options['comment_widget_comments'];?>').append($('#vk-widget-' + evc_post_id ));                    
           <?php  
           }
         }
@@ -139,6 +139,9 @@ function evc_vk_widget_comments ($element_id = null, $args = array(), $page_id =
 	$o['norealtime'] = $options['comment_widget_norealtime'];
 	$o['autoPublish'] = $options['comment_widget_autopublish'];
   
+  if( isset($options['comment_widget_compability']['vkontakte_api']) && !empty($options['comment_widget_compability']['vkontakte_api']) )
+    $o['pageUrl'] = get_permalink();  
+  
   $o = wp_parse_args($args, $o);
 	$o = evc_vk_widget_data_encode($o);
 	
@@ -150,7 +153,7 @@ function evc_vk_widget_comments ($element_id = null, $args = array(), $page_id =
   
   if (isset($page_id))
     $out .= ',page_id: '.$page_id;
-  elseif (isset($options['comment_widget_page_id']) && $options['comment_widget_page_id'])
+  elseif ( (isset($options['comment_widget_page_id']) && $options['comment_widget_page_id']) || (isset($options['comment_widget_compability']['vkontakte_api']) && !empty($options['comment_widget_compability']['vkontakte_api'])) )
     $out .= ',page_id: '.$post->ID;
   
   $out .= '
@@ -224,7 +227,26 @@ function evc_comments_admin_init() {
 <p>'.get_submit_button('Установить сейчас', 'primary', 'get_vk_seo_comments2', false).'</p>', 'evc' ),         
         )
       )
-    )     
+    ),
+    'evc_comments_mod' => array(
+      'id' => 'evc_comments_mod',
+      'name' => 'evc_comments_mod',
+      'title' => __( 'Обзор комментариев', 'evc' ),
+      'desc' => __( '', 'evc' ),
+      'submit_button' => false,
+      'sections' => array(       
+        'evc_comments_mod_section' => array(
+          'id' => 'evc_comments_mod_section',
+          'name' => 'evc_comments_mod_section',
+          'title' => __( 'Обзор комментариев из Виджета комментариев ВК', 'evc' ),
+          'desc' => '<p>Здесь отображены все комментарии, оставленные на сайте через Виджет комментариев ВКонтакте.</p>
+          <div id = "vk-comments" class = "vk-widget-comments-browse"></div>
+          <script type="text/javascript">  
+            VK.Widgets.CommentsBrowse("vk-comments", {width: 600, height: 1000, limit: 10, mini: 1});
+          </script>',           
+        )
+      )
+    )         
   );  
   $tabs = apply_filters('evc_comments_admin_tabs', $tabs);
   
@@ -376,7 +398,15 @@ function evc_comments_admin_init() {
         'desc' => __( 'CSS контейнер для блока комментариев.', 'evc' ),
         'type' => 'text',
         'default' => '#comments'
-      ),                                      				                
+      ),
+      array(
+        'name' => 'comment_widget_compability',
+        'desc' => __( 'Поставьте галочку, чтобы отобразить в виджете комментарии, оставленные через другой плагин.', 'evc' ),
+        'type' => 'multicheck',
+        'options' => array(
+          'vkontakte_api' => 'Миграция с Vkontakte API',
+        )
+      ),                                        				                
     )    
   );
   $fields = apply_filters('evc_comments_admin_fields', $fields);
@@ -395,10 +425,38 @@ function evc_comments_admin_menu() {
   global $evc_comments_page; 
    
   $evc_comments_page = add_submenu_page( 'evc', 'Виджет комментариев ВКонтакте', 'Комментарии', 'activate_plugins', 'evc-comments', 'evc_comments_page' );
-
+  add_action( 'admin_footer-'. $evc_comments_page, 'evc_comments_settings_page_js' );
 }
 add_action( 'admin_menu', 'evc_comments_admin_menu', 25 );
 
+function evc_comments_settings_page_js() {
+?>
+<script type="text/javascript" >
+  jQuery(document).ready(function($) {
+
+    
+    if ($('.vk-widget-comments-browse').length) {
+      
+      responsiveVkWidgetBrowse();
+      $(window).on('resize', function() {
+        responsiveVkWidgetBrowse();
+      });
+    }
+    
+    function responsiveVkWidgetBrowse () {
+      var vkParentWidth = parseInt( $('.vk-widget-comments-browse').parent().width() );
+      
+      $('.vk-widget-comments-browse, .vk-widget-comments-browse iframe').css({
+        width: vkParentWidth
+      });
+      $('.vk-widget-comments-browse, .vk-widget-comments-browse iframe').attr('width', vkParentWidth);
+    }
+         
+  
+  }); // jQuery End
+</script>
+<?php    
+}
 
 add_action('evc_vk_async_init', 'evc_comments_vk_async_init');
 function evc_comments_vk_async_init() {
@@ -483,25 +541,44 @@ function evc_meta_box_callback( $post ) {
 
 add_action('evc_meta_box_action', 'evc_meta_box_comments_widget');
 function evc_meta_box_comments_widget($custom) {
-  
-  $options = evc_get_all_options(array(
-    'evc_comments'
-  )); 
-  
-  if (isset($custom['comment_widget_insert']))
+  global $post;
+	$is_pro = evc_is_pro();
+
+  $options = evc_get_all_options( array(
+      'evc_comments'
+  ) );
+
+  if ( isset( $custom['comment_widget_insert'] ) ) {
     $evc_comments = $custom['comment_widget_insert'][0];
-  else
+  } else {
     $evc_comments = $options['comment_widget_insert'];
-      
+  }
+
   echo '<p>';
-  echo '<b>Виджет комментариев ВКонтакте</b>';  
-  echo '<br/><input type="radio" value="auto" id="evc-comments-auto" name="comment_widget_insert"'. checked( $evc_comments, 'auto', false ) .' >
+  echo '<b>Виджет комментариев ВКонтакте</b>';
+  echo '<br/><input type="radio" value="auto" id="evc-comments-auto" name="comment_widget_insert"' . checked( $evc_comments, 'auto', false ) . ' >
   <label class="selectit" for="evc-comments-auto">Включить</label>';
-  
-  echo '<br/><input type="radio" value="manual" id="evc-comments-manual" name="comment_widget_insert"'. checked( $evc_comments, 'manual', false ) .' >
-  <label class="selectit" for="evc-comments-manual">Отключить</label>';  
-  echo '<br/>Вы можете включить или отключить виджет комментариев ВКонтакте для данной страницы.';  
-  echo '</p>';  
+
+  echo '<br/><input type="radio" value="manual" id="evc-comments-manual" name="comment_widget_insert"' . checked( $evc_comments, 'manual', false ) . ' >
+  <label class="selectit" for="evc-comments-manual">Отключить</label>';
+  echo '<br/>Вы можете включить или отключить виджет комментариев ВКонтакте для данной страницы.';
+  echo '</p>';
+
+  if ( isset( $custom['vk_item_id'][0] ) ) {
+
+    echo '<p>';
+    echo '<b>Обновить комментарии из группы</b>';
+    if ( ! $is_pro ) {
+      echo '<br/><small>Доступно в <a href = "javascript:void(0);" class = "get-evc-pro">PRO версии</a>.</small>';
+    }
+    echo '<br/>Нажмите кнопку, чтобы немедленно обновить комментарии, оставленные к данной записи в группе ВКонтакте.';
+    echo '<br><a class="button '.(!$is_pro ? 'disabled' : '').'" id ="evc_pro_refresh_vk_comments" data-post-id = ' . $post->ID . '>Обновить</a><span
+id="evc_pro_refresh_vk_comments_spinner"
+style="display:none; float:none !important; margin: 0 5px !important;" class="spinner"></span>';
+    echo '</p>';
+  }
+
+
 }
 
 function evc_save_meta_box_data( $post_id ) {
